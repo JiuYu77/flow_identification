@@ -70,6 +70,8 @@ pip install -r requirements.txt
       └── 6
 ```
 # bash脚本
+
+具体使用方法：查看帮助信息。
 ```shell
 bash cmd.sh help
 ```
