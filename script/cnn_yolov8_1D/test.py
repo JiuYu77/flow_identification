@@ -70,8 +70,6 @@ def test(dataset,
          netPath
          ):
     assert shuffleFlag == 1 or shuffleFlag == 0, f'shuffle_flag ValueError, except 0 or 1, but got {shuffleFlag}'
-    testTimer = tu.Timer()
-    testTimer.start()
     shuffle = shuffleFlag == 1 or not shuffleFlag == 0
     device = tu.get_device()
 
@@ -140,6 +138,8 @@ def test(dataset,
     print(f"|{colorstr('yellow', ' Start testing:')}")
     print(f"|{colorstr('green', ' testing device:')} {device}")
     print("-----------------------------------------")
+    testTimer = tu.Timer()
+    testTimer.start()
 
     print_color(["bright_green", "preparing data..."])
     for i, (X,y) in enumerate(testIter):
