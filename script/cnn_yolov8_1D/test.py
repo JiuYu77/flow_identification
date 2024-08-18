@@ -139,6 +139,7 @@ def test(dataset,
     print(f"|{colorstr('green', ' testing device:')} {device}")
     print("-----------------------------------------")
     testTimer = tu.Timer()
+    print(f"{colorstr('blue', 'timer start...')}")
     testTimer.start()
 
     print_color(["bright_green", "preparing data..."])
@@ -158,6 +159,7 @@ def test(dataset,
             sampleNum[1][trueLabel] += 1
 
     testTimer.stop()
+    print(f"\n{colorstr('blue', 'timer stop...')}")
     tSec = testTimer.sum()  # 秒数
 
     totalCorrect = int(totalCorrect)
