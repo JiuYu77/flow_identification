@@ -69,3 +69,7 @@ pip install -r requirements.txt
       ├── 5
       └── 6
 ```
+# bash脚本
+```shell
+bash cmd.sh help
+```
