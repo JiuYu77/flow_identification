@@ -157,11 +157,12 @@ def test(dataset,
             confusionMatrix.add(trueLabel, preLabel)
             sampleNum[1][trueLabel] += 1
 
+    testTimer.stop()
+    tSec = testTimer.sum()  # 秒数
+
     totalCorrect = int(totalCorrect)
     acc = round(totalCorrect / totalNum, 8)
 
-    testTimer.stop()
-    tSec = testTimer.sum()  # 秒数
     timeConsuming = tm.sec_to_HMS(tSec)
     task_info["test_time_consuming"] = timeConsuming
     speed = int(totalNum / tSec)
