@@ -12,6 +12,17 @@ add(){
     git add .
     git commit -m "$msg"
 }
+# 执行git add commit操作
+add_push(){
+    msg=$1
+    if [[ $msg == '' ]];then
+        msg="modify"
+    fi
+    echo $msg
+    git add .
+    git commit -m "$msg"
+    git push
+}
 # 执行git init操作
 init(){
     git init

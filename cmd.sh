@@ -15,6 +15,7 @@ help(){
     echo -e \
         "  Usage:\n"\
         "\tbash cmd.sh add [message]                执行: git add and commit\n"\
+        "\tbash cmd.sh push, add_push [message]     执行: git add, commit and push\n"\
         "\tbash cmd.sh init                         执行: git init and first commit\n"\
         "\tbash cmd.sh user [username] [email]      执行: git config user\n"\
         "\tbash cmd.sh conf_list                    执行: git config --list\n"\
@@ -23,6 +24,8 @@ help(){
 
 if [[ $arg == 'add' ]];then
     add "$arg2"
+elif [[ $arg == 'push' || $arg == 'add_push' ]];then
+    add_push "$arg2"
 elif [[ $arg == 'init' ]];then
     init
 elif [[ $arg == 'user' ]];then
