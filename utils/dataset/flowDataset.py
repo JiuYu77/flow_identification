@@ -50,7 +50,7 @@ class FlowDataset:
                 while True:
                     end = ptr + sampleLength
                     if num < sampleLength:
-                        print(f"\033[31m The number of file data points less than sampleLength\033[0m {filePath} {num}")
+                        print(f"\033[31m The number of file data points less than sampleLength\033[0m {filePath}  {num}")
                         sample = lines[:]
                         while len(sample) < sampleLength:
                             sample.append(0)  # 以0填充缺少的数据点
