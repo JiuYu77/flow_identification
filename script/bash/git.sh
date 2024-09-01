@@ -4,6 +4,17 @@
 
 # 执行git add commit操作
 add(){
+    filename=$1
+    msg=$2
+    if [[ $msg == '' ]];then
+        msg="modify"
+    fi
+    echo $msg
+    git add $filename
+    git commit -m "$msg"
+}
+# 执行git add . commit操作
+add_all(){
     msg=$1
     if [[ $msg == '' ]];then
         msg="modify"
