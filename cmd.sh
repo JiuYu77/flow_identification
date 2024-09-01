@@ -16,7 +16,7 @@ help(){
         "  Usage:\n"\
         "\tbash cmd.sh add file [message]           执行: git add one file and commit\n"\
         "\tbash cmd.sh all [message]                执行: git add . and commit\n"\
-        "\tbash cmd.sh push, add_push [message]     执行: git add, commit and push\n"\
+        "\tbash cmd.sh push, add_push [message]     执行: git add ., commit and push\n"\
         "\tbash cmd.sh init                         执行: git init and first commit\n"\
         "\tbash cmd.sh user [username] [email]      执行: git config user\n"\
         "\tbash cmd.sh conf_list                    执行: git config --list\n"\
