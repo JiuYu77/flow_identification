@@ -195,26 +195,48 @@ class Yolo(nn.Sequential):
         for m in self.modules():
             if isinstance(m, C2f1d):
                 m.forward = m.forward_split
-
-
-class Yolov8_1D(Yolo):
-
-    def __init__(self, path=MODEL_YAML_DEFAULT, ch=1, verbose=True, fuse_=False, split_=False, initweightName='xavier', scale:str=None) -> None:
-        super().__init__()
-        yaml_ = self.yaml_model_load(path)
+    
+    def get_model(self, yaml_path, weights, ch, scale, verbose, device):
+        yaml_ = self.yaml_model_load(yaml_path)
         ch = yaml_["ch"] = yaml_.get("ch", ch)  # input channels
         if scale:
             yaml_['scale'] = scale
         self.scale, layers, save = self.parse_model(yaml_, ch, verbose=verbose)
         self.add_layers(layers)
+
+        if weights:  # 在已有权重上继续训练 or 测试 or 分类(推理, 实际使用)
+            assert Path(weights).is_file(), f"{weights} does not exist."
+            self.model = torch.load(weights, map_location=device)
+            self.load_state_dict(self.model)
+
+
+class Yolov8_1D(Yolo):
+
+    def __init__(
+            self,
+            yaml_path=MODEL_YAML_DEFAULT,
+            weights=None,
+            ch=1, verbose=True, fuse_=False, split_=False, scale:str=None,
+            initweightName='xavier',
+            device='cpu'
+    ) -> None:
+        super().__init__()
+
+        self.get_model(yaml_path, weights, ch, scale, verbose, device)
+
         if fuse_:
             # self.fuse(self)
             self.fuse()
         if split_:
             self.split()
         self.apply(InitWeight(initweightName).__call__)
+        self.to(device)  # device: cpu, gpu(cuda)
 
 
-def yolov8_1d(path=MODEL_YAML_DEFAULT, ch=1, verbose=True, fuse_=False, split_=False, initweightName='xavier', scale=None):
-    yolo = Yolov8_1D(path, ch, verbose, fuse_, split_, initweightName, scale=scale)
+def yolov8_1d(
+        path=MODEL_YAML_DEFAULT, weights=None, ch=1, verbose=True, fuse_=False, split_=False, scale=None,
+        initweightName='xavier',
+        device='cpu'
+    ):
+    yolo = Yolov8_1D(path, weights, ch, verbose, fuse_, split_, scale, initweightName, device)
     return yolo

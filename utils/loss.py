@@ -115,3 +115,143 @@ class FocalLoss(nn.Module):
         else:
             loss = batch_loss.sum()
         return loss
+
+class MyLoss(nn.Module):
+
+    def __init__(self, class_num, device):
+        super(MyLoss, self).__init__()
+        self.class_num = class_num
+        self.device = device
+        self.cosine_similarity = nn.CosineSimilarity()  # 余弦相似度
+
+    def forward(self, input, y_hat):
+        # input = input.abs()
+        # y_hat = y_hat.abs()
+        input = input.reshape(input.shape[0], input.shape[2])
+        m, n = input.shape
+        tmp = y_hat
+        while y_hat.shape[1] < n:
+            y_hat = torch.cat((y_hat, tmp), dim=1)
+        if y_hat.shape[1] > n:
+            v = y_hat.shape[1]
+            # 获取所有不等于n的列索引
+            indices = list(range(y_hat.shape[1]))
+            t = v - n
+            columns_to_remove = []
+            for i in range(n, n+t):
+                columns_to_remove.append(i)
+            for col in columns_to_remove:
+                indices.remove(col)
+
+            # 使用index_select删除第n列
+            y_hat = torch.index_select(y_hat, 1, torch.tensor(indices).to(self.device))
+
+        o = input - y_hat
+        o = torch.pow(o, 2)
+        # loss = o.sum(dim=1)/input.shape[0]
+        loss = o.mean()
+        loss = loss.log()  # 默认底数为e
+
+        # cos = self.cosine_similarity(input, y_hat)
+        # loss = cos.mean()
+        return loss
+
+    def forward4(self, input, y_hat):
+        # input = input.abs()
+        # y_hat = y_hat.abs()
+        input = input.reshape(input.shape[0], input.shape[2])
+        m, n = input.shape
+        tmp = y_hat
+        while y_hat.shape[1] < n:
+            y_hat = torch.cat((y_hat, tmp), dim=1)
+        if y_hat.shape[1] > n:
+            v = y_hat.shape[1]
+            # 获取所有不等于n的列索引
+            indices = list(range(y_hat.shape[1]))
+            t = v - n
+            columns_to_remove = []
+            for i in range(n, n+t):
+                columns_to_remove.append(i)
+            for col in columns_to_remove:
+                indices.remove(col)
+
+            # 使用index_select删除第n列
+            y_hat = torch.index_select(y_hat, 1, torch.tensor(indices).to(self.device))
+
+        o = input - y_hat
+        o = torch.pow(o, 2)
+        # loss = o.sum(dim=1)/input.shape[0]
+        loss = o.mean()
+
+        # cos = self.cosine_similarity(input, y_hat)
+        # loss = cos.mean()
+        return loss
+
+    def forward3(self, input, y_hat): # 损失不变化，模型不更新
+        input = input.abs()
+        y_hat = y_hat.abs()
+
+        input = self.split_and_average(input, self.class_num, self.device)
+        y_hat = self.only_max(y_hat)
+
+        cos = self.cosine_similarity(input, y_hat)
+        loss = cos.mean()
+        return loss
+
+    def forward2(self, input, y_hat):  # 测试时将样本识别为某一类 或 某两类
+        input = input.abs()
+        y_hat = y_hat.abs()
+
+        input = self.split_and_average(input, self.class_num, self.device)
+        # y_hat = self.line_max(y_hat)
+        # y_hat = self.zero_max(y_hat)
+
+        cos = self.cosine_similarity(input, y_hat)
+        # loss = cos.sum().abs()
+        loss = cos.mean()
+        return loss
+
+    def line_max(self, y_hat):
+        '''归一化'''
+        max_values, _ = torch.max(y_hat, dim=1, keepdim=True)  # 使用max获取每行的最大值
+        y_hat = y_hat / max_values  # 每行除以其最大值
+        return y_hat
+    
+    def rm_max(self, y_hat):
+        max_index = y_hat.max()
+        return y_hat
+
+    def zero_max(self, y_hat):
+        '''将每行的最大值置0'''
+        max_values, max_indices = torch.max(y_hat, dim=1)  # 使用max获取每行的最大值, 及其索引
+
+        # 将最大值的位置清零
+        zero_matrix = torch.zeros_like(y_hat)
+        zero_matrix.scatter_(1, max_indices.unsqueeze(1), 1)
+        y_hat = y_hat * (1 - zero_matrix)
+        return y_hat
+
+    def only_max(self, y_hat):
+        max_values, _ = torch.max(y_hat, dim=1, keepdim=True)  # 使用max获取每行的最大值
+        y_hat = max_values
+        return y_hat
+
+    def split_and_average(self, matrix, n, device):
+        '''
+        将矩阵的每一行分成 n 份，计算得到 n 个平均值; 一行 n 个平均值构成新矩阵
+        '''
+        rows, _, cols = matrix.shape  # 获取矩阵的行数和列数
+        part_size = cols // n  # 计算每部分的大小
+        result = torch.zeros(rows, n).to(device)   # 初始化一个空的结果矩阵
+
+        # 遍历每一行
+        for i in range(rows):
+            m = matrix[i].reshape(-1)
+            parts = torch.split(m, part_size)  # 分割当前行
+
+            # 计算每个部分的平均值并存储到结果矩阵中
+            for j in range(n):
+                result[i, j] = torch.mean(parts[j])
+
+        return result
+

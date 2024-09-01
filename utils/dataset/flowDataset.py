@@ -9,7 +9,7 @@ import utils.transform.transform as tf
 
 class FlowDataset:
 # class FlowDataset(Dataset):
-    def __init__(self, datasetPath, sampleLength:int, step:int, transformName) -> None:
+    def __init__(self, datasetPath, sampleLength:int, step:int, transformName, cls=None) -> None:
         # super().__init__()
         self.datasetPath = datasetPath
         self.sampleLength = sampleLength
@@ -19,9 +19,13 @@ class FlowDataset:
         self.allSample = []
         self.transform = tf.get_transform(transformName)
         self.totalSampleNum = 0
-        self._load_data()
+        if cls is None:
+            self._load_data()
+        else:
+            self._load_data_oneClass(cls)
 
     def _load_data(self):
+        '''加载数据集'''
         datasetPath = self.datasetPath
         sampleLength = self.sampleLength
         step = self.step
@@ -70,6 +74,56 @@ class FlowDataset:
         print(f"{'':11}data_points_num: {dataPointsNum}")
         print(f"{'':11}sample_num: {self.totalSampleNum}")
 
+    def _load_data_oneClass(self, cls):
+        '''
+        加载数据集的某一类
+        Args:
+          cls 既是文件夹名字，也是类别
+        '''
+        datasetPath = self.datasetPath
+        sampleLength = self.sampleLength
+        step = self.step
+        count = 0  # 加载了几个文件
+        total = 0  # 文件总数
+        dataPointsNum = 0  # 数据点总数
+        dir = os.path.basename(datasetPath)
+        label = int(cls)
+        clsPath = os.path.join(datasetPath, cls)
+        for file in os.listdir(clsPath):
+            total += 1
+
+        for file in os.listdir(clsPath):
+            count += 1
+            print(f"\r{'':4}\033[32m{dir:7}\033[0mprogress: {count}/{total}", end='\r')
+            filePath = os.path.join(clsPath, file)
+            with open(filePath, 'r') as f:
+                lines = f.readlines()
+            ptr = 0
+            num = len(lines)
+            dataPointsNum += num
+            while True:
+                end = ptr + sampleLength
+                if num < sampleLength:
+                    print(f"\033[31m The number of file data points less than sampleLength\033[0m {filePath}  {num}")
+                    sample = lines[:]
+                    while len(sample) < sampleLength:
+                        sample.append(0)  # 以 0 填充缺少的数据点
+                    self.allSample.append((sample, label))
+                    break
+                if end > num:
+                    sample = lines[num-sampleLength:num]
+                    self.allSample.append((sample, label))
+                    # self.allSample.append({"sample":sample, "label":label})
+                    break
+                sample = lines[ptr:end]  # sample列表，存储一个样本，数据点的类型是str
+                self.allSample.append((sample, label))  # [(sample, label), (sample, label), ...]; sample: [][0], label: [][1]
+                # self.allSample.append({"sample":sample, "label":label})
+                ptr += step
+        print()
+        self.totalSampleNum = len(self.allSample)
+        print(f"{'':11}data_points_num: {dataPointsNum}")
+        print(f"{'':11}sample_num: {self.totalSampleNum}")
+
     def __len__(self):
         """返回样本总数"""
         return self.totalSampleNum
@@ -88,8 +142,8 @@ class FlowDataset:
         label = self.allSample[index][1]
         return sample, label
 
-def data_loader(Dataset, datasetPath, sampleLength:int, step:int, transform, batchSize:int, shuffle=True, numWorkers=0):
-    dataset = Dataset(datasetPath, sampleLength, step, transform)
+def data_loader(Dataset, datasetPath, sampleLength:int, step:int, transform, batchSize:int, shuffle=True, numWorkers=0, cls=None):
+    dataset = Dataset(datasetPath, sampleLength, step, transform, cls)
     dataloader = DataLoader(dataset, batch_size=batchSize, shuffle=shuffle, num_workers=numWorkers)
     return dataloader
 
