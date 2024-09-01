@@ -33,8 +33,25 @@ MODEL_YAML_S = 'yolov8_1Ds-cls.yaml'
 
 
 class Yolo(nn.Sequential):
-    def __init__(self):
+    def __init__(
+            self,
+            yaml_path=MODEL_YAML_DEFAULT,
+            weights=None,
+            ch=1, verbose=True, fuse_=False, split_=False, scale:str=None,
+            initweightName='xavier',
+            device='cpu'
+    ):
         super().__init__()
+        self.get_model(yaml_path, weights, ch, scale, verbose, device)
+
+        if fuse_:
+            # self.fuse(self)
+            self.fuse()
+        if split_:
+            self.split()
+        if weights is None:
+            self.apply(InitWeight(initweightName).__call__)
+        self.to(device)  # device: cpu, gpu(cuda)
 
     @staticmethod
     def make_divisible(x, divisor):
@@ -208,10 +225,19 @@ class Yolo(nn.Sequential):
             assert Path(weights).is_file(), f"{weights} does not exist."
             self.model = torch.load(weights, map_location=device)
             self.load_state_dict(self.model)
+    
+    def save(self, f):
+        '''
+        保存权重 params.pt
+        f 保存路径, 如: ~/best_params.pt
+        '''
+        state_dict = self.state_dict()
+        torch.save(state_dict, f)
 
 
-class Yolov8_1D(Yolo):
-
+# class Yolov1d(Yolo):
+# class Yolov81d(nn.Module):
+class Yolo1d:
     def __init__(
             self,
             yaml_path=MODEL_YAML_DEFAULT,
@@ -220,17 +246,45 @@ class Yolov8_1D(Yolo):
             initweightName='xavier',
             device='cpu'
     ) -> None:
-        super().__init__()
+        # super().__init__(yaml_path,  weights, ch, verbose, fuse_, split_, scale, initweightName, device)
+        
+        # super().__init__()
+        self.model = Yolo(yaml_path,  weights, ch, verbose, fuse_, split_, scale, initweightName, device)
+        self.scale = self.model.scale
 
-        self.get_model(yaml_path, weights, ch, scale, verbose, device)
+    def __call__(self, X, *args, **kwargs):
+        return self.model(X)
 
-        if fuse_:
-            # self.fuse(self)
-            self.fuse()
-        if split_:
-            self.split()
-        self.apply(InitWeight(initweightName).__call__)
-        self.to(device)  # device: cpu, gpu(cuda)
+    def eval(self):
+        self.model.eval()
+
+    def parameters(self):
+        return self.model.parameters()
+    
+    def modules(self):
+        return self.model.modules()
+    
+    def train(self):
+        self.model.train()
+    
+    def state_dict(self):
+        return self.model.state_dict()
+    
+    def save(self, f):
+        return self.model.save(f)
+
+
+class Yolov8_1D(Yolo1d):
+    def __init__(
+            self,
+            yaml_path=MODEL_YAML_DEFAULT,
+            weights=None,
+            ch=1, verbose=True, fuse_=False, split_=False, scale:str=None,
+            initweightName='xavier',
+            device='cpu'
+    ) -> None:
+        # super().__init__()
+        super().__init__(yaml_path,  weights, ch, verbose, fuse_, split_, scale, initweightName, device)
 
 
 def yolov8_1d(
