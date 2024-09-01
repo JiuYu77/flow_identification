@@ -25,7 +25,7 @@ add_all(){
 }
 # 执行git add commit操作
 add_push(){
-    add
+    add_all
     git push
 }
 # 执行git init操作
