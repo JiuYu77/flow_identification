@@ -14,7 +14,8 @@ help(){
     fi
     echo -e \
         "  Usage:\n"\
-        "\tbash cmd.sh add [message]                执行: git add and commit\n"\
+        "\tbash cmd.sh add file [message]           执行: git add one file and commit\n"\
+        "\tbash cmd.sh all [message]                执行: git add . and commit\n"\
         "\tbash cmd.sh push, add_push [message]     执行: git add, commit and push\n"\
         "\tbash cmd.sh init                         执行: git init and first commit\n"\
         "\tbash cmd.sh user [username] [email]      执行: git config user\n"\
@@ -24,7 +25,11 @@ help(){
 }
 
 if [[ $arg == 'add' ]];then
-    add "$arg2"
+    filename=$arg2
+    msg=$arg3
+    add $filename "$msg"
+elif [[ $arg == 'all' ]];then
+    add_all "$arg2"
 elif [[ $arg == 'push' || $arg == 'add_push' ]];then
     add_push "$arg2"
 elif [[ $arg == 'init' ]];then
