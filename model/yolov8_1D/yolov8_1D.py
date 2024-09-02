@@ -37,7 +37,10 @@ class Yolo(nn.Sequential):
             self,
             yaml_path=MODEL_YAML_DEFAULT,
             weights=None,
-            ch=1, verbose=True, fuse_=False, split_=False, scale:str=None,
+            scale:str=None,
+            ch=1,
+            verbose=True,
+            fuse_=False, split_=False,
             initweightName='xavier',
             device='cpu'
     ):
@@ -240,11 +243,14 @@ class Yolo1d:
             self,
             yaml_path=MODEL_YAML_DEFAULT,
             weights=None,
-            ch=1, verbose=True, fuse_=False, split_=False, scale:str=None,
+            scale:str=None,
+            ch=1,
+            verbose=True,
+            fuse_=False, split_=False,
             initweightName='xavier',
             device='cpu'
     ) -> None:        
-        self.model = Yolo(yaml_path,  weights, ch, verbose, fuse_, split_, scale, initweightName, device)
+        self.model = Yolo(yaml_path,  weights, scale, ch, verbose, fuse_, split_, initweightName, device)
         self.scale = self.model.scale
 
     def __call__(self, X, *args, **kwargs):
@@ -274,8 +280,11 @@ class Yolov8_1D(Yolo1d):
             self,
             yaml_path=MODEL_YAML_DEFAULT,
             weights=None,
-            ch=1, verbose=True, fuse_=False, split_=False, scale:str=None,
+            scale:str=None,
+            ch=1,
+            verbose=True,
+            fuse_=False, split_=False,
             initweightName='xavier',
             device='cpu'
     ) -> None:
-        super().__init__(yaml_path,  weights, ch, verbose, fuse_, split_, scale, initweightName, device)
+        super().__init__(yaml_path,  weights, scale, ch, verbose, fuse_, split_, initweightName, device)
