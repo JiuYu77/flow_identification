@@ -279,12 +279,3 @@ class Yolov8_1D(Yolo1d):
             device='cpu'
     ) -> None:
         super().__init__(yaml_path,  weights, ch, verbose, fuse_, split_, scale, initweightName, device)
-
-
-def yolov8_1d(
-        path=MODEL_YAML_DEFAULT, weights=None, ch=1, verbose=True, fuse_=False, split_=False, scale=None,
-        initweightName='xavier',
-        device='cpu'
-    ):
-    yolo = Yolov8_1D(path, weights, ch, verbose, fuse_, split_, scale, initweightName, device)
-    return yolo

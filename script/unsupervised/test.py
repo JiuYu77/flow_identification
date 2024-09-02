@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 import sys
 sys.path.append('.')
-from model import yolov8_1d, MODEL_YAML_DEFAULT
+from model import Yolov8_1D, MODEL_YAML_DEFAULT
 from utils import FlowDataset, data_loader, tu, cfg, colorstr, print_color, ROOT, ph, tm, plot
 import os
 import torch
@@ -88,7 +88,7 @@ def test_one(dataset,
     scale = yml['model_settings']['model_scale']
     # modelYaml = modelYaml if modelYaml else yml['model_settings']['modelYaml']
     fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
-    net = yolov8_1d(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
+    net = Yolov8_1D(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
     # net.to(device)
     net.eval()
     netName = net.__class__.__name__
