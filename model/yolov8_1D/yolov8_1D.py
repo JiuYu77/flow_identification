@@ -255,16 +255,16 @@ class Yolo1d:
 
     def parameters(self):
         return self.model.parameters()
-    
+
     def modules(self):
         return self.model.modules()
-    
+
     def train(self):
         self.model.train()
-    
+
     def state_dict(self):
         return self.model.state_dict()
-    
+
     def save(self, f):
         return self.model.save(f)
 
