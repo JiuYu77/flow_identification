@@ -141,7 +141,7 @@ class MyLoss(nn.Module):
             for i in range(n, n+t):
                 columns_to_remove.append(i)
             for col in columns_to_remove:
-                indices.remove(col)
+                # indices.remove(col)
 
             # 使用index_select删除第n列
             y_hat = torch.index_select(y_hat, 1, torch.tensor(indices).to(self.device))
