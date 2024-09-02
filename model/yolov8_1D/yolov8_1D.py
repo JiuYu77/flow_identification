@@ -51,7 +51,6 @@ class Yolo(nn.Sequential):
             self.split()
         if weights is None:
             self.apply(InitWeight(initweightName).__call__)
-            print("InitWeight*******")
         self.to(device)  # device: cpu, gpu(cuda)
 
     def get_model(self, yaml_path, weights, ch, scale, verbose, device):
