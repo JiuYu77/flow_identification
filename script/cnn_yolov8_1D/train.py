@@ -162,8 +162,6 @@ def train(dataset,
             # 正向传播
             X, y = X.to(device), y.to(device)
             y_hat = net(X)
-            # print('y_hat: ', y_hat.shape)
-            # return
             loss_ = loss(y_hat, y)
 
             # 反向传播，更新参数
