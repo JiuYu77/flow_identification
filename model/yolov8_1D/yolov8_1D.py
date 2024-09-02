@@ -54,6 +54,19 @@ class Yolo(nn.Sequential):
             print("InitWeight*******")
         self.to(device)  # device: cpu, gpu(cuda)
 
+    def get_model(self, yaml_path, weights, ch, scale, verbose, device):
+        yaml_ = self.yaml_model_load(yaml_path)
+        ch = yaml_["ch"] = yaml_.get("ch", ch)  # input channels
+        if scale:
+            yaml_['scale'] = scale
+        self.scale, layers, save = self.parse_model(yaml_, ch, verbose=verbose)
+        self.add_layers(layers)
+
+        if weights:  # 在已有权重上继续训练 or 测试 or 分类(推理, 实际使用)
+            assert Path(weights).is_file(), f"{weights} does not exist."
+            self.model = torch.load(weights, map_location=device)
+            self.load_state_dict(self.model)
+
     @staticmethod
     def make_divisible(x, divisor):
         """Returns nearest x divisible by divisor."""
@@ -213,19 +226,6 @@ class Yolo(nn.Sequential):
         for m in self.modules():
             if isinstance(m, C2f1d):
                 m.forward = m.forward_split
-    
-    def get_model(self, yaml_path, weights, ch, scale, verbose, device):
-        yaml_ = self.yaml_model_load(yaml_path)
-        ch = yaml_["ch"] = yaml_.get("ch", ch)  # input channels
-        if scale:
-            yaml_['scale'] = scale
-        self.scale, layers, save = self.parse_model(yaml_, ch, verbose=verbose)
-        self.add_layers(layers)
-
-        if weights:  # 在已有权重上继续训练 or 测试 or 分类(推理, 实际使用)
-            assert Path(weights).is_file(), f"{weights} does not exist."
-            self.model = torch.load(weights, map_location=device)
-            self.load_state_dict(self.model)
     
     def save(self, f):
         '''
