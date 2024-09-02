@@ -32,7 +32,6 @@ def parse_args():
     # parser.add_argument('-n', '--numWorkers', type=int, default=0)
     parser.add_argument('-n', '--numWorkers', type=int, default=4)
     parser.add_argument('-my', '--modelYaml', type=str, default=MODEL_YAML_DEFAULT)
-    parser.add_argument('-w', '--weights', type=str, default=None)
 
 
 
@@ -44,7 +43,7 @@ def parse_args():
     netPath = os.path.join('result', 'train_unsupervised', '20240825.215013_Yolov8_1D', 'weights', '50_params.pt')
     netPath = os.path.join('result', 'train_unsupervised', '20240825.225646_Yolov8_1D', 'weights', 'last_params.pt')
     netPath = os.path.join('result', 'train_unsupervised', '20240827.153703_Yolov8_1D', 'weights', 'last_params.pt')
-    parser.add_argument('-pt', '--netPath', type=str, default=netPath)
+    parser.add_argument('-w', '--weights', type=str, default=netPath)
     # parser.add_argument('--cls', type=str, default=None)
 
     opt = parser.parse_args()
@@ -59,7 +58,6 @@ def test_one(dataset,
          numWorkers,
          modelYaml,
          weights,
-         netPath,
          cls,
          thisDir
          ):
@@ -68,7 +66,7 @@ def test_one(dataset,
     device = tu.get_device()
 
     # 读取训练信息
-    p = os.path.dirname(netPath)
+    p = os.path.dirname(weights)
     path = os.path.dirname(p)
     yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
     # transform
@@ -90,7 +88,6 @@ def test_one(dataset,
     scale = yml['model_settings']['model_scale']
     # modelYaml = modelYaml if modelYaml else yml['model_settings']['modelYaml']
     fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
-    weights = netPath
     net = yolov8_1d(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
     # net.to(device)
     net.eval()
@@ -117,7 +114,7 @@ def test_one(dataset,
         "transform": transform,
         "shuffle": shuffle,
         "numWorkers": numWorkers,
-        "net_path": netPath,
+        "net_path": weights,
         "test_time_consuming": None,
         "speed": None,
         "learn_method": "Unsupervised Learning",
@@ -199,7 +196,7 @@ def test(dataset,
          shuffleFlag,
          numWorkers,
          modelYaml,
-         netPath,
+         weights,
          thisDir
          ):
     assert shuffleFlag == 1 or shuffleFlag == 0, f'shuffle_flag ValueError, except 0 or 1, but got {shuffleFlag}'
@@ -207,7 +204,7 @@ def test(dataset,
     device = tu.get_device()
 
     # 读取训练信息
-    path = os.path.dirname(netPath)
+    path = os.path.dirname(weights)
     yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
     # transform
     transform = yml['transform'] if transform is None else transform
@@ -228,9 +225,9 @@ def test(dataset,
     scale = yml['model_settings']['model_scale']
     # modelYaml = modelYaml if modelYaml else yml['model_settings']['modelYaml']
     fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
-    net = yolov8_1d(modelYaml, scale=scale, fuse_=fuse_, split_=split_)
-    net.load_state_dict(torch.load(netPath, map_location=device))
-    net.to(device)
+    net = yolov8_1d(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
+    # net.load_state_dict(torch.load(weights, map_location=device))
+    # net.to(device)
     net.eval()
     netName = net.__class__.__name__
     modelParamAmount = sum([p.nelement() for p in net.parameters()])
@@ -255,7 +252,7 @@ def test(dataset,
         "transform": transform,
         "shuffle": shuffle,
         "numWorkers": numWorkers,
-        "net_path": netPath,
+        "net_path": weights,
         "test_time_consuming": None,
         "speed": None,
         "learn_method": "Unsupervised Learning",

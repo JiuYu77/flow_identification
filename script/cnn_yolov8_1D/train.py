@@ -75,16 +75,15 @@ def train(dataset,
     # 模型
     print_color(["bright_green", "bold", "\nloading model..."])
     fuse_, split_, initweightName = False, False, 'xavier'
-    net = yolov8_1d(modelYaml, fuse_=fuse_, split_=split_, initweightName=initweightName, scale=scale)  # 实例化模型
+    # net = yolov8_1d(modelYaml, fuse_=fuse_, split_=split_, initweightName=initweightName, scale=scale, device=device)  # 实例化模型
     if model is not None:  # 在已有模型的基础上继续训练
         # 读取训练信息
         path = os.path.dirname(model)
         yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
         fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
         scale = yml['model_settings']['model_scale']
-        net = yolov8_1d(modelYaml, fuse_=fuse_, split_=split_, scale=scale)  # 实例化模型
-        net.load_state_dict(torch.load(model, map_location=device))
-    net.to(device)
+        # net = yolov8_1d(modelYaml, model, fuse_=fuse_, split_=split_, scale=scale, device=device)  # 实例化模型
+    net = yolov8_1d(modelYaml, model, fuse_=fuse_, split_=split_, scale=scale, initweightName=initweightName, device=device)  # 实例化模型
 
     loss = uloss.smart_lossFunction(lossName)  # 损失函数
     # loss = uloss.smart_lossFunction('FocalLoss', classNum)  # 损失函数
@@ -212,10 +211,10 @@ def train(dataset,
         bestAccSymbol = ''
         if bestAcc < valAcc:
             bestAcc = valAcc
-            torch.save(net.state_dict(), bestWeightPath)  # 保存网络参数
+            net.save(bestWeightPath)  # 保存网络参数
             bestAccSymbol = '  *'
         if epoch + 1 == epochNum:
-            torch.save(net.state_dict(), lastWeightPath)  # 保存网络参数
+            net.save(lastWeightPath)  # 保存网络参数
 
         # 打印一个epoch的信息
         print(f"\033[35mepoch\033[0m {epoch_}    \033[32mtrain_loss:\033[0m{trainLoss:.5f}    \033[32mtrain_acc:\033[0m{trainAcc:.5f}"\

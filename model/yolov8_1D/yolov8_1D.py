@@ -51,6 +51,7 @@ class Yolo(nn.Sequential):
             self.split()
         if weights is None:
             self.apply(InitWeight(initweightName).__call__)
+            print("InitWeight*******")
         self.to(device)  # device: cpu, gpu(cuda)
 
     @staticmethod
@@ -235,8 +236,6 @@ class Yolo(nn.Sequential):
         torch.save(state_dict, f)
 
 
-# class Yolov1d(Yolo):
-# class Yolov81d(nn.Module):
 class Yolo1d:
     def __init__(
             self,
@@ -245,10 +244,7 @@ class Yolo1d:
             ch=1, verbose=True, fuse_=False, split_=False, scale:str=None,
             initweightName='xavier',
             device='cpu'
-    ) -> None:
-        # super().__init__(yaml_path,  weights, ch, verbose, fuse_, split_, scale, initweightName, device)
-        
-        # super().__init__()
+    ) -> None:        
         self.model = Yolo(yaml_path,  weights, ch, verbose, fuse_, split_, scale, initweightName, device)
         self.scale = self.model.scale
 
@@ -283,7 +279,6 @@ class Yolov8_1D(Yolo1d):
             initweightName='xavier',
             device='cpu'
     ) -> None:
-        # super().__init__()
         super().__init__(yaml_path,  weights, ch, verbose, fuse_, split_, scale, initweightName, device)
 
 

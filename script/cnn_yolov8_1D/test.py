@@ -54,7 +54,8 @@ def parse_args():
     netPath = os.path.join('result', 'train', '20240721.123959_Yolov8_1D', 'best_params.pt')
     netPath = os.path.join('result', 'train', '20240721.161448_Yolov8_1D', 'best_params.pt')
     netPath = os.path.join('result', 'train', '20240722.112911_Yolov8_1D', 'best_params.pt')
-    parser.add_argument('-pt', '--netPath', type=str, default=netPath)
+    weight = netPath
+    parser.add_argument('-w', '--weights', type=str, default=weight)
 
     opt = parser.parse_args()
     return opt
@@ -67,14 +68,14 @@ def test(dataset,
          shuffleFlag,
          numWorkers,
          modelYaml,
-         netPath
+         weights
          ):
     assert shuffleFlag == 1 or shuffleFlag == 0, f'shuffle_flag ValueError, except 0 or 1, but got {shuffleFlag}'
     shuffle = shuffleFlag == 1 or not shuffleFlag == 0
     device = tu.get_device()
 
     # 读取训练信息
-    path = os.path.dirname(netPath)
+    path = os.path.dirname(weights)
     yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
     # transform
     transform = yml['transform'] if transform is None else transform
@@ -94,9 +95,7 @@ def test(dataset,
     scale = yml['model_settings']['model_scale']
     # modelYaml = modelYaml if modelYaml else yml['model_settings']['modelYaml']
     fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
-    net = yolov8_1d(modelYaml, scale=scale, fuse_=fuse_, split_=split_)
-    net.load_state_dict(torch.load(netPath, map_location=device))
-    net.to(device)
+    net = yolov8_1d(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
     net.eval()
     netName = net.__class__.__name__
     modelParamAmount = sum([p.nelement() for p in net.parameters()])
@@ -122,7 +121,7 @@ def test(dataset,
         "transform": transform,
         "shuffle": shuffle,
         "numWorkers": numWorkers,
-        "net_path": netPath,
+        "net_path": weights,
         "test_time_consuming": None,
         "speed": None
     }
