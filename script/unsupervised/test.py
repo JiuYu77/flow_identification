@@ -225,7 +225,7 @@ def test(dataset,
     scale = yml['model_settings']['model_scale']
     # modelYaml = modelYaml if modelYaml else yml['model_settings']['modelYaml']
     fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
-    net = yolov8_1d(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
+    net = Yolov8_1D(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
     # net.load_state_dict(torch.load(weights, map_location=device))
     # net.to(device)
     net.eval()
