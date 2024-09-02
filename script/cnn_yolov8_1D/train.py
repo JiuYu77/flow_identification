@@ -75,14 +75,12 @@ def train(dataset,
     # 模型
     print_color(["bright_green", "bold", "\nloading model..."])
     fuse_, split_, initweightName = False, False, 'xavier'
-    # net = yolov8_1d(modelYaml, fuse_=fuse_, split_=split_, initweightName=initweightName, scale=scale, device=device)  # 实例化模型
     if model is not None:  # 在已有模型的基础上继续训练
         # 读取训练信息
         path = os.path.dirname(model)
         yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
         fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
         scale = yml['model_settings']['model_scale']
-        # net = yolov8_1d(modelYaml, model, fuse_=fuse_, split_=split_, scale=scale, device=device)  # 实例化模型
     net = yolov8_1d(modelYaml, model, fuse_=fuse_, split_=split_, scale=scale, initweightName=initweightName, device=device)  # 实例化模型
 
     loss = uloss.smart_lossFunction(lossName)  # 损失函数
