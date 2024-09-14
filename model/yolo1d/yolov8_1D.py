@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-from model.yolov8_1D.yolo import *
+from model.nn.yolo import *
 
 class Yolov8_1D(Yolo1d):
     def __init__(

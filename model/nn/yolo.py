@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 sys.path.append('.')
 from utils import ph, LOGGER, colorstr, cfg
-from model.yolov8_1D.nn import Conv1d, C2f1d, Classify
+from model.nn.modules import Conv1d, C2f1d, Classify
 from utils.torch_utils import InitWeight
 
 '''
@@ -257,6 +257,7 @@ class Yolo1d:
         return self.model(X)
 
     def eval(self):
+        '''评估模式'''
         self.model.eval()
 
     def parameters(self):
@@ -266,6 +267,7 @@ class Yolo1d:
         return self.model.modules()
 
     def train(self):
+        '''训练模式'''
         self.model.train()
 
     def state_dict(self):
