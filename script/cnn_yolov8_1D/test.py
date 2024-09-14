@@ -61,6 +61,6 @@ def main():
     opt = parse_args()
     tester = BaseTester(**vars(opt))
     tester.test()
-    
+
 if __name__ == '__main__':
     main()
