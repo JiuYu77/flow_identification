@@ -157,9 +157,7 @@ def train(dataset,
 
     print_color(["bright_green", "bold", "preparing data..."])
     for epoch in range(epochNum):
-        epoch_ = epoch
-        if epoch < 10:
-            epoch_ = f"0{epoch}"
+        epoch_ = epoch + 1
         # 训练
         accumulatorTrain = tu.Accumulator(3)
         net.train()
@@ -194,7 +192,7 @@ def train(dataset,
             timer.stop()
 
             prg = f"{int((i + 1) / batchNum * 100)}%"  # 进度，百分比
-            print(f"\r\033[K\033[31mepoch\033[0m {epoch_}    \033[31mbatch:\033[0m{i}    \033[31mprogress:\033[0m{prg}    \033[31msample_num:\033[0m{sampleNum}    \033[31mtrain_loss:\033[0m{train_loss:.5f}",end='\r')
+            print(f"\r\033[K\033[31mepoch\033[0m {epoch_:>3}/{epochNum}    \033[31mbatch:\033[0m{i}    \033[31mprogress:\033[0m{prg}    \033[31msample_num:\033[0m{sampleNum}    \033[31mtrain_loss:\033[0m{train_loss:.5f}",end='\r')
 
             # 训练数据记录
             # batchAcc = correctNum / sampleNum
@@ -238,7 +236,7 @@ def train(dataset,
         # 打印一个epoch的信息
         # print(f"\033[35mepoch\033[0m {epoch_}    \033[32mtrain_loss:\033[0m{trainLoss:.5f}    \033[32mtrain_acc:\033[0m{trainAcc:.5f}"\
         #       f"    \033[36mval_loss:\033[0m{valLoss:.5f}    \033[36mval_acc:\033[0m{valAcc:.5f}\033[31m{bestAccSymbol}\033[0m")
-        print(f"\033[K\033[35mepoch\033[0m {epoch_}    \033[32mtrain_loss:\033[0m{trainLoss:.5f}"\
+        print(f"\033[K\033[35mepoch\033[0m {epoch_:>3}/{epochNum}    \033[32mtrain_loss:\033[0m{trainLoss:.5f}"\
               f"    \033[31m{saveSymbol}\033[0m")
         # 保存一个epoch的信息
         # with open(epochPath, 'a+') as f:
