@@ -33,7 +33,6 @@ class BaseTester:
 
     def test(self):
         self._setup_test()
-        ###################
         self.net.eval()
         netName = self.net.__class__.__name__
         modelParamAmount = sum([p.nelement() for p in self.net.parameters()])
