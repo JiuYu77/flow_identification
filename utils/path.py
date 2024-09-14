@@ -28,7 +28,8 @@ def check_suffix(file, suffix, msg=''):  # optional
 def check_file(file, suffix='', hard=True):
     """Search file (if necessary) and return path."""
     check_suffix(file, suffix)  # optional
-    files = glob.glob(str(ROOT / "conf" / "**" / file), recursive=True)  # find file
+    # files = glob.glob(str(ROOT / "conf" / "**" / file), recursive=True)  # find file
+    files = glob.glob(str(ROOT / "conf" / "models" / "**" / file), recursive=True)  # find file
     if not files and hard:
         raise FileNotFoundError(f"'{file}' does not exist")
     elif len(files) > 1 and hard:
