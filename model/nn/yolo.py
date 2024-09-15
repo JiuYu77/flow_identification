@@ -8,7 +8,7 @@ import sys
 sys.path.append('.')
 from utils import ph, LOGGER, colorstr, cfg
 from model.nn.modules import Conv1d, C2f1d, Classify
-from utils.torch_utils import InitWeight
+from utils.torch_utils import InitWeight, fuse_conv_and_bn
 
 '''
 scales: n s m l x
@@ -175,36 +175,6 @@ class Yolo(nn.Sequential):
         # return nn.Sequential(*layers), sorted(save), scale
         return scale, layers, sorted(save)
 
-    @staticmethod
-    def fuse_conv_and_bn(conv, bn):
-        """Fuse Conv1d() and BatchNorm1d() layers"""
-        fusedconv = (
-            nn.Conv1d(
-                conv.in_channels,
-                conv.out_channels,
-                kernel_size=conv.kernel_size,
-                stride=conv.stride,
-                padding=conv.padding,
-                dilation=conv.dilation,
-                groups=conv.groups,
-                bias=True,
-            )
-            .requires_grad_(False)
-            .to(conv.weight.device)
-        )
-
-        # Prepare filters
-        w_conv = conv.weight.clone().view(conv.out_channels, -1)
-        w_bn = torch.diag(bn.weight.div(torch.sqrt(bn.eps + bn.running_var)))
-        fusedconv.weight.copy_(torch.mm(w_bn, w_conv).view(fusedconv.weight.shape))
-
-        # Prepare spatial bias
-        b_conv = torch.zeros(conv.weight.size(0), device=conv.weight.device) if conv.bias is None else conv.bias
-        b_bn = bn.bias - bn.weight.mul(bn.running_mean).div(torch.sqrt(bn.running_var + bn.eps))
-        fusedconv.bias.copy_(torch.mm(w_bn, b_conv.reshape(-1, 1)).reshape(-1) + b_bn)
-
-        return fusedconv
-
     def fuse(self):
         """
         fuse后效果不好
@@ -212,14 +182,14 @@ class Yolo(nn.Sequential):
         LOGGER.info('Fusing layers... ')
         for m in self.modules():
             if isinstance(m, Conv1d) and hasattr(m, "bn1d"):
-                m.conv1d = self.fuse_conv_and_bn(m.conv1d, m.bn1d)  # update conv; ValueError: can't optimize a non-leaf Tensor
+                m.conv1d = fuse_conv_and_bn(m.conv1d, m.bn1d)  # update conv; ValueError: can't optimize a non-leaf Tensor
                 delattr(m, "bn1d")  # remove batchnorm
                 m.forward = m.forward_fuse
 
     # def fuse(self, model:nn.Module):
     #     for m in model.modules():
     #         if isinstance(m, Conv1d) and hasattr(m, "bn1d"):
-    #             m.conv1d = self.fuse_conv_and_bn(m.conv1d, m.bn1d)  # update conv
+    #             m.conv1d = fuse_conv_and_bn(m.conv1d, m.bn1d)  # update conv
     #             delattr(m, "bn1d")  # remove batchnorm
     #             m.forward = m.forward_fuse
     #     return model
