@@ -153,6 +153,7 @@ class Attention(nn.Module):
 
     def forward(self, x):
         B, C, H, W = x.shape
+        # B, H, W = x.shape; C = 1
         N = H * W
         qkv = self.qkv(x)
         q, k, v = qkv.view(B, self.num_heads, self.key_dim*2 + self.head_dim, N).split([self.key_dim, self.key_dim, self.head_dim], dim=2)
@@ -181,7 +182,8 @@ class PSA1d(nn.Module):
         )
         
     def forward(self, x):
-        a, b = self.cv1(x).split((self.c, self.c), dim=1)
+        # a, b = self.cv1(x).split((self.c, self.c), dim=1)
+        a, b = self.cv1(x).split((self.c, self.c), dim=-2)
         b = b + self.attn(b)
         b = b + self.ffn(b)
         return self.cv2(torch.cat((a, b), 1))

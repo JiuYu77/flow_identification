@@ -26,6 +26,7 @@ backbone:
   - [-1, 6, C2f1d, [512, True]]
   - [-1, 1, Conv1d, [1024, 3, 2]]  # 7-P5/32
   - [-1, 3, C2fCIB1d, [1024, True, True]]
+  - [-1, 3, PSA1d, [1024]]
 
 # YOLOv8_1D.0n head
 head:
