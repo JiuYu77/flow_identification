@@ -42,7 +42,7 @@ class Bottleneck(nn.Module):
         """'forward()' applies the YOLO FPN to input data."""
         return x + self.conv2(self.conv1(x)) if self.add else self.conv2(self.conv1(x))
 
-class RepVGGDW(torch.nn.Module):
+class RepVGGDW1d(torch.nn.Module):
     """RepVGGDW is a class that represents a depth wise separable convolutional block in RepVGG architecture."""
 
     def __init__(self, ed) -> None:
@@ -103,7 +103,7 @@ class RepVGGDW(torch.nn.Module):
         self.conv = conv
         del self.conv1
 
-class CIB(nn.Module):
+class CIB1d(nn.Module):
     """YOLOv10.  Standard bottleneck."""
 
     def __init__(self, c1, c2, shortcut=True, e=0.5, lk=False):
@@ -115,7 +115,7 @@ class CIB(nn.Module):
         self.cv1 = nn.Sequential(
             Conv1d(c1, c1, 3, g=c1),
             Conv1d(c1, 2 * c_, 1),
-            Conv1d(2 * c_, 2 * c_, 3, g=2 * c_) if not lk else RepVGGDW(2 * c_),
+            Conv1d(2 * c_, 2 * c_, 3, g=2 * c_) if not lk else RepVGGDW1d(2 * c_),
             Conv1d(2 * c_, c2, 1),
             Conv1d(c2, c2, 3, g=c2),
         )
@@ -126,7 +126,7 @@ class CIB(nn.Module):
         """'forward()' applies the YOLO FPN to input data."""
         return x + self.cv1(x) if self.add else self.cv1(x)
 
-class C2fCIB(C2f1d):
+class C2fCIB1d(C2f1d):
     """YOLOv10.  Faster Implementation of CSP Bottleneck with 2 convolutions."""
 
     def __init__(self, c1, c2, n=1, shortcut=False, lk=False, g=1, e=0.5):
@@ -134,4 +134,64 @@ class C2fCIB(C2f1d):
         expansion.
         """
         super().__init__(c1, c2, n, shortcut, g, e)
-        self.m = nn.ModuleList(CIB(self.c, self.c, shortcut, e=1.0, lk=lk) for _ in range(n))
+        self.m = nn.ModuleList(CIB1d(self.c, self.c, shortcut, e=1.0, lk=lk) for _ in range(n))
+
+class Attention(nn.Module):
+    '''YOLOv10'''
+    def __init__(self, dim, num_heads=8,
+                 attn_ratio=0.5):
+        super().__init__()
+        self.num_heads = num_heads
+        self.head_dim = dim // num_heads
+        self.key_dim = int(self.head_dim * attn_ratio)
+        self.scale = self.key_dim ** -0.5
+        nh_kd = nh_kd = self.key_dim * num_heads
+        h = dim + nh_kd * 2
+        self.qkv = Conv1d(dim, h, 1, act=False)
+        self.proj = Conv1d(dim, dim, 1, act=False)
+        self.pe = Conv1d(dim, dim, 3, 1, g=dim, act=False)
+
+    def forward(self, x):
+        B, C, H, W = x.shape
+        N = H * W
+        qkv = self.qkv(x)
+        q, k, v = qkv.view(B, self.num_heads, self.key_dim*2 + self.head_dim, N).split([self.key_dim, self.key_dim, self.head_dim], dim=2)
+
+        attn = (
+            (q.transpose(-2, -1) @ k) * self.scale
+        )
+        attn = attn.softmax(dim=-1)
+        x = (v @ attn.transpose(-2, -1)).view(B, C, H, W) + self.pe(v.reshape(B, C, H, W))
+        x = self.proj(x)
+        return x
+
+class PSA1d(nn.Module):
+    '''YOLOv10'''
+    def __init__(self, c1, c2, e=0.5):
+        super().__init__()
+        assert(c1 == c2)
+        self.c = int(c1 * e)
+        self.cv1 = Conv1d(c1, 2 * self.c, 1, 1)
+        self.cv2 = Conv1d(2 * self.c, c1, 1)
+        
+        self.attn = Attention(self.c, attn_ratio=0.5, num_heads=self.c // 64)
+        self.ffn = nn.Sequential(
+            Conv1d(self.c, self.c*2, 1),
+            Conv1d(self.c*2, self.c, 1, act=False)
+        )
+        
+    def forward(self, x):
+        a, b = self.cv1(x).split((self.c, self.c), dim=1)
+        b = b + self.attn(b)
+        b = b + self.ffn(b)
+        return self.cv2(torch.cat((a, b), 1))
+
+class SCDown1d(nn.Module):
+    '''YOLOv10'''
+    def __init__(self, c1, c2, k, s):
+        super().__init__()
+        self.cv1 = Conv1d(c1, c2, 1, 1)
+        self.cv2 = Conv1d(c2, c2, k=k, s=s, g=c2, act=False)
+
+    def forward(self, x):
+        return self.cv2(self.cv1(x))
