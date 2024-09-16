@@ -132,13 +132,13 @@ class BaseTester:
         self.device = tu.get_device()
 
         # 读取训练信息
-        path = os.path.dirname(self.weights)
+        path = os.path.dirname(os.path.dirname(self.weights))
         yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
         # transform
         self.transform = yml['transform'] if self.transform is None else self.transform
         if self.transform.lower().find('noise') != -1:
             self.transform = 'standardization_zScore'
-    
+
         # 数据集
         print_color(['loading test dataset...'])
         deviceName = tu.getDeviceName()
