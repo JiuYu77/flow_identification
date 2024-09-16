@@ -28,6 +28,6 @@ backbone:
   - [-1, 3, C2fCIB1d, [1024, True, True]]
   - [-1, 3, PSA1d, [1024]]
 
-# YOLOv8_1D.0n head
+# YOLOv10_1D.0n head
 head:
   - [-1, 1, Classify, [nc]]  # Classify
