@@ -8,6 +8,7 @@ import sys
 sys.path.append('.')
 from utils import ph, LOGGER, colorstr, cfg
 from model.nn.modules import Conv1d, C2f1d, Classify, C2fCIB1d, SCDown1d, PSA1d
+from model.nn.other import SENet1d
 from utils.torch_utils import InitWeight, fuse_conv_and_bn
 
 '''
@@ -154,6 +155,7 @@ class Yolo(nn.Sequential):
                 C2fCIB1d,
                 SCDown1d,
                 PSA1d,
+                SENet1d,
             ):
                 c1, c2 = ch[f], args[0]
                 if c2 != nc:  # if c2 not equal to number of classes (i.e. for Classify() output)
