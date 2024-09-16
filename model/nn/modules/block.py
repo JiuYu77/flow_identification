@@ -153,18 +153,18 @@ class Attention(nn.Module):
 
     def forward(self, x):
         # B, C, H, W = x.shape
-        B, H, W = x.shape; C = 1
+        B, H, W = x.shape
         N = H * W
         qkv = self.qkv(x)
         # q, k, v = qkv.view(B, self.num_heads, self.key_dim*2 + self.head_dim, N).split([self.key_dim, self.key_dim, self.head_dim], dim=2)
-        aa = qkv.view(B, self.num_heads, self.key_dim*2 + self.head_dim, N)
-        q, k, v = aa.split([self.key_dim, self.key_dim, self.head_dim], dim=2)
+        q, k, v = qkv.view(B, self.num_heads, self.key_dim*2 + self.head_dim, -1).split([self.key_dim, self.key_dim, self.head_dim], dim=2)
 
         attn = (
             (q.transpose(-2, -1) @ k) * self.scale
         )
         attn = attn.softmax(dim=-1)
-        x = (v @ attn.transpose(-2, -1)).view(B, C, H, W) + self.pe(v.reshape(B, C, H, W))
+        # x = (v @ attn.transpose(-2, -1)).view(B, C, H, W) + self.pe(v.reshape(B, C, H, W))
+        x = (v @ attn.transpose(-2, -1)).view(B, H, W) + self.pe(v.reshape(B, H, W))
         x = self.proj(x)
         return x
 
@@ -190,7 +190,7 @@ class PSA1d(nn.Module):
         self.c = int(c1 * e)
         self.cv1 = Conv1d(c1, 2 * self.c, 1, 1)
         self.cv2 = Conv1d(2 * self.c, c1, 1)
-        
+
         self.attn = Attention(self.c, attn_ratio=0.5, num_heads=self.c // 64)
         self.ffn = nn.Sequential(
             Conv1d(self.c, self.c*2, 1),
@@ -198,8 +198,7 @@ class PSA1d(nn.Module):
         )
         
     def forward(self, x):
-        # a, b = self.cv1(x).split((self.c, self.c), dim=1)
-        a, b = self.cv1(x).split((self.c, self.c), dim=-2)
+        a, b = self.cv1(x).split((self.c, self.c), dim=1)
         b = b + self.attn(b)
         b = b + self.ffn(b)
         return self.cv2(torch.cat((a, b), 1))
