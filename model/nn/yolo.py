@@ -211,7 +211,7 @@ class Yolo(nn.Sequential):
         torch.save(state_dict, f)
 
 
-class Yolo1d:
+class YOLO1d:
     def __init__(
             self,
             yaml_path=MODEL_YAML_DEFAULT,
