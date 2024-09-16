@@ -151,11 +151,14 @@ class Attention(nn.Module):
         self.proj = Conv1d(dim, dim, 1, act=False)
         self.pe = Conv1d(dim, dim, 3, 1, g=dim, act=False)
 
-    def forward_bak(self, x):
-        B, C, H, W = x.shape
+    def forward(self, x):
+        # B, C, H, W = x.shape
+        B, H, W = x.shape; C = 1
         N = H * W
         qkv = self.qkv(x)
-        q, k, v = qkv.view(B, self.num_heads, self.key_dim*2 + self.head_dim, N).split([self.key_dim, self.key_dim, self.head_dim], dim=2)
+        # q, k, v = qkv.view(B, self.num_heads, self.key_dim*2 + self.head_dim, N).split([self.key_dim, self.key_dim, self.head_dim], dim=2)
+        aa = qkv.view(B, self.num_heads, self.key_dim*2 + self.head_dim, N)
+        q, k, v = aa.split([self.key_dim, self.key_dim, self.head_dim], dim=2)
 
         attn = (
             (q.transpose(-2, -1) @ k) * self.scale
@@ -165,14 +168,11 @@ class Attention(nn.Module):
         x = self.proj(x)
         return x
 
-    def forward(self, x):
-        # B, C, H, W = x.shape
-        B, H, W = x.shape; C = 1
+    def forward_bak(self, x):
+        B, C, H, W = x.shape
         N = H * W
         qkv = self.qkv(x)
-        # q, k, v = qkv.view(B, self.num_heads, self.key_dim*2 + self.head_dim, N).split([self.key_dim, self.key_dim, self.head_dim], dim=2)
-        aa = qkv.view(B, self.num_heads, self.key_dim*2 + self.head_dim, N)
-        q, k, v = aa.split([self.key_dim, self.key_dim, self.head_dim], dim=2)
+        q, k, v = qkv.view(B, self.num_heads, self.key_dim*2 + self.head_dim, N).split([self.key_dim, self.key_dim, self.head_dim], dim=2)
 
         attn = (
             (q.transpose(-2, -1) @ k) * self.scale
