@@ -4,8 +4,7 @@ from torch import nn
 class SENet1d(nn.Module):
     def __init__(self, channel, ratio=16):
         super(SENet1d, self).__init__()
-        # self.avg_pool = nn.AdaptiveAvgPool1d(1)
-        self.avg_pool = nn.AdaptiveMaxPool1d(1)
+        self.avg_pool = nn.AdaptiveAvgPool1d(1)
         self.fc = nn.Sequential(
                 nn.Linear(channel, channel // ratio, bias=False),
                 nn.ReLU(inplace=True),
