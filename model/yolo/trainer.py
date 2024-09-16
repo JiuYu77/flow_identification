@@ -41,10 +41,10 @@ class BaseTrainer:
         # 路径
         thisDir = tm.get_result_dir() + f"_{self.netName}"
         resultPath = self.resultPath = os.path.join(ROOT, 'result', 'train', thisDir)
-        ph.checkAndInitPath(resultPath)
+        ph.checkAndInitPath([resultPath, os.path.join(resultPath,  'weights')])
         info_fp_path = os.path.join(resultPath, 'info.yaml')  # 通过yaml文件记录模型数据
-        bestWeightPath = os.path.join(resultPath, "best_params.pt")  # 模型参数文件
-        lastWeightPath = os.path.join(resultPath, "last_params.pt")  # 模型参数文件
+        bestWeightPath = os.path.join(resultPath, 'weights', "best_params.pt")  # 模型参数文件
+        lastWeightPath = os.path.join(resultPath, 'weights', "last_params.pt")  # 模型参数文件
         epochPath = os.path.join(resultPath, "epoch")  # 训练一个epoch的数据
         trainIterPath = os.path.join(resultPath, 'train_iter')
         valIterPath = os.path.join(resultPath, 'val_iter')
