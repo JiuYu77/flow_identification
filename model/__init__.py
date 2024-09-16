@@ -4,4 +4,4 @@ import sys
 sys.path.append(os.getcwd())
 from model.yolo1d import *
 
-__all__ = [""]
+__all__ = ["YOLOv8_1D", "YOLOv10_1D"]

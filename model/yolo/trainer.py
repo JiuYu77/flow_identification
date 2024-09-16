@@ -238,7 +238,7 @@ class BaseTrainer:
             yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
             fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
             self.scale = yml['model_settings']['model_scale']
-        self.net = Yolov8_1D(self.modelYaml, self.model, fuse_=fuse_, split_=split_, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
+        self.net = YOLOv8_1D(self.modelYaml, self.model, fuse_=fuse_, split_=split_, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
 
     def val(self):
         '''validate'''
@@ -290,7 +290,7 @@ class BaseTrainer:
             yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
             fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
             scale = yml['model_settings']['model_scale']
-        net = Yolov8_1D(modelYaml, model, fuse_=fuse_, split_=split_, scale=scale, initweightName=initweightName, device=device)  # 实例化模型
+        net = YOLOv8_1D(modelYaml, model, fuse_=fuse_, split_=split_, scale=scale, initweightName=initweightName, device=device)  # 实例化模型
 
         loss = uloss.smart_lossFunction(lossName)  # 损失函数
         # loss = uloss.smart_lossFunction('FocalLoss', classNum)  # 损失函数
