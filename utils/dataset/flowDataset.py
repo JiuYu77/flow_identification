@@ -6,10 +6,11 @@ import numpy as np
 import sys
 sys.path.append('.')
 import utils.transform.transform as tf
+from utils.color_print import print_color
 
 class FlowDataset:
 # class FlowDataset(Dataset):
-    def __init__(self, datasetPath, sampleLength:int, step:int, transformName, cls=None) -> None:
+    def __init__(self, datasetPath, sampleLength:int, step:int, transformName, cls:str=None) -> None:
         # super().__init__()
         self.datasetPath = datasetPath
         self.sampleLength = sampleLength
@@ -19,9 +20,10 @@ class FlowDataset:
         self.allSample = []
         self.transform = tf.get_transform(transformName)
         self.totalSampleNum = 0
+        print_color(["loading dataset..."])
         if cls is None:
             self._load_data()
-        else:
+        else:  # cls 既是文件夹名字，也是类别（标签）
             self._load_data_oneClass(cls)
 
     def _load_data(self):
@@ -32,9 +34,11 @@ class FlowDataset:
         count = 0  # 加载了几个文件
         total = 0  # 文件总数
         dataPointsNum = 0  # 数据点总数
+        clsNumList = []  # 每个类别的样本数
         dir = os.path.basename(datasetPath)
         for cls in os.listdir(datasetPath):
             label = int(cls)
+            clsNumList.append(0)
             clsPath = os.path.join(datasetPath, cls)
             for file in os.listdir(clsPath):
                 total += 1
@@ -53,6 +57,7 @@ class FlowDataset:
                 dataPointsNum += num
                 while True:
                     end = ptr + sampleLength
+                    clsNumList[label] += 1
                     if num < sampleLength:
                         print(f"\033[31m The number of file data points less than sampleLength\033[0m {filePath}  {num}")
                         sample = lines[:]
@@ -73,6 +78,8 @@ class FlowDataset:
         self.totalSampleNum = len(self.allSample)
         print(f"{'':11}data_points_num: {dataPointsNum}")
         print(f"{'':11}sample_num: {self.totalSampleNum}")
+        for i, v in enumerate(clsNumList):
+            print(f"{'':15}class {i}: {v}")  # 每个类别样本数
 
     def _load_data_oneClass(self, cls):
         '''

@@ -140,7 +140,6 @@ class BaseTester:
             self.transform = 'standardization_zScore'
 
         # 数据集
-        print_color(['loading test dataset...'])
         deviceName = tu.getDeviceName()
         if deviceName == "windows":
             self.numWorkers = 0
