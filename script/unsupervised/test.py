@@ -75,7 +75,6 @@ def test_one(dataset,
         transform = 'standardization_zScore'
  
     # 数据集
-    print_color(['loading test dataset...'])
     deviceName = tu.getDeviceName()
     if deviceName == "windows":
         numWorkers = 0
@@ -211,7 +210,6 @@ def test(dataset,
         transform = 'standardization_zScore'
  
     # 数据集
-    print_color(['loading test dataset...'])
     deviceName = tu.getDeviceName()
     if deviceName == "windows":
         numWorkers = 0

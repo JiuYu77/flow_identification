@@ -61,7 +61,6 @@ def train(dataset,
     device = tu.get_device()
 
     # 数据集
-    print_color(["loading dataset..."])
     deviceName = tu.getDeviceName()
     if deviceName == "windows":
         numWorkers = 0
