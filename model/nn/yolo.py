@@ -8,7 +8,7 @@ import sys
 sys.path.append('.')
 from utils import ph, LOGGER, colorstr, cfg
 from model.nn.modules import Conv1d, C2f1d, Classify, C2fCIB1d, SCDown1d, PSA1d
-from model.nn.other import SENet1d
+from model.nn.other_modules import SENet1d
 from utils.torch_utils import InitWeight, fuse_conv_and_bn
 
 '''
