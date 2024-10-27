@@ -127,8 +127,7 @@ class BaseTrainer:
                 timer.stop()
 
                 prg = f"{int((i + 1) / batchNum * 100)}%"  # 进度，百分比
-                print(f"\r\033[K\033[31mepoch\033[0m {epoch_:>3}/{self.epochNum}    \033[31mbatch:\033[0m{i}    \033[31mprogress:\033[0m{prg}    \033[31msample_num:\033[0m{sampleNum}    \033[31mtrain_loss:\033[0m{train_loss:.5f}",end='\r')
-
+                print(f"\r\033[K\033[31mepoch\033[0m {epoch_:>3}/{self.epochNum}    \033[31mbatch:\033[0m{i+1}/{batchNum}    \033[31mprogress:\033[0m{prg}    \033[31msample_num:\033[0m{sampleNum}    \033[31mtrain_loss:\033[0m{train_loss:.5f}",end='\r')
                 # 训练数据记录
                 batchAcc = correctNum / sampleNum
                 with open(trainIterPath, 'a+') as tIter_fp:

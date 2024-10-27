@@ -149,7 +149,7 @@ def val(net:torch.nn.Module, valIter, device, loss, epoch_, epochNum, resultPath
         batchLoss = val_loss * sampleNum
         accumulatorVal.add(batchLoss, correctNum, sampleNum)
         prg = f"{int((i + 1) / batchNum * 100)}%"  # 进度，百分比
-        print(f"\r\033[K\033[31mepoch\033[0m {epoch_:>3}/{epochNum}    \033[31mbatch:\033[0m{i}    \033[31mprogress:\033[0m{prg}    \033[31msample_num:\033[0m{X.shape[0]}    \033[31mval_loss:\033[0m{val_loss:.5f}", end="\r")
+        print(f"\r\033[K\033[31mepoch\033[0m {epoch_:>3}/{epochNum}    \033[31mbatch:\033[0m{i+1}/{batchNum}    \033[31mprogress:\033[0m{prg}    \033[31msample_num:\033[0m{X.shape[0]}    \033[31mval_loss:\033[0m{val_loss:.5f}", end="\r")
         if prg == '100%':
             time.sleep(0.1)
 
