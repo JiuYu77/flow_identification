@@ -70,9 +70,11 @@ class BaseTester:
         fontsize = 12 if len(classesFlag) == 7 else 15  # 7种类别 12, 4种类别 15
         confusionMatrix = plot.ConfusionMatrix(classesFlag, normalize=True, figsize=(6, 5), fontdict=dict(fontsize=fontsize))  # fontsize=12 15
         sampleNum = [[i for i in range(self.classNum)],[0 for _ in range(self.classNum)]]  # 每种流型的样本数
+        batchNum = len(self.testIter)
         print("-----------------------------------------")
         print(f"|{colorstr('yellow', ' Start testing:')}")
         print(f"|{colorstr('green', ' testing device:')} {self.device}")
+        print(f"| test_batch_num: {batchNum}")
         print("-----------------------------------------")
         testTimer = tu.Timer()
         print(f"{colorstr('blue', 'timer start...')}")
@@ -88,7 +90,7 @@ class BaseTester:
             y_hat_ = torch.argmax(y_hat, dim=1)
             # print(y_hat_.shape)
             # print(y_hat_ == y, correctNum)
-            print(f"\rbatch {i}", end='\r')
+            print(f"\rbatch {i+1}/{batchNum}", end='\r')
             for i in range(len(y_hat_)):
                 trueLabel, preLabel = int(y[i]), int(y_hat_[i])
                 confusionMatrix.add(trueLabel, preLabel)
