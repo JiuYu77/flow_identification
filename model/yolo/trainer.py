@@ -5,6 +5,7 @@ from torch import optim
 import yaml
 
 from model.yolo1d import *
+from model.nn.yolo import YOLO1D
 from utils import tu, ph, cfg, print_color, data_loader, FlowDataset, uloss, ROOT, tm, plot
 
 
@@ -236,7 +237,8 @@ class BaseTrainer:
             yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
             fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
             self.scale = yml['model_settings']['model_scale']
-        self.net = YOLOv8_1D(self.modelYaml, self.model, fuse_=fuse_, split_=split_, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
+        # self.net = YOLOv8_1D(self.modelYaml, self.model, fuse_=fuse_, split_=split_, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
+        self.net = YOLO1D(self.modelYaml, self.model, fuse_=fuse_, split_=split_, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
 
     def val(self):
         '''validate'''

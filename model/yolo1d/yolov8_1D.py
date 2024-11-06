@@ -2,7 +2,7 @@
 
 from model.nn.yolo import *
 
-class YOLOv8_1D(YOLO1d):
+class YOLOv8_1D(YOLO1D):
     pass
     # def __init__(
     #         self,
