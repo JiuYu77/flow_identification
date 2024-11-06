@@ -12,8 +12,6 @@ from utils.ops import make_divisible
 from model.nn.modules import Conv1d, C2f1d, Classify, C2fCIB1d, SCDown1d, PSA1d
 from model.nn.other_modules import SENet1d
 
-# from model.yolo1d import YOLOv8_1D, YOLOv10_1D
-
 
 def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
     import ast
