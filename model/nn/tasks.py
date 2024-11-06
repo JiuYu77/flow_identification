@@ -9,7 +9,7 @@ sys.path.append('.')
 from utils import ph, LOGGER, colorstr, cfg
 from utils.ops import make_divisible
 
-from model.nn.modules import Conv1d, C2f1d, Classify, C2fCIB1d, SCDown1d, PSA1d
+from model.nn.modules import Conv1d, C2f1d, Classify, C2fCIB1d, SCDown1d, PSA1d, C3k2, C2PSA
 from model.nn.other_modules import SENet1d
 
 
@@ -51,6 +51,7 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
             SCDown1d,
             PSA1d,
             SENet1d,
+            C3k2,C2PSA,
         ):
             c1, c2 = ch[f], args[0]
             if c2 != nc:  # if c2 not equal to number of classes (i.e. for Classify() output)

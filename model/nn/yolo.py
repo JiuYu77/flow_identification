@@ -46,6 +46,7 @@ class Yolo(nn.Sequential):
             device='cpu'
     ):
         super().__init__()
+        self.names = None
         self.get_model(yaml_path, weights, ch, scale, verbose, device)
 
         if fuse_:
