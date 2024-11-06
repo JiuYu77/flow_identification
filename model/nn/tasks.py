@@ -150,9 +150,14 @@ def guess_model_name(model):
                 pass
 
         for m in model.modules():
-            if isinstance(m, YOLOv8_1D):
+            # if isinstance(m, YOLOv8_1D):
+            #     return "YOLOv8_1D"
+            # elif isinstance(m, YOLOv10_1D):
+            #     return "YOLOv10_1D"
+            n = m.__class__.__name__
+            if n is"YOLOv8_1D":
                 return "YOLOv8_1D"
-            elif isinstance(m, YOLOv10_1D):
+            elif n == "YOLOv10_1D":
                 return "YOLOv10_1D"
 
     # Guess from model filename
@@ -165,7 +170,7 @@ def guess_model_name(model):
 
     # Unable to determine task from model
     LOGGER.warning(
-        "WARNING ⚠️ Unable to automatically guess model name, assuming 'name=detect'. "
-        "Explicitly define task for your model, i.e. 'task=detect', 'segment', 'classify','pose' or 'obb'."
+        "WARNING ⚠️ Unable to automatically guess model name, assuming 'name=YOLO1d'. "
+        "Explicitly define name for your model, i.e. 'task=YOLO1D', 'YOLOv8_1D', 'YOLOv10_1D'."
     )
-    return "YOLO1d"  # assume detect
+    return "YOLO1d"  # assume YOLO1d
