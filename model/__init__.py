@@ -2,7 +2,7 @@
 import os
 import sys
 sys.path.append(os.getcwd())
-from model.yolo1d import *
+from model.yolo1d import YOLOv8_1D, YOLOv10_1D
 
 from model.nn.yolo import MODEL_YAML_DEFAULT
 
