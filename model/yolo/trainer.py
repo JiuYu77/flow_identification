@@ -209,7 +209,7 @@ class BaseTrainer:
         deviceName = tu.getDeviceName()
         if deviceName == "windows":
             numWorkers = 0
-        train_val_PathList, classNum = cfg.get_dataset_info(dataset, deviceName)
+        train_val_PathList, classNum, self.data = cfg.get_dataset_info(dataset, deviceName)
         trainDatasetPath = train_val_PathList[0]
         valDatasetPath = train_val_PathList[1]
         # 训练 数据加载器
@@ -238,7 +238,7 @@ class BaseTrainer:
             fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
             self.scale = yml['model_settings']['model_scale']
         self.net = YOLO1D(self.modelYaml, self.model, fuse_=fuse_, split_=split_, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
-        print(self.net.names)
+        self.net.set_names(self.data['names'])
 
     def val(self):
         '''validate'''

@@ -128,9 +128,8 @@ class YOLO1D:
 
         self.__class__.__name__ = self.model.netName  # 修改模型名字
 
-    @property
-    def names(self):
-        self.model.names = self.names
+    def set_names(self, names):
+        self.model.names = self.names = names
 
     def __call__(self, X, *args, **kwargs):
         return self.model(X)
