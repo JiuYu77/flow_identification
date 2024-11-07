@@ -88,7 +88,9 @@ class Yolo(nn.Sequential):
                 self.scale = model.scale
                 self.args = model.args
                 self.fuse, self.split = model.fuse, model.split
+                print(self.names)
             except:
+                print("************ ----&&&&&&&&&&&&")
                 # **** 之后要删除 **** #
                 yaml_ = yaml_model_load(yaml_path)
                 self.netName = guess_model_name(yaml_)
@@ -172,8 +174,8 @@ class YOLO1D:
         self.names = self.model.names
 
     def set_names(self, names):
-        # self.model.names = self.names = names
         self.names = names
+        self.model.names = names
 
     def __call__(self, X, *args, **kwargs):
         return self.model(X)
