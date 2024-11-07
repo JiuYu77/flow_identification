@@ -64,22 +64,36 @@ class Yolo(nn.Sequential):
         yaml_ = yaml_model_load(yaml_path)
         self.netName = guess_model_name(yaml_)
 
-        ch = yaml_["ch"] = yaml_.get("ch", ch)  # input channels
-        if scale:
-            yaml_['scale'] = scale
-        self.scale, layers, save = parse_model(yaml_, ch, verbose=verbose)
-        self.add_layers(layers)
+        # ch = yaml_["ch"] = yaml_.get("ch", ch)  # input channels
+        # if scale:
+        #     yaml_['scale'] = scale
+        # self.scale, layers, save = parse_model(yaml_, ch, verbose=verbose)
+        # self.add_layers(layers)
 
         if weights:  # 在已有权重上继续训练 or 测试 or 分类(推理, 实际使用)
             assert Path(weights).is_file(), f"{weights} does not exist."
 
             try:
-                model = attempt_load_weights(weights, self.device)
-                self.load_state_dict(model.state_dict())
+                model = attempt_load_weights(weights, device)
+                self.add_layers(model)
+                self.scale = model.scale
                 self.names = model.module.names if hasattr(model, 'module') else model.names  # get class names
             except:
-                self.model = torch.load(weights, map_location=device)
-                self.load_state_dict(self.model)
+                # **** 之后要删除 **** #
+                ch = yaml_["ch"] = yaml_.get("ch", ch)  # input channels
+                if scale:
+                    yaml_['scale'] = scale
+                self.scale, layers, save = parse_model(yaml_, ch, verbose=verbose)
+                self.add_layers(layers)
+                model = torch.load(weights, map_location=device)
+                self.load_state_dict(model)
+                # **** 之后要删除 **** #
+        else:
+            ch = yaml_["ch"] = yaml_.get("ch", ch)  # input channels
+            if scale:
+                yaml_['scale'] = scale
+            self.scale, layers, save = parse_model(yaml_, ch, verbose=verbose)
+            self.add_layers(layers)
 
     def add_layers(self, layers):
         for idx, module in enumerate(layers):
