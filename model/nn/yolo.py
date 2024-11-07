@@ -84,9 +84,9 @@ class Yolo(nn.Sequential):
                 self.add_layers(model)
 
                 self.names = model.module.names if hasattr(model, 'module') else model.names  # get class names
-                self.args = model.args
                 self.netName = model.netName
                 self.scale = model.scale
+                self.args = model.args
                 self.fuse, self.split = model.fuse, model.split
             except:
                 # **** 之后要删除 **** #
