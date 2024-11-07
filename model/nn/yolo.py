@@ -2,14 +2,17 @@
 from torch import nn
 import torch
 from pathlib import Path
+from copy import deepcopy
+
 import sys
 sys.path.append('.')
 
-from utils import LOGGER
 from model.nn.modules import Conv1d, C2f1d
-
 from model.nn.tasks import parse_model, yaml_model_load, guess_model_name, attempt_load_weights
-from utils.torch_utils import InitWeight, fuse_conv_and_bn
+
+from utils import LOGGER
+from utils.torch_utils import InitWeight, fuse_conv_and_bn, de_parallel
+
 
 '''
 scales: n s m l x
@@ -131,11 +134,9 @@ class Yolo(nn.Sequential):
         # state_dict = self.state_dict()
         # torch.save(state_dict, f)
 
-        from copy import deepcopy
-        from utils.torch_utils import de_parallel
-
         ckpt = {
             "model": deepcopy(de_parallel(self)).half(),
+            "args": 0,
         }
         torch.save(ckpt, f)
 

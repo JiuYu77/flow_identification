@@ -237,6 +237,7 @@ class BaseTrainer:
             yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
             fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
             self.scale = yml['model_settings']['model_scale']
+            self.modelYaml = yml['model_settings']['modelYaml']
         self.net = YOLO1D(self.modelYaml, self.model, fuse_=fuse_, split_=split_, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
         self.net.set_names(self.data['names'])
 
