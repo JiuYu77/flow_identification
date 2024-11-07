@@ -233,7 +233,7 @@ class BaseTrainer:
         fuse_, split_, initweightName = False, False, 'xavier'
         if self.model is not None:  # 在已有模型的基础上继续训练
             # 读取训练信息
-            path = os.path.dirname(self.model)
+            path = os.path.dirname(os.path.dirname(self.model))
             yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
             fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
             self.scale = yml['model_settings']['model_scale']

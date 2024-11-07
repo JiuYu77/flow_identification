@@ -44,28 +44,31 @@ class Yolo(nn.Sequential):
             scale:str=None,
             ch=1,
             verbose=True,
-            fuse_=False, split_=False,
+            fuse=False, split=False,
             initweightName='xavier',
             device='cpu'
     ):
         super().__init__()
         self.names = None
         self.device = device
+        self.fuse, self.split = fuse, split
+
+        self.args = {"modelYaml": yaml_path, "fuse": fuse, "split": split}
 
         self.get_model(yaml_path, weights, ch, scale, verbose, device)
 
-        if fuse_:
+        if self.fuse:
             # self.fuse(self)
-            self.fuse()
-        if split_:
-            self.split()
+            self._fuse()
+        if self.split:
+            self._split()
         if weights is None:
             self.apply(InitWeight(initweightName).__call__)
         self.to(device)  # device: cpu, gpu(cuda)
 
     def get_model(self, yaml_path, weights, ch, scale, verbose, device):
-        yaml_ = yaml_model_load(yaml_path)
-        self.netName = guess_model_name(yaml_)
+        # yaml_ = yaml_model_load(yaml_path)
+        # self.netName = guess_model_name(yaml_)
 
         # ch = yaml_["ch"] = yaml_.get("ch", ch)  # input channels
         # if scale:
@@ -79,10 +82,16 @@ class Yolo(nn.Sequential):
             try:
                 model = attempt_load_weights(weights, device)
                 self.add_layers(model)
-                self.scale = model.scale
+
                 self.names = model.module.names if hasattr(model, 'module') else model.names  # get class names
+                self.args = model.args
+                self.netName = model.netName
+                self.scale = model.scale
+                self.fuse, self.split = model.fuse, model.split
             except:
                 # **** 之后要删除 **** #
+                yaml_ = yaml_model_load(yaml_path)
+                self.netName = guess_model_name(yaml_)
                 ch = yaml_["ch"] = yaml_.get("ch", ch)  # input channels
                 if scale:
                     yaml_['scale'] = scale
@@ -92,6 +101,8 @@ class Yolo(nn.Sequential):
                 self.load_state_dict(model)
                 # **** 之后要删除 **** #
         else:
+            yaml_ = yaml_model_load(yaml_path)
+            self.netName = guess_model_name(yaml_)
             ch = yaml_["ch"] = yaml_.get("ch", ch)  # input channels
             if scale:
                 yaml_['scale'] = scale
@@ -102,7 +113,7 @@ class Yolo(nn.Sequential):
         for idx, module in enumerate(layers):
             self.add_module(str(idx), module)
 
-    def fuse(self):
+    def _fuse(self):
         """
         fuse后效果不好
         """
@@ -113,7 +124,7 @@ class Yolo(nn.Sequential):
                 delattr(m, "bn1d")  # remove batchnorm
                 m.forward = m.forward_fuse
 
-    # def fuse(self, model:nn.Module):
+    # def _fuse(self, model:nn.Module):
     #     for m in model.modules():
     #         if isinstance(m, Conv1d) and hasattr(m, "bn1d"):
     #             m.conv1d = fuse_conv_and_bn(m.conv1d, m.bn1d)  # update conv
@@ -121,7 +132,7 @@ class Yolo(nn.Sequential):
     #             m.forward = m.forward_fuse
     #     return model
 
-    def split(self):
+    def _split(self):
         for m in self.modules():
             if isinstance(m, C2f1d):
                 m.forward = m.forward_split
@@ -136,7 +147,7 @@ class Yolo(nn.Sequential):
 
         ckpt = {
             "model": deepcopy(de_parallel(self)).half(),
-            "args": 0,
+            "args": self.args,
         }
         torch.save(ckpt, f)
 
