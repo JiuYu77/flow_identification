@@ -88,7 +88,6 @@ class Yolo(nn.Sequential):
                 self.scale = model.scale
                 self.args = model.args
                 self.fuse, self.split = model.fuse, model.split
-                print(self.names)
             except:
                 print("************ ----&&&&&&&&&&&&")
                 # **** 之后要删除 **** #
