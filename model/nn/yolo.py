@@ -8,7 +8,7 @@ sys.path.append('.')
 from utils import LOGGER
 from model.nn.modules import Conv1d, C2f1d
 
-from model.nn.tasks import parse_model, yaml_model_load, guess_model_name
+from model.nn.tasks import parse_model, yaml_model_load, guess_model_name, attempt_load_weights
 from utils.torch_utils import InitWeight, fuse_conv_and_bn
 
 '''
@@ -47,6 +47,8 @@ class Yolo(nn.Sequential):
     ):
         super().__init__()
         self.names = None
+        self.device = device
+
         self.get_model(yaml_path, weights, ch, scale, verbose, device)
 
         if fuse_:
@@ -70,8 +72,14 @@ class Yolo(nn.Sequential):
 
         if weights:  # 在已有权重上继续训练 or 测试 or 分类(推理, 实际使用)
             assert Path(weights).is_file(), f"{weights} does not exist."
-            self.model = torch.load(weights, map_location=device)
-            self.load_state_dict(self.model)
+
+            try:
+                model = attempt_load_weights(weights, self.device)
+                self.load_state_dict(model.state_dict())
+                self.names = model.module.names if hasattr(model, 'module') else model.names  # get class names
+            except:
+                self.model = torch.load(weights, map_location=device)
+                self.load_state_dict(self.model)
 
     def add_layers(self, layers):
         for idx, module in enumerate(layers):
@@ -106,8 +114,16 @@ class Yolo(nn.Sequential):
         保存权重 params.pt
         f 保存路径, 如: ~/best_params.pt
         '''
-        state_dict = self.state_dict()
-        torch.save(state_dict, f)
+        # state_dict = self.state_dict()
+        # torch.save(state_dict, f)
+
+        from copy import deepcopy
+        from utils.torch_utils import de_parallel
+
+        ckpt = {
+            "model": deepcopy(de_parallel(self)).half(),
+        }
+        torch.save(ckpt, f)
 
 
 class YOLO1D:
@@ -127,9 +143,11 @@ class YOLO1D:
         self.fuse, self.split, self.initweightName = fuse_, split_, initweightName
 
         self.__class__.__name__ = self.model.netName  # 修改模型名字
+        self.names = self.model.names
 
     def set_names(self, names):
-        self.model.names = self.names = names
+        # self.model.names = self.names = names
+        self.names = names
 
     def __call__(self, X, *args, **kwargs):
         return self.model(X)

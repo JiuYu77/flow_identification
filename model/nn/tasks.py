@@ -1,6 +1,7 @@
 # -*- coding:UTF-8 -*-
 import contextlib
 from utils import LOGGER
+import torch
 from torch import nn
 from pathlib import Path
 import sys
@@ -175,3 +176,69 @@ def guess_model_name(model):
         "Explicitly define name for your model, i.e. 'task=YOLO1D', 'YOLOv8_1D', 'YOLOv10_1D'."
     )
     return "YOLO1d"  # assume YOLO1d
+
+class Ensemble(nn.ModuleList):
+    """Ensemble of models."""
+
+    def __init__(self):
+        """Initialize an ensemble of models."""
+        super().__init__()
+
+    def forward(self, x, augment=False, profile=False, visualize=False):
+        """Function generates the YOLO network's final layer."""
+        y = [module(x, augment, profile, visualize)[0] for module in self]
+        # y = torch.stack(y).max(0)[0]  # max ensemble
+        # y = torch.stack(y).mean(0)  # mean ensemble
+        y = torch.cat(y, 2)  # nms ensemble, y shape(B, HW, C)
+        return y, None  # inference, train output
+
+
+def torch_safe_load(weight):
+    weight = str(weight)
+    file = Path(weight.strip().replace("'", ""))
+    if file.exists():
+        file = str(file)
+    else:
+        LOGGER.error(f"{weight} is not exists.\n")
+        exit(-1)
+    # file = weight
+    return torch.load(weight, map_location='cpu'), file
+
+def attempt_load_weights(weights, device=None, inplace=True, fuse=False):
+    """Loads an ensemble of models weights=[a,b,c] or a single model weights=[a] or weights=a."""
+
+    ensemble = Ensemble()
+    for w in weights if isinstance(weights, list) else [weights]:
+        ckpt, w = torch_safe_load(w)  # load ckpt
+        # args = {**DEFAULT_CFG_DICT, **ckpt["train_args"]} if "train_args" in ckpt else None  # combined args
+        model = (ckpt.get("ema") or ckpt["model"]).to(device).float()  # FP32 model
+
+        # Model compatibility updates
+        # model.args = args  # attach args to model
+        model.pt_path = w  # attach *.pt file path to model
+        # model.task = guess_model_task(model)
+        if not hasattr(model, "stride"):
+            model.stride = torch.tensor([32.0])
+
+        # Append
+        ensemble.append(model.fuse().eval() if fuse and hasattr(model, "fuse") else model.eval())  # model in eval mode
+
+    # Module updates
+    for m in ensemble.modules():
+        t = type(m)
+        if t in (nn.Hardswish, nn.LeakyReLU, nn.ReLU, nn.ReLU6, nn.SiLU):
+            m.inplace = inplace
+        elif t is nn.Upsample and not hasattr(m, "recompute_scale_factor"):
+            m.recompute_scale_factor = None  # torch 1.11.0 compatibility
+
+    # Return model
+    if len(ensemble) == 1:
+        return ensemble[-1]
+
+    # Return ensemble
+    LOGGER.info(f"Ensemble created with {weights}\n")
+    for k in "names", "nc", "yaml":
+        setattr(ensemble, k, getattr(ensemble[0], k))
+    ensemble.stride = ensemble[torch.argmax(torch.tensor([m.stride.max() for m in ensemble])).int()].stride
+    assert all(ensemble[0].nc == m.nc for m in ensemble), f"Models differ in class counts {[m.nc for m in ensemble]}"
+    return ensemble

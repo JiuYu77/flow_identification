@@ -5,12 +5,14 @@ import yaml
 import numpy as np
 
 from model.yolo1d import *
+from model.nn.yolo import YOLO1D
 from utils import tu, ph, cfg, print_color, data_loader, FlowDataset, ROOT, tm, plot, colorstr
 
 
 class BaseTester:
     def __init__(
             self,
+            weights,
             dataset,
             batchSize,
             sampleLength,
@@ -18,8 +20,7 @@ class BaseTester:
             transform:str,
             shuffleFlag,
             numWorkers,
-            modelYaml,
-            weights
+            modelYaml
     ) -> None:
         self.dataset = dataset
         self.batchSize = batchSize
@@ -125,7 +126,8 @@ class BaseTester:
             f.write('Correct num: ' + str(totalCorrect) + "\n"*2)
             f.write('total sample num: ' + str(totalNum) + '\n'*2)
             f.write('sample num:\n' + str(np.array(sampleNum)) + '\n'*2)
-            f.write('confusionMatrix:\n' + str(confusionMatrix.cm))
+            f.write('confusionMatrix:\n' + str(confusionMatrix.cm)+'\n'*2)
+            f.write('names:\n' + str(self.net.names))
 
     def _setup_test(self):
         shuffleFlag = self.shuffleFlag
@@ -152,8 +154,9 @@ class BaseTester:
         print('loading model...')
         scale = yml['model_settings']['model_scale']
         modelYaml = self.modelYaml if self.modelYaml else yml['model_settings']['modelYaml']  # ########
+        print(">>>>>>>modelYaml:", modelYaml)
         fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
-        self.net = YOLOv8_1D(modelYaml, self.weights, scale=scale, fuse_=fuse_, split_=split_, device=self.device)
+        self.net = YOLO1D(modelYaml, self.weights, scale=scale, fuse_=fuse_, split_=split_, device=self.device)
 
     @staticmethod
     def test_function(

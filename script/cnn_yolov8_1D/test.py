@@ -27,7 +27,7 @@ def parse_args():
     parser.add_argument('-sf', '--shuffleFlag', type=int, default=1, help='1 is True, 0 is False')
     # parser.add_argument('-n', '--numWorkers', type=int, default=0)
     parser.add_argument('-n', '--numWorkers', type=int, default=4)
-    parser.add_argument('-my', '--modelYaml', type=str, default=MODEL_YAML_DEFAULT)
+    parser.add_argument('-my', '--modelYaml', type=str, default=None)
 
     # netPath = os.path.join(os.getcwd(), 'result', 'train', '20240317.163818_Yolov8_1D', 'weights', 'best_params.pt')
     # netPath = os.path.join('result', 'train', '20240318.132209_Yolov8_1D', 'weights', 'best_params.pt')
