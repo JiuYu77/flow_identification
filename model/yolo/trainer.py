@@ -64,6 +64,7 @@ class BaseTrainer:
             "model_settings":{'model_scale': self.net.scale, "modelYaml": self.modelYaml, 'fuse_':self.net.fuse, 'split_':self.net.split, 'initweightName': self.net.initweightName},
             "lr": self.lr,
             "epoch_num": self.epochNum,
+            "epoch": self.epochNum,
             "loss_function": self.loss.__class__.__name__,
             "train_time_consuming": None,
             # "optimizer": {self.optimizer.__class__.__name__: self.optimizer.defaults},
@@ -95,10 +96,10 @@ class BaseTrainer:
         print(f"| train_batch_num: {batchNum}")
         print(f"| val_batch_num: {len(self.valIter)}")
         print("-----------------------------------------")
-        epoch_ = 0
+
         print_color(["bright_green", "bold", "preparing data..."])
         for epoch in range(self.epochNum):
-            epoch_ = self.epoch_ = epoch + 1
+            epoch_ = self.epoch = epoch + 1
             # 训练
             accumulatorTrain = tu.Accumulator(3)
             self.net.train()
@@ -243,7 +244,7 @@ class BaseTrainer:
 
     def val(self):
         '''validate'''
-        valLoss, valAcc = tu.val(self.net, self.valIter, self.device, self.loss, self.epoch_, self.epochNum, self.resultPath)
+        valLoss, valAcc = tu.val(self.net, self.valIter, self.device, self.loss, self.epoch, self.epochNum, self.resultPath)
         return valLoss, valAcc
 
     @staticmethod
