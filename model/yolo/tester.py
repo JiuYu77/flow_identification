@@ -33,9 +33,9 @@ class BaseTester:
         self.weights = weights
 
     def test(self):
-        testConsumeTimer = tu.Timer()
+        testTimer = tu.Timer()
         print(f"{colorstr('blue', 'timer start...')}")
-        testConsumeTimer.start()
+        testTimer.start()
 
         self._setup_test()
         self.net.eval()
@@ -65,9 +65,10 @@ class BaseTester:
             "numWorkers": self.numWorkers,
             "net_path": self.weights,
             "test_time_consuming": None,
+            "predict_time_consuming": None,
             "speed": None
         }
-        yaml.dump(task_info, open(info_fp_path, "w"))
+        yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False)
 
         totalCorrect = 0
         totalNum = 0
@@ -81,14 +82,14 @@ class BaseTester:
         print(f"|{colorstr('green', ' testing device:')} {self.device}")
         print(f"| test_batch_num: {batchNum}")
         print("-----------------------------------------")
-        testTimer = tu.Timer()
+        preTimer = tu.Timer()
 
         print_color(["bright_green", "preparing data..."])
         for i, (X,y) in enumerate(self.testIter):
-            testTimer.start()
+            preTimer.start()
             X, y = X.to(self.device), y.to(self.device)
             y_hat = self.net(X)
-            testTimer.stop()
+            preTimer.stop()
             correctNum = tu.accuracy(y_hat, y)  # 预测正确的数量
             totalCorrect += correctNum
             totalNum += len(y)
@@ -105,24 +106,10 @@ class BaseTester:
         totalCorrect = int(totalCorrect)
         acc = round(totalCorrect / totalNum, 8)
 
-        tSec = testTimer.sum()  # 秒数
-        speed = int(totalNum / tSec)
+        preSec = preTimer.sum()  # 秒数
+        speed = int(totalNum / preSec)
+        task_info["predict_time_consuming"] = tm.sec_to_HMS(preSec)
         task_info["speed"] = f"{speed} samples/sec"
-
-        print(f"\n{colorstr('blue', 'timer stop...')}")
-        testConsumeTimer.stop()
-        timeConsuming = tm.sec_to_HMS(testConsumeTimer.sum())
-        task_info["test_time_consuming"] = timeConsuming
-
-        yaml.dump(task_info, open(info_fp_path, "w"))
-
-        print('total_correct:', totalCorrect, '   total_num:', totalNum, '   acc:', acc)
-
-        print("-----------------------------------------")
-        print(f"|{colorstr('yellow', ' End testing:')}")
-        print(f"| test time consuming: {timeConsuming}")  # 训练耗时
-        print(f"| speed: {speed} samples/sec")  # speed
-        print("-----------------------------------------")
 
         # 混淆矩阵
         confusionMatrix.draw_save(confusionMatrixPath, dpi=80)
@@ -134,6 +121,20 @@ class BaseTester:
             f.write('sample num:\n' + str(np.array(sampleNum)) + '\n'*2)
             f.write('confusionMatrix:\n' + str(confusionMatrix.cm)+'\n'*2)
             f.write('names:\n' + str(self.net.names))
+
+
+        print(f"\n{colorstr('blue', 'timer stop...')}")
+        testTimer.stop()
+        timeConsuming = tm.sec_to_HMS(testTimer.sum())
+        task_info["test_time_consuming"] = timeConsuming
+        yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False)
+
+        print('total_correct:', totalCorrect, '   total_num:', totalNum, '   acc:', acc)
+        print("-----------------------------------------")
+        print(f"|{colorstr('yellow', ' End testing:')}")
+        print(f"| test time consuming: {timeConsuming}")  # 训练耗时
+        print(f"| speed: {speed} samples/sec")  # speed
+        print("-----------------------------------------")
 
     def _setup_test(self):
         shuffleFlag = self.shuffleFlag
