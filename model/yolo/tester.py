@@ -79,9 +79,9 @@ class BaseTester:
         print("-----------------------------------------")
         testTimer = tu.Timer()
         print(f"{colorstr('blue', 'timer start...')}")
-        testTimer.start()
 
         print_color(["bright_green", "preparing data..."])
+        testTimer.start()
         for i, (X,y) in enumerate(self.testIter):
             X, y = X.to(self.device), y.to(self.device)
             y_hat = self.net(X)
