@@ -81,10 +81,11 @@ class BaseTester:
         print(f"{colorstr('blue', 'timer start...')}")
 
         print_color(["bright_green", "preparing data..."])
-        testTimer.start()
         for i, (X,y) in enumerate(self.testIter):
+            testTimer.start()
             X, y = X.to(self.device), y.to(self.device)
             y_hat = self.net(X)
+            testTimer.stop()
             correctNum = tu.accuracy(y_hat, y)  # 预测正确的数量
             totalCorrect += correctNum
             totalNum += len(y)
@@ -97,7 +98,6 @@ class BaseTester:
                 confusionMatrix.add(trueLabel, preLabel)
                 sampleNum[1][trueLabel] += 1
 
-        testTimer.stop()
         print(f"\n{colorstr('blue', 'timer stop...')}")
         tSec = testTimer.sum()  # 秒数
 
