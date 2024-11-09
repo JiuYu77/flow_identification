@@ -89,7 +89,6 @@ class Yolo(nn.Sequential):
                 self.args = model.args
                 self.fuse, self.split = model.fuse, model.split
             except:
-                print("************ ----&&&&&&&&&&&&")
                 # **** 之后要删除 **** #
                 yaml_ = yaml_model_load(yaml_path)
                 self.netName = guess_model_name(yaml_)

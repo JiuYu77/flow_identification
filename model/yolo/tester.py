@@ -33,6 +33,10 @@ class BaseTester:
         self.weights = weights
 
     def test(self):
+        testConsumeTimer = tu.Timer()
+        print(f"{colorstr('blue', 'timer start...')}")
+        testConsumeTimer.start()
+
         self._setup_test()
         self.net.eval()
         netName = self.net.__class__.__name__
@@ -78,7 +82,6 @@ class BaseTester:
         print(f"| test_batch_num: {batchNum}")
         print("-----------------------------------------")
         testTimer = tu.Timer()
-        print(f"{colorstr('blue', 'timer start...')}")
 
         print_color(["bright_green", "preparing data..."])
         for i, (X,y) in enumerate(self.testIter):
@@ -92,22 +95,25 @@ class BaseTester:
             y_hat_ = torch.argmax(y_hat, dim=1)
             # print(y_hat_.shape)
             # print(y_hat_ == y, correctNum)
-            print(f"\rbatch {i+1}/{batchNum}", end='\r')
+            print(f"\r>>>> batch {i+1}/{batchNum}", end='\r')
             for i in range(len(y_hat_)):
                 trueLabel, preLabel = int(y[i]), int(y_hat_[i])
                 confusionMatrix.add(trueLabel, preLabel)
                 sampleNum[1][trueLabel] += 1
 
-        print(f"\n{colorstr('blue', 'timer stop...')}")
-        tSec = testTimer.sum()  # 秒数
 
         totalCorrect = int(totalCorrect)
         acc = round(totalCorrect / totalNum, 8)
 
-        timeConsuming = tm.sec_to_HMS(tSec)
-        task_info["test_time_consuming"] = timeConsuming
+        tSec = testTimer.sum()  # 秒数
         speed = int(totalNum / tSec)
         task_info["speed"] = f"{speed} samples/sec"
+
+        print(f"\n{colorstr('blue', 'timer stop...')}")
+        testConsumeTimer.stop()
+        timeConsuming = tm.sec_to_HMS(testConsumeTimer.sum())
+        task_info["test_time_consuming"] = timeConsuming
+
         yaml.dump(task_info, open(info_fp_path, "w"))
 
         print('total_correct:', totalCorrect, '   total_num:', totalNum, '   acc:', acc)
