@@ -2,7 +2,7 @@
 # 官方配置文件 的一维版本
 
 # Parameters
-net_name: YOLOv11_1D
+net_name: YOLO1Dv11
 
 ch: 1  # input channels
 
