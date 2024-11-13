@@ -2,5 +2,5 @@
 
 from model.nn.yolo import *
 
-class YOLOv10_1D(YOLO1D):
+class YOLO1Dv10(YOLO1D):
     pass
