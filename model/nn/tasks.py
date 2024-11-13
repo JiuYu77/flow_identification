@@ -158,17 +158,17 @@ def guess_model_name(model):
             #     return "YOLOv10_1D"
             n = m.__class__.__name__
             if n is"YOLOv8_1D":
-                return "YOLOv8_1D"
+                return "YOLO1Dv8"
             elif n == "YOLOv10_1D":
-                return "YOLOv10_1D"
+                return "YOLO1Dv10"
 
     # Guess from model filename
     if isinstance(model, (str, Path)):
         model = Path(model)
         if "yolov8" in model.stem:
-            return "YOLOv8_1D"
+            return "YOLO1Dv8"
         elif "yolov10" in model.stem:
-            return "YOLOv10_1D"
+            return "YOLO1Dv10"
 
     # Unable to determine task from model
     LOGGER.warning(
