@@ -1,7 +1,7 @@
 # YOLOv8_1D-cls image classification model.
 
 # Parameters
-net_name: YOLOv8_1D
+net_name: YOLO1Dv8
 
 nc: 7  # number of classes
 scales: # model compound scaling constants, i.e. 'model=yolov8_1Dn-cls.yaml' will call yolov8_1D-cls.yaml with scale 'n'
