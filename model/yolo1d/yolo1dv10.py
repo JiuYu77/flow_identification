@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-from nn.yolo import *
+from model.model import *
 
 class YOLO1Dv10(YOLO1D):
     pass
