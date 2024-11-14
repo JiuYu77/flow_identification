@@ -21,6 +21,7 @@ class YOLO1D:
         self.names = self.model.names
 
     def set_names(self, names):
+        '''设置类别'''
         self.names = names
         self.model.names = names
 
