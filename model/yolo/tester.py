@@ -5,7 +5,7 @@ import yaml
 import numpy as np
 
 from model.yolo1d import *
-from model.nn.yolo import YOLO1D
+from nn.yolo import YOLO1D, MODEL_YAML_DEFAULT
 from utils import tu, ph, cfg, print_color, data_loader, FlowDataset, ROOT, tm, plot, colorstr
 
 
@@ -102,7 +102,6 @@ class BaseTester:
                 confusionMatrix.add(trueLabel, preLabel)
                 sampleNum[1][trueLabel] += 1
 
-
         totalCorrect = int(totalCorrect)
         acc = round(totalCorrect / totalNum, 8)
 
@@ -112,6 +111,7 @@ class BaseTester:
         task_info["speed"] = f"{speed} samples/sec"
 
         # 混淆矩阵
+        print_color(["bright_green", "\ndrawing..."])
         confusionMatrix.draw_save(confusionMatrixPath, dpi=80)
         # 保存测试结果
         with open(cmPath, 'w', encoding='utf-8') as f:
@@ -123,7 +123,7 @@ class BaseTester:
             f.write('names:\n' + str(self.net.names))
 
 
-        print(f"\n{colorstr('blue', 'timer stop...')}")
+        print(f"{colorstr('blue', 'timer stop...')}")
         testTimer.stop()
         timeConsuming = tm.sec_to_HMS(testTimer.sum())
         task_info["test_time_consuming"] = timeConsuming

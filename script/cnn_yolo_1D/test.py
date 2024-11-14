@@ -2,7 +2,7 @@
 from argparse import ArgumentParser
 import sys
 sys.path.append('.')
-from model import MODEL_YAML_DEFAULT
+from nn import MODEL_YAML_DEFAULT
 import os
 from model.yolo.tester import BaseTester
 

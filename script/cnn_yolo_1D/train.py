@@ -2,7 +2,7 @@
 import sys
 sys.path.append('.')
 from argparse import ArgumentParser
-from model import MODEL_YAML_DEFAULT
+from nn import MODEL_YAML_DEFAULT
 from utils import print_color
 from model.yolo.trainer import BaseTrainer
 

@@ -7,8 +7,8 @@ from copy import deepcopy
 import sys
 sys.path.append('.')
 
-from model.nn.modules import Conv1d, C2f1d
-from model.nn.tasks import parse_model, yaml_model_load, guess_model_name, attempt_load_weights
+from nn.modules import Conv1d, C2f1d
+from nn.tasks import parse_model, yaml_model_load, guess_model_name, attempt_load_weights
 
 from utils import LOGGER
 from utils.torch_utils import InitWeight, fuse_conv_and_bn, de_parallel

@@ -5,7 +5,7 @@ from torch import optim
 import yaml
 
 from model.yolo1d import *
-from model.nn.yolo import YOLO1D
+from nn.yolo import YOLO1D, MODEL_YAML_DEFAULT
 from utils import tu, ph, cfg, print_color, data_loader, FlowDataset, uloss, ROOT, tm, plot
 
 
