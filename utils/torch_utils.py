@@ -164,7 +164,7 @@ def val(net:torch.nn.Module, valIter, device, loss, epoch, epochNum, resultPath)
     return valLoss, valAcc
 
 
-# *********************** yolo *********************** #
+# *********************** YOLO *********************** #
 def fuse_conv_and_bn(conv, bn):
     """Fuse Conv1d() and BatchNorm1d() layers"""
     fusedconv = (
@@ -202,4 +202,4 @@ def is_parallel(model):
 def de_parallel(model):
     """De-parallelize a model: returns single-GPU model if model is of type DP or DDP."""
     return model.module if is_parallel(model) else model
-# *********************** yolo *********************** #
+# *********************** YOLO *********************** #
