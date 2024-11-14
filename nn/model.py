@@ -35,9 +35,8 @@ MODEL_YAML_S = 'yolov8_1Ds-cls.yaml'
 # MODEL_YAML = 'yolov8_1Dx-cls.yaml'
 
 
-
-# class Model(nn.Sequential):
-class Model(nn.Module):
+# class Model(nn.Module):
+class Model(nn.Sequential):
     def __init__(
             self,
             yaml_path=MODEL_YAML_DEFAULT,
