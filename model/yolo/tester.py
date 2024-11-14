@@ -201,7 +201,7 @@ class BaseTester:
         scale = yml['model_settings']['model_scale']
         # modelYaml = modelYaml if modelYaml else yml['model_settings']['modelYaml']
         fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
-        net = YOLOv8_1D(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
+        net = YOLO1D(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
         net.eval()
         netName = net.__class__.__name__
         modelParamAmount = sum([p.nelement() for p in net.parameters()])
