@@ -4,10 +4,10 @@ from .tasks import (
     attempt_load_weights,
 )
 
-from nn.yolo import Yolo, MODEL_YAML_DEFAULT
+from nn.model import Model, MODEL_YAML_DEFAULT
 
 __all__ = [
     "attempt_load_weights",
-    "Yolo",
+    "Model",
     "MODEL_YAML_DEFAULT"
 ]

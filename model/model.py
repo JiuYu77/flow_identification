@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from nn import Yolo, MODEL_YAML_DEFAULT
+from nn import Model, MODEL_YAML_DEFAULT
 
 class YOLO1D:
     def __init__(
@@ -13,7 +13,7 @@ class YOLO1D:
             initweightName='xavier',
             device='cpu'
     ) -> None:
-        self.model = Yolo(yaml_path,  weights, scale, ch, verbose, fuse_, split_, initweightName, device)
+        self.model = Model(yaml_path,  weights, scale, ch, verbose, fuse_, split_, initweightName, device)
         self.scale = self.model.scale
         self.fuse, self.split, self.initweightName = fuse_, split_, initweightName
 

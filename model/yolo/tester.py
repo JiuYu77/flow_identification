@@ -4,8 +4,8 @@ import torch
 import yaml
 import numpy as np
 
-from model.yolo1d import *
-from nn.yolo import YOLO1D, MODEL_YAML_DEFAULT
+from model import *
+from nn.model import MODEL_YAML_DEFAULT
 from utils import tu, ph, cfg, print_color, data_loader, FlowDataset, ROOT, tm, plot, colorstr
 
 

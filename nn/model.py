@@ -36,7 +36,8 @@ MODEL_YAML_S = 'yolov8_1Ds-cls.yaml'
 
 
 
-class Yolo(nn.Sequential):
+# class Model(nn.Sequential):
+class Model(nn.Module):
     def __init__(
             self,
             yaml_path=MODEL_YAML_DEFAULT,
