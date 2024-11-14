@@ -4,7 +4,7 @@ UTF-8
 # Description
 这是一个基于深度学习的管道流型识别项目。参考了YOLO系列模型，YOLOv8、YOLOv10等。
 
-**YOLO1Dv8**、`YOLO1Dv10`。
+**YOLO1Dv8**、**`YOLO1Dv10`**。
 
 # clone
 ```bash
