@@ -136,7 +136,7 @@ class Line(Plot):
         self.xlabel, self.ylabel, self.legend, self.xlim, self.ylim,\
         self.xscale, self.yscale, self.fmts, self.nrows, self.ncols, self.figsize = \
             xlabel, ylabel, legend, xlim, ylim, xscale, yscale, fmts, nrows, ncols, figsize
-    
+
     def Init(self):
         xlabel, ylabel, legend, xlim, ylim, xscale, yscale, fmts, nrows, ncols, figsize = \
         self.xlabel, self.ylabel, self.legend, self.xlim, self.ylim,\

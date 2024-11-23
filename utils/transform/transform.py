@@ -19,6 +19,9 @@ class Transform:
         self.add_transform("dwt_norml", transforms.dwt_norml, "DWT, Min-Max")
         self.add_transform("dwtg_std", transforms.dwtg_std, "DWTg, z-score")
         self.add_transform("fft_std", transforms.fft_std, "fft, z-score")
+        self.add_transform("fft", transforms.fft, "FFT")
+        self.add_transform("ewt", transforms.ewt, "EWT")
+        self.add_transform("dwt", transforms.dwt, "DWT")
 
 
     def add_transform(self, name, transform, desc):

@@ -238,10 +238,22 @@ def std_gaussianNoise():
         ToTensor()
     ])
 
+def ewt():
+    return transforms.Compose([
+        EWT(N=2),
+        ToTensor()
+    ])
+
 def ewt_std():
     return transforms.Compose([
         EWT(N=2),
         ZScoreStandardization(),
+        ToTensor()
+    ])
+
+def dwt():
+    return transforms.Compose([
+        DWT(),
         ToTensor()
     ])
 
@@ -259,16 +271,22 @@ def dwtg_std():
         ToTensor()
     ])
 
-def fft_std():
-    return transforms.Compose([
-        FFT(),
-        ZScoreStandardization(),
-        ToTensor()
-    ])
-
 def dwt_norml():
     return transforms.Compose([
         DWT(),
         MinMaxNormalization(),
+        ToTensor()
+    ])
+
+def fft():
+    return transforms.Compose([
+        FFT(),
+        ToTensor()
+    ])
+
+def fft_std():
+    return transforms.Compose([
+        FFT(),
+        ZScoreStandardization(),
         ToTensor()
     ])
