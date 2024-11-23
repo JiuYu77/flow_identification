@@ -232,6 +232,7 @@ class FlowDataset:
         # else:
         #     totensor = tf.transforms.ToTensor()
         #     sample = totensor(sample)
+
         # label = self.allSample[index]['label']
         label = self.allSample[index][1]
         return sample, label

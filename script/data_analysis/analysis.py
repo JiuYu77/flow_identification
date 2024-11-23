@@ -23,7 +23,7 @@ def draw(x, y, outPath):
 
 def analysis(dataset, idxList, resultPath, transform):
     for idx in idxList:
-        y = None
+        y = []
         x = []
 
         label = dataset.allSample[idx][1]
@@ -31,16 +31,13 @@ def analysis(dataset, idxList, resultPath, transform):
 
         sample, _ = dataset.__getitem__(idx)
 
-        if transform is None:
-            print(transform)
-            sample = sample[0];y = sample  # None
-        elif transform in ["dwt", "fft"]:
-            print(transform)
-            sample = sample[0];y = sample  # dwt  fft
-        elif "ewt" in transform:
+        if transform is not None and "ewt" in transform:
             print(transform)
             # sample = sample[0];y = sample  # ewt
             sample = sample[0];y = sample[::2]  # ewt, 采样：数据点数减半
+        else:
+            print(transform)  # None  dwt  fft
+            sample = sample[0];y = sample
         y_length = len(y)
         print("length_after_transform:", y_length)
 
@@ -55,6 +52,7 @@ def analysis(dataset, idxList, resultPath, transform):
         outPath = os.path.join(resultPath, name)
         draw(x, y, outPath)
     return y_length  # 用于绘图的序列的数据点数, 样本长度 或 ewt、dwt等变换后的序列长度
+
 
 def do(resultPath, dataPath, length, step, transform, idxList, train=True):
     train_or_val = "train" if train else "val"
@@ -79,6 +77,17 @@ def do(resultPath, dataPath, length, step, transform, idxList, train=True):
     info['length_after_transform'] = y_length
     yaml.dump(info, open(info_fp_path, "w"), sort_keys=False)
 
+    if transform is not None and "ewt" in transform:
+        resultPath = os.path.join(resultPath, tm.get_result_dir())
+        ph.checkAndInitPath(resultPath)
+        info_fp_path = os.path.join(resultPath, "info.yaml")
+
+        y_length = analysis(dataset, idxList, resultPath, "e-w-t")
+
+        info['length_after_transform'] = y_length
+        yaml.dump(info, open(info_fp_path, "w"), sort_keys=False)
+
+
 
 if __name__ == '__main__':
     valDataPath = "../dataset/v4/Pressure/v4_Pressure_Simple/4/val"
@@ -97,5 +106,4 @@ if __name__ == '__main__':
     do(resultPath, valDataPath, length, step, None, valList, False)
     do(resultPath, valDataPath, length, step, "ewt", valList, False)
     do(resultPath, valDataPath, length, step, "dwt", valList, False)
-
 
