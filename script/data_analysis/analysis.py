@@ -18,8 +18,10 @@ def draw(x, y, xlabel, ylabel, outPath):
     # ax.set_title("222222", fontdict)
     ax.set_xlabel(xlabel, fontdict)
     ax.set_ylabel(ylabel, fontdict)
-
-    ax.plot(x,y)
+    if x is None:
+        ax.plot(y)
+    else:
+        ax.plot(x,y)
     fig.savefig(outPath)
     plt.close(fig)
 
@@ -28,12 +30,6 @@ def analysis(dataset, idxList, resultPath, transform):
         y = []
         x = []
         xlabel, ylabel = "t/s", "Pressure/kPa"
-        if transform is not None and ("ewt" in transform or "e-w-t" in transform
-                                      or "dwt" in transform
-                                    ):
-            # xlabel, ylabel = "", "amplitude A"
-            xlabel, ylabel = "", "Pressure/kPa"
-            # xlabel, ylabel = "f/Hz", "Pressure/kPa"
 
         label = dataset.allSample[idx][1]
         print(idx, label)
@@ -56,6 +52,14 @@ def analysis(dataset, idxList, resultPath, transform):
         for _ in range(0, y_length):
             i += Ts
             x.append(i)
+        
+        if transform is not None and ("ewt" in transform or "e-w-t" in transform
+                                      or "dwt" in transform
+                                    ):
+            # xlabel, ylabel = "", "amplitude A"
+            xlabel, ylabel = "", "Pressure/kPa"
+            # xlabel, ylabel = "f/Hz", "Pressure/kPa"
+            x = None
 
         # 画图
         name = str(label) + ".png"
