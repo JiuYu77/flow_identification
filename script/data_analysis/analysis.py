@@ -141,6 +141,6 @@ if __name__ == '__main__':
     dataPath = valDataPath
 
     do(resultPath, dataPath, length, step, None,  idxList, flag)
-    # do(resultPath, dataPath, length, step, "ewt", idxList, flag)
-    # do(resultPath, dataPath, length, step, "dwt", idxList, flag)
+    do(resultPath, dataPath, length, step, "ewt", idxList, flag)
+    do(resultPath, dataPath, length, step, "dwt", idxList, flag)
 
