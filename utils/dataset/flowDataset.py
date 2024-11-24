@@ -244,11 +244,11 @@ def data_loader(Dataset, datasetPath, sampleLength:int, step:int, transform, bat
 
 if __name__ == '__main__':
     datasetPath = "E:\\B_SoftwareInstall\\my_flow\\dataset\\v4\\Pressure\\v4_Pressure_Simple\\4\\train"
-    datasetPath = "/home/uu/my_flow/dataset/v4/Pressure/v4_Pressure_Simple/4/train"
+    datasetPath = "/home/uu/my_flow/dataset/v4/Pressure/v4_Pressure_Simple/4/val"
     sampleLength = 4096
     step = 2048
     transformName = "normalization_MinMax"
-    transformName = "fft_std"
+    transformName = "ewt_zScore"
     batchSize = 64
     dataloader = data_loader(FlowDataset, datasetPath, sampleLength, step, transformName, batchSize,shuffle=False)
     # dataloader = data_loader(FlowDataset, datasetPath, sampleLength, step, transformName, batchSize,shuffle=True)
