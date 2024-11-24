@@ -77,7 +77,8 @@ def do(resultPath, dataPath, length, step, transform, idxList, train=True):
         "transform": transform,
         "length_after_transform": None,
     }
-    resultPath = os.path.join(resultPath, tm.get_result_dir())
+    # resultPath = os.path.join(resultPath, tm.get_result_dir())
+    resultPath = os.path.join(resultPath, str(transform))
     ph.checkAndInitPath(resultPath)
     info_fp_path = os.path.join(resultPath, "info.yaml")
 
