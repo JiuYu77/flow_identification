@@ -108,7 +108,7 @@ def do(resultPath, dataPath, length, step, transform, idxList, train=True):
         info['length_after_transform'] = y_length
         yaml.dump(info, open(info_fp_path, "w"), sort_keys=False)
         return
-    
+
     y_length = analysis(dataset, idxList, resultPath, transform)
 
     info['length_after_transform'] = y_length
