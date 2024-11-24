@@ -1,5 +1,8 @@
 # -*- coding: UTF-8 -*-
-"""分析"""
+"""
+分析
+采样频率 1000Hz ==> 0.001s
+"""
 
 import matplotlib.pyplot as plt
 import sys
@@ -120,17 +123,16 @@ if __name__ == '__main__':
     valDataPath = "../dataset/v4/Pressure/v4_Pressure_Simple/4/val"
     trainDataPath = "../dataset/v4/Pressure/v4_Pressure_Simple/4/train"
 
-    # 1000Hz ==> 0.001s 采样频率
+    resultPath = os.path.join("result", "data_analysis", tm.get_result_dir())
+
+    length, step = 4096, 2048
+    length, step = 2048, 2048
+    # transform  None  "ewt"  "dwt"
+
     trainList = [0, 1095, 6216, 7791, 9479, 12208, 13900]  # train 2048 2048
 
     valList = [0, 133, 766, 965, 1166, 1502, 1708]  # val 4096 2048
     valList = [0, 141, 786, 987, 1201, 1547, 1763]  # val 2048 2048
-
-    length, step = 4096, 2048
-    length, step = 2048, 2048
-    transform = None  # None "ewt" "dwt"
-
-    resultPath = os.path.join("result", "data_analysis", tm.get_result_dir())
 
     # idxList = trainList
     # flag = True
