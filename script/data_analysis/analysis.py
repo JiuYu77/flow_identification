@@ -87,20 +87,32 @@ def do(resultPath, dataPath, length, step, transform, idxList, train=True):
     # dataset.__getitem__(0)
     # 1000Hz ==> 0.001s 采样频率
 
+    if transform is not None and "ewt" in transform:
+        # 降采样
+        outPath = os.path.join(resultPath, "dowmsample")
+        ph.checkAndInitPath(outPath)
+        info_fp_path = os.path.join(outPath, "info.yaml")
+
+        y_length = analysis(dataset, idxList, outPath, transform)
+
+        info['length_after_transform'] = y_length
+        yaml.dump(info, open(info_fp_path, "w"), sort_keys=False)
+
+        # 源
+        outPath = os.path.join(resultPath, "origin")
+        ph.checkAndInitPath(outPath)
+        info_fp_path = os.path.join(outPath, "info.yaml")
+
+        y_length = analysis(dataset, idxList, outPath, "e-w-t")
+
+        info['length_after_transform'] = y_length
+        yaml.dump(info, open(info_fp_path, "w"), sort_keys=False)
+        return
+    
     y_length = analysis(dataset, idxList, resultPath, transform)
 
     info['length_after_transform'] = y_length
     yaml.dump(info, open(info_fp_path, "w"), sort_keys=False)
-
-    if transform is not None and "ewt" in transform:
-        resultPath = os.path.join(resultPath, tm.get_result_dir())
-        ph.checkAndInitPath(resultPath)
-        info_fp_path = os.path.join(resultPath, "info.yaml")
-
-        y_length = analysis(dataset, idxList, resultPath, "e-w-t")
-
-        info['length_after_transform'] = y_length
-        yaml.dump(info, open(info_fp_path, "w"), sort_keys=False)
 
 
 
