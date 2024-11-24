@@ -89,7 +89,7 @@ def do(resultPath, dataPath, length, step, transform, idxList, train=True):
 
     if transform is not None and "ewt" in transform:
         # 降采样
-        outPath = os.path.join(resultPath, "dowmsample")
+        outPath = os.path.join(resultPath, "downSample")
         ph.checkAndInitPath(outPath)
         info_fp_path = os.path.join(outPath, "info.yaml")
 
@@ -123,14 +123,19 @@ if __name__ == '__main__':
     # 1000Hz ==> 0.001s 采样频率
     valList = [0, 133, 766, 965, 1166, 1502, 1708]  # val 4096 2048
     valList = [0, 141, 786, 987, 1201, 1547, 1763]  # val 2048 2048
-    trainList = [0, 5259]  # train
+
+    trainList = [0, 5259, 0, 0, 0, 0, 0]  # train 2048 2048
 
     length, step = 4096, 2048
     length, step = 2048, 2048
-    transform = None  # None "ewt_std" "ewt" "dwt"
+    transform = None  # None "ewt" "dwt"
 
     resultPath = os.path.join("result", "data_analysis", tm.get_result_dir())
-    do(resultPath, valDataPath, length, step, None, valList, False)
-    do(resultPath, valDataPath, length, step, "ewt", valList, False)
-    do(resultPath, valDataPath, length, step, "dwt", valList, False)
+
+    idxList = valList
+    idxList = trainList
+
+    do(resultPath, valDataPath, length, step, None, idxList, False)
+    do(resultPath, valDataPath, length, step, "ewt", idxList, False)
+    do(resultPath, valDataPath, length, step, "dwt", idxList, False)
 
