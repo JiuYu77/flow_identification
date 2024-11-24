@@ -61,11 +61,10 @@ def train(dataset,
     device = tu.get_device()
 
     # 数据集
-    print_color(["loading dataset..."])
     deviceName = tu.getDeviceName()
     if deviceName == "windows":
         numWorkers = 0
-    train_val_PathList, classNum = cfg.get_dataset_info(dataset, deviceName)
+    train_val_PathList, classNum, _ = cfg.get_dataset_info(dataset, deviceName)
     trainDatasetPath = train_val_PathList[0]
     valDatasetPath = train_val_PathList[1]
     trainIter = data_loader(FlowDataset, trainDatasetPath, sampleLength, step, transform, batchSize, shuffle=shuffle, numWorkers=numWorkers)
@@ -251,10 +250,7 @@ def train(dataset,
 
 def main():
     opt = parse_args()
-    from model.yolo.trainer import BaseTrainer
-    a = BaseTrainer()
-    a.train(**vars(opt))
-    # train(**vars(opt))
+    train(**vars(opt))
 
 
 if __name__ == '__main__':

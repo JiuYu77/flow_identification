@@ -77,7 +77,7 @@ def get_dataset_info(datasetName:str, deviceName:str, train=True):
         testDatasetPath = Path(datasetPath).joinpath(info['test'])
 
     if train:
-        return [trainDatasetPath, valDatasetPath], classNum, info  # [训练集路径, 验证集路径], 类别数量
+        return [trainDatasetPath, valDatasetPath], classNum, info  # [训练集路径, 验证集路径], 类别数量, yaml
     elif train is False:
         return testDatasetPath, classNum  # 测试集路径, 类别数量
 
