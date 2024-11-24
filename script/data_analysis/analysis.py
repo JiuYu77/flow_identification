@@ -36,7 +36,7 @@ def analysis(dataset, idxList, resultPath, transform):
     for idx in idxList:
         y = []
         x = []
-        xlabel, ylabel = "t/s", "Pressure/kPa"
+        xlabel, ylabel = "t/s", "Pressure/kPa"  # 时间/s  压力/kPa
 
         label = dataset.allSample[idx][1]
         print(idx, label)
@@ -65,7 +65,6 @@ def analysis(dataset, idxList, resultPath, transform):
                                     ):
             # xlabel, ylabel = "", "amplitude A"
             xlabel, ylabel = "", "Pressure/kPa"
-            # xlabel, ylabel = "f/Hz", "Pressure/kPa"
             x = None
 
         # 画图
