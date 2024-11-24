@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+"""分析"""
 
 import matplotlib.pyplot as plt
 import sys
@@ -8,14 +9,15 @@ import yaml
 
 from utils import FlowDataset, tm, ph, plot
 
-def draw(x, y, outPath):
+
+def draw(x, y, xlabel, ylabel, outPath):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
     fontdict=dict(fontsize=14)
     # ax.set_title("222222", fontdict)
-    ax.set_xlabel("s", fontdict)
-    ax.set_ylabel("kPa", fontdict)
+    ax.set_xlabel(xlabel, fontdict)
+    ax.set_ylabel(ylabel, fontdict)
 
     ax.plot(x,y)
     fig.savefig(outPath)
@@ -25,6 +27,13 @@ def analysis(dataset, idxList, resultPath, transform):
     for idx in idxList:
         y = []
         x = []
+        xlabel, ylabel = "t/s", "Pressure/kPa"
+        if transform is not None and ("ewt" in transform or "e-w-t" in transform
+                                      or "dwt" in transform
+                                    ):
+            # xlabel, ylabel = "", "amplitude A"
+            xlabel, ylabel = "", "Pressure/kPa"
+            # xlabel, ylabel = "f/Hz", "Pressure/kPa"
 
         label = dataset.allSample[idx][1]
         print(idx, label)
@@ -42,15 +51,16 @@ def analysis(dataset, idxList, resultPath, transform):
         print("length_after_transform:", y_length)
 
         i = 0
-        timeStep = 0.001 # 1000Hz ==> 0.001s
+        Fs = 1000    # 采样频率(数据采集频率) 1000Hz ==> 0.001s
+        Ts = 1 / Fs  # 采样周期(数据采集周期)  0.001s
         for _ in range(0, y_length):
-            i += timeStep
+            i += Ts
             x.append(i)
 
         # 画图
         name = str(label) + ".png"
         outPath = os.path.join(resultPath, name)
-        draw(x, y, outPath)
+        draw(x, y, xlabel, ylabel, outPath)
     return y_length  # 用于绘图的序列的数据点数, 样本长度 或 ewt、dwt等变换后的序列长度
 
 
@@ -100,7 +110,7 @@ if __name__ == '__main__':
 
     length, step = 4096, 2048
     length, step = 2048, 2048
-    transform = "ewt"  # None "ewt_std" "ewt" "dwt"
+    transform = None  # None "ewt_std" "ewt" "dwt"
 
     resultPath = os.path.join("result", "data_analysis", tm.get_result_dir())
     do(resultPath, valDataPath, length, step, None, valList, False)
