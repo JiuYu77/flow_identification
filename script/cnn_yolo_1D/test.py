@@ -42,14 +42,14 @@ def parse_args():
     parser.add_argument('-sl', '--sampleLength', type=int, default=4096, help='Data Length')
     parser.add_argument('-s', '--step', type=int, default=2048, help='Step Length')
     parser.add_argument('-t', '--transform', type=str,
-                        choices=['standardization_zScore',
+                        choices=['zScore_std',
                                  'normalization_MinMax',
                                  'multiple_zScore',
                                  'multiple_MinMax',
-                                 'ewt_std',
-                                 'dwt_std',
-                                 'dwtg_std',
-                                 'fft_std',
+                                 'ewt_zScore',
+                                 'dwt_zScore',
+                                 'dwtg_zScore',
+                                 'fft_zScore',
                                 ],
                         default=None, help='Transform for test sample')
     parser.add_argument('-sf', '--shuffleFlag', type=int, default=1, help='1 is True, 0 is False')

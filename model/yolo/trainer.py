@@ -216,7 +216,7 @@ class BaseTrainer:
         # 训练 数据加载器
         self.trainIter = data_loader(FlowDataset, trainDatasetPath, sampleLength, step, transform, batchSize, shuffle=shuffle, numWorkers=numWorkers)
         if transform.lower().find('noise') != -1:
-            transform = 'standardization_zScore'
+            transform = 'zScore_std'
         # 验证 数据加载器
         self.valIter = data_loader(FlowDataset, valDatasetPath, sampleLength, step, transform, batchSize, shuffle=shuffle, numWorkers=numWorkers)
 
@@ -252,7 +252,7 @@ class BaseTrainer:
             dataset='v4_press4',
             epochNum=100,
             batchSize=64, sampleLength=4096, step=2048,
-            transform:str='standardization_zScore',  # 用于数据预处理
+            transform:str='zScore_std',  # 用于数据预处理
             lr=0.00001,
             shuffleFlag=1, numWorkers=4,
             modelYaml=MODEL_YAML_DEFAULT,  # yaml文件的名字, 如yolov8_1D-cls.yaml。位于conf/yolov8_1D目录, 其实放在conf目录就可以，会在conf文件夹根据文件名搜索.yaml文件
@@ -280,7 +280,7 @@ class BaseTrainer:
         valDatasetPath = train_val_PathList[1]
         trainIter = data_loader(FlowDataset, trainDatasetPath, sampleLength, step, transform, batchSize, shuffle=shuffle, numWorkers=numWorkers)
         if transform.lower().find('noise') != -1:
-            transform = 'standardization_zScore'
+            transform = 'zScore_std'
         valIter = data_loader(FlowDataset, valDatasetPath, sampleLength, step, transform, batchSize, shuffle=shuffle, numWorkers=numWorkers)
 
         # 模型

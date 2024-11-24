@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 import sys
 sys.path.append('.')
-import utils.transform.transforms as transforms
+import utils.transform.trans as trans
 
 class Transform:
     def __init__(self) -> None:
         self._trans = {}
         self.add_trans()
-    
+
     def add_trans(self):
-        self.add_transform("standardization_zScore", transforms.standardization_zScore, "标准化")
-        self.add_transform("normalization_MinMax", transforms.normalization_MinMax, "归一化")
-        self.add_transform("multiple_zScore", transforms.multiple_zScore, "n倍, z-score")
-        self.add_transform("multiple_MinMax", transforms.multiple_MinMax, "n倍, Min-Max归一化")
-        self.add_transform("std_gaussianNoise", transforms.std_gaussianNoise, "z-score, gaussian noise")
-        self.add_transform("ewt_std", transforms.ewt_std, "EWT, z-score")
-        self.add_transform("dwt_std", transforms.dwt_std, "DWT, z-score")
-        self.add_transform("dwt_norml", transforms.dwt_norml, "DWT, Min-Max")
-        self.add_transform("dwtg_std", transforms.dwtg_std, "DWTg, z-score")
-        self.add_transform("fft_std", transforms.fft_std, "fft, z-score")
-        self.add_transform("fft", transforms.fft, "FFT")
-        self.add_transform("ewt", transforms.ewt, "EWT")
-        self.add_transform("dwt", transforms.dwt, "DWT")
+        self.add_transform("zScore_std", trans.zScore_std, "标准化")
+        self.add_transform("normalization_MinMax", trans.normalization_MinMax, "归一化")
+        self.add_transform("multiple_zScore", trans.multiple_zScore, "n倍, z-score")
+        self.add_transform("multiple_MinMax", trans.multiple_MinMax, "n倍, Min-Max归一化")
+        self.add_transform("std_gaussianNoise", trans.std_gaussianNoise, "z-score, gaussian noise")
+        self.add_transform("ewt_zScore", trans.ewt_zScore, "EWT, z-score")
+        self.add_transform("dwt_zScore", trans.dwt_zScore, "DWT, z-score")
+        self.add_transform("dwt_norml", trans.dwt_norml, "DWT, Min-Max")
+        self.add_transform("dwtg_zScore", trans.dwtg_zScore, "DWTg, z-score")
+        self.add_transform("fft_zScore", trans.fft_zScore, "fft, z-score")
+        self.add_transform("fft", trans.fft, "FFT")
+        self.add_transform("ewt", trans.ewt, "EWT")
+        self.add_transform("dwt", trans.dwt, "DWT")
 
 
     def add_transform(self, name, transform, desc):

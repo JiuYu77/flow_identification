@@ -148,7 +148,7 @@ class BaseTester:
         # transform
         self.transform = yml['transform'] if self.transform is None else self.transform
         if self.transform.lower().find('noise') != -1:
-            self.transform = 'standardization_zScore'
+            self.transform = 'zScore_std'
 
         # 数据集
         deviceName = tu.getDeviceName()
@@ -186,7 +186,7 @@ class BaseTester:
         # transform
         transform = yml['transform'] if transform is None else transform
         if transform.lower().find('noise') != -1:
-            transform = 'standardization_zScore'
+            transform = 'zScore_std'
     
         # 数据集
         print_color(['loading test dataset...'])
