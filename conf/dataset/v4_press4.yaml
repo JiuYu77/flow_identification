@@ -14,13 +14,13 @@ test: test  # (relative to 'path')
 # Classes
 class_num: 7
 names:
-  0: 段塞流
-  1: 伪段塞流
-  2: 分层波浪流
-  3: 分层光滑流
-  4: 泡沫段塞流
-  5: 分层泡沫波浪流
-  6: 泡沫环状流
+  0: 段塞流        # slug flow
+  1: 伪段塞流       # pseudo-slug flow
+  2: 分层波浪流     # stratified wavy flow
+  3: 分层光滑流     # stratified smooth flow
+  4: 泡沫段塞流     # foamy slug flow
+  5: 分层泡沫波浪流  # stratified foamy wavy flow
+  6: 泡沫环状流     # foamy annular flow
 
 # Download script/URL (optional)
 download: |

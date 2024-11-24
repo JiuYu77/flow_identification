@@ -13,12 +13,12 @@ import yaml
 from utils import FlowDataset, tm, ph, plot
 
 
-def draw(x, y, xlabel, ylabel, outPath):
+def draw(x, y, title, xlabel, ylabel, outPath):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
     fontdict=dict(fontsize=14)
-    # ax.set_title("222222", fontdict)
+    ax.set_title(title, fontdict)
     ax.set_xlabel(xlabel, fontdict)
     ax.set_ylabel(ylabel, fontdict)
     if x is None:
@@ -29,6 +29,10 @@ def draw(x, y, xlabel, ylabel, outPath):
     plt.close(fig)
 
 def analysis(dataset, idxList, resultPath, transform):
+    clsList = ["段塞流", "伪段塞流", "分层波浪流", "分层光滑流", "泡沫段塞流", "分层泡沫波浪流", "泡沫环状流"]
+    clsList = ["slug flow", "pseudo-slug flow", "stratified wavy flow", "stratified smooth flow",
+           "foamy slug flow", "stratified foamy wavy flow", "foamy annular flow"]
+
     for idx in idxList:
         y = []
         x = []
@@ -66,8 +70,9 @@ def analysis(dataset, idxList, resultPath, transform):
 
         # 画图
         name = str(label) + ".png"
+        cls = clsList[label]
         outPath = os.path.join(resultPath, name)
-        draw(x, y, xlabel, ylabel, outPath)
+        draw(x, y, cls, xlabel, ylabel, outPath)
     return y_length  # 用于绘图的序列的数据点数, 样本长度 或 ewt、dwt等变换后的序列长度
 
 
