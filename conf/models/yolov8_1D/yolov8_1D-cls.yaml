@@ -1,7 +1,7 @@
 # YOLOv8_1D-cls image classification model.
 
 # Parameters
-net_name: YOLO1Dv8
+net_name: YOLOv8_1D
 
 ch: 1  # input channels
 nc: 7  # number of classes

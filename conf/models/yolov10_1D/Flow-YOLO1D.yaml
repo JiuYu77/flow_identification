@@ -1,7 +1,9 @@
-# YOLOv10_1D-cls image classification model.
+# Flow-YOLO1D one-dimensional classification model.
+
+# version: v1, 1.0.0
 
 # Parameters
-net_name: YOLO1Dv10
+net_name: Flow-YOLO1D
 
 ch: 1  # input channels
 nc: 7  # number of classes

@@ -157,7 +157,7 @@ def guess_model_name(model):
             # elif isinstance(m, YOLO1Dv10):
             #     return "YOLO1Dv10"
             n = m.__class__.__name__
-            if n is"YOLO1Dv8":
+            if n == "YOLO1Dv8":
                 return "YOLO1Dv8"
             elif n == "YOLO1Dv10":
                 return "YOLO1Dv10"
