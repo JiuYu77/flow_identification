@@ -82,7 +82,7 @@ print("DBSCAN...")
 # dbscan = DBSCAN(eps=7, min_samples=5)
 #dbscan = DBSCAN(eps=7, min_samples=10)
 # dbscan = DBSCAN(eps=0.5, min_samples=10)
-dbscan = DBSCAN(eps=0.5, min_samples=5)
+dbscan = DBSCAN(eps=0.3, min_samples=3)
 
 # X = data
 X = low_dim_data

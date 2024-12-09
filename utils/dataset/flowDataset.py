@@ -18,6 +18,7 @@ class FlowDataset:
         # self.ptr = 0
         # self.allFile = []
         self.allSample = [] # 所有样本
+        self.allLabel = [] # 每个样本 对应的标签； 下标相同
         self.totalSampleNum = 0 # 样本总数
 
         if transformName is not None:
@@ -73,18 +74,16 @@ class FlowDataset:
                         while len(sample) < sampleLength:
                             sample.append(0)  # 以 0 填充缺少的数据点
                         sample = self.sample_to_float(sample) # 转为float
-                        self.allSample.append((sample, label))
+                        self.add_sample_and_label(sample, label)
                         break
                     if end > num:
                         sample = lines[num-sampleLength:num]
                         sample = self.sample_to_float(sample) # 转为float
-                        self.allSample.append((sample, label))
-                        # self.allSample.append({"sample":sample, "label":label})
+                        self.add_sample_and_label(sample, label)
                         break
                     sample = lines[ptr:end]  # sample列表，存储一个样本，数据点的类型是str
                     sample = self.sample_to_float(sample) # 转为float
-                    self.allSample.append((sample, label))  # [(sample, label), (sample, label), ...]; sample: [][0], label: [][1]
-                    # self.allSample.append({"sample":sample, "label":label})
+                    self.add_sample_and_label(sample, label) # [sample, sample, ...]   [label, label, ...]
                     ptr += step
         print()
         self._print_info(dataPointsNum, clsNumList)
@@ -124,18 +123,16 @@ class FlowDataset:
                     while len(sample) < sampleLength:
                         sample.append(0)  # 以 0 填充缺少的数据点
                     sample = self.sample_to_float(sample)
-                    self.allSample.append((sample, label))
+                    self.add_sample_and_label(sample, label)
                     break
                 if end > num:
                     sample = lines[num-sampleLength:num]
                     sample = self.sample_to_float(sample)
-                    self.allSample.append((sample, label))
-                    # self.allSample.append({"sample":sample, "label":label})
+                    self.add_sample_and_label(sample, label)
                     break
                 sample = lines[ptr:end]  # sample列表，存储一个样本，数据点的类型是str
                 sample = self.sample_to_float(sample)
-                self.allSample.append((sample, label))  # [(sample, label), (sample, label), ...]; sample: [][0], label: [][1]
-                # self.allSample.append({"sample":sample, "label":label})
+                self.add_sample_and_label(sample, label)
                 ptr += step
         print()
         self.__len__()
@@ -176,21 +173,27 @@ class FlowDataset:
                         sample = lines[:]
                         while len(sample) < sampleLength:
                             sample.append(0)  # 以 0 填充缺少的数据点
-                        # self.allSample.append((sample, label))
                         sample = self.sample_to_float(sample)
-                        self.allSample.append(sample)
+                        self.add_sample(sample)
                         break
                     if end > num:
                         sample = lines[num-sampleLength:num]
                         sample = self.sample_to_float(sample)
-                        self.allSample.append(sample)
+                        self.add_sample(sample)
                         break
                     sample = lines[ptr:end]  # sample列表，存储一个样本，数据点的类型是str
                     sample = self.sample_to_float(sample)
-                    self.allSample.append(sample)  # [sample, sample, ...]
+                    self.add_sample(sample) # [sample, sample, ...]
                     ptr += step
         print()
         self._print_info(dataPointsNum, clsNumList)
+
+    def add_sample(self, sample):
+        self.allSample.append(sample)
+
+    def add_sample_and_label(self, sample, label):
+        self.allSample.append(sample)
+        self.allLabel.append(label)
 
     def total(self):
         '''
@@ -224,8 +227,7 @@ class FlowDataset:
         sample = []
         label = None
 
-        # data = self.allSample[index]['sample']
-        data = self.allSample[index][0]
+        data = self.allSample[index]
         sample = np.array([data])
         if self.transform is not None:
             sample = self.transform(sample)
@@ -233,8 +235,7 @@ class FlowDataset:
         #     totensor = tf.transforms.ToTensor()
         #     sample = totensor(sample)
 
-        # label = self.allSample[index]['label']
-        label = self.allSample[index][1]
+        label = self.allLabel[index]
         return sample, label
 
 def data_loader(Dataset, datasetPath, sampleLength:int, step:int, transform, batchSize:int, shuffle=True, numWorkers=0, cls=None):
@@ -253,14 +254,14 @@ if __name__ == '__main__':
     dataloader = data_loader(FlowDataset, datasetPath, sampleLength, step, transformName, batchSize,shuffle=False)
     # dataloader = data_loader(FlowDataset, datasetPath, sampleLength, step, transformName, batchSize,shuffle=True)
     for i, (samples, labels) in enumerate(dataloader):
+        print(samples.shape)
         # print(len(samples[0]))
         # print(samples[0], f"\t\033[31m{i}\033[0m")
         # print(samples[len(samples)-1],f"   {len(samples)}   ", f"\t\033[31m{i}\033[0m")
         # print(samples[1], f"\t\033[31m{i}\033[0m")
         # print(samples[0].dtype)
-        # print(samples[0].shape)
+        print(samples[0].shape)
         # print(type(samples))
-        print(samples.shape)
         # print(len(samples))
         print(f"\033[32m{labels}\t\033[31m{i}\033[0m")
         # print(len(labels))
