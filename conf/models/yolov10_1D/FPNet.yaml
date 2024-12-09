@@ -3,7 +3,7 @@
 # version: v1, 1.0.0
 
 # Parameters
-net_name: Flow-YOLO1D
+net_name: FPNet # Flow Pattern Network
 
 ch: 1  # input channels
 nc: 7  # number of classes

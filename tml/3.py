@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 """DBSCAN 密度聚类"""
 
-from sklearn.cluster import DBSCAN
-
+import sklearn.cluster
+import joblib
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
@@ -25,7 +25,7 @@ def draw(data, c, path):
     plt.savefig(path)
     plt.close(fig)
 
-def draw3d(data, c, path="tmp/tml/dbscan-bbb"):
+def draw3d(data, c, path="tmp/tml/kmeans-bbb"):
     # 可视化散点图
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -77,34 +77,32 @@ low_dim_data = bmus = np.array([som.winner(x) for x in data])
 print(bmus.shape)
 # ######################
 
-print("DBSCAN...")
-# dbscan = DBSCAN(eps=12, min_samples=5)
-# dbscan = DBSCAN(eps=7, min_samples=5)
-#dbscan = DBSCAN(eps=7, min_samples=10)
-# dbscan = DBSCAN(eps=0.5, min_samples=10)
-dbscan = DBSCAN(eps=0.5, min_samples=5)
-
+print("K-Means...")
 # X = data
 X = low_dim_data
-dbscan.fit(X)
+X_train = X
+k_means = sklearn.cluster.KMeans(n_clusters=7, n_init=100, max_iter=1000)
+KMeans = k_means.fit(X_train)
+joblib.dump(k_means, 'tml/kmeans.pkl')
+pre = k_means.predict(X_train)
 
-unique_elements = np.unique(dbscan.labels_)
+unique_elements = np.unique(pre)
 print("unique_elements:", unique_elements)
 print("类别数量:", len(unique_elements))
 
-with open("tmp/tml/aaa.txt", 'w') as f:
+with open("tmp/tml/kmeans-aaa.txt", 'w') as f:
     i = 0
-    for v in dbscan.labels_:
+    for v in pre:
         ss = str(v)+' '
         i += 1
         if i >= 40:
             i = 0
             ss += "\n"
         f.write(ss)
-print("dbscan.labels_: ", dbscan.labels_)
+print("kmeans labels: ", pre)
 # exit()
 
 
 # 可视化散点图
-draw(X, dbscan.labels_, "tmp/tml/dbscan-aaa")
+draw(X, pre, "tmp/tml/kmeans-aaa")
 
