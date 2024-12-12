@@ -3,10 +3,13 @@
 # version: v1, 1.0.0
 
 # Parameters
-net_name: FPNet # Flow Pattern Network
+# net_name: FPNet # Flow Pattern Network
+net_name: YI-Netv1 # YI-Net: One-dimensional Intelligence Network
+task: classify
 
 ch: 1  # input channels
 nc: 7  # number of classes
+
 scales: # model compound scaling constants, i.e. 'model=yolov10_1Dn-cls.yaml' will call yolov10_1D-cls.yaml with scale 'n'
   # [depth, width, max_channels] depth控制隐藏层重复次数，width和max_channels控制隐藏层输出通道数
   n: [0.33, 0.25, 1024]
