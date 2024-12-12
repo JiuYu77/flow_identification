@@ -1,10 +1,12 @@
-# YOLOv10_1D-cls image classification model.
+# YI-Net: One-dimensional Intelligence Network 一维智能网络
+# version: v1, 1.0.0
 
 # Parameters
-net_name: YOLOv10_1D
+net_name: YI-Netv1
 
 ch: 1  # input channels
 nc: 7  # number of classes
+
 scales: # model compound scaling constants, i.e. 'model=yolov10_1Dn-cls.yaml' will call yolov10_1D-cls.yaml with scale 'n'
   # [depth, width, max_channels]
   n: [0.33, 0.25, 1024]

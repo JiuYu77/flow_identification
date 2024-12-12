@@ -1,11 +1,9 @@
-# Flow-YOLO1D one-dimensional classification model.
-
+# YI-Net: One-dimensional Intelligence Network 一维智能网络
 # version: v1, 1.0.0
 
 # Parameters
 # net_name: FPNet # Flow Pattern Network
 net_name: YI-Netv1 # YI-Net: One-dimensional Intelligence Network 一维智能网络
-task: classify
 
 ch: 1  # input channels
 nc: 7  # number of classes
