@@ -2,9 +2,11 @@
 UTF-8
 
 # Description
-这是一个基于深度学习的管道流型识别项目。参考了YOLO系列模型，YOLOv8、YOLOv10等。
+这是一个基于深度学习的管道流型识别项目。
 
-网络架构：**`YOLOv8_1D`**、**`YOLOv10_1D`**。
+参考了YOLO系列模型，YOLOv8、YOLOv10等。
+
+本项目构建的一维网络架构：**`YOLOv8_1D`**、**`YOLOv10_1D`**。
 
 # clone
 ```bash
