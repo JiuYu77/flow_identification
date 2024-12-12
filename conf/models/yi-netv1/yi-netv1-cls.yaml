@@ -4,7 +4,7 @@
 
 # Parameters
 # net_name: FPNet # Flow Pattern Network
-net_name: YI-Netv1 # YI-Net: One-dimensional Intelligence Network
+net_name: YI-Netv1 # YI-Net: One-dimensional Intelligence Network 一维智能网络
 task: classify
 
 ch: 1  # input channels
