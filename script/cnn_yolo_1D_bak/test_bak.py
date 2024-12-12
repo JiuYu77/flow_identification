@@ -2,7 +2,7 @@
 from argparse import ArgumentParser
 import sys
 sys.path.append('.')
-from model import YOLO1Dv8
+from model import YOLOv8_1D
 from nn import MODEL_YAML_DEFAULT
 from utils import FlowDataset, data_loader, tu, cfg, colorstr, print_color, ROOT, ph, tm, plot
 import os
@@ -96,7 +96,7 @@ def test(dataset,
     scale = yml['model_settings']['model_scale']
     # modelYaml = modelYaml if modelYaml else yml['model_settings']['modelYaml']
     fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
-    net = YOLO1Dv8(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
+    net = YOLOv8_1D(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
     net.eval()
     netName = net.__class__.__name__
     modelParamAmount = sum([p.nelement() for p in net.parameters()])
