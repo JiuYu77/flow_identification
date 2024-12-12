@@ -31,6 +31,9 @@ pip install -r requirements.txt
 提供了两种数据集结构：（1）训练集、验证集和测试集（推荐）；（2）训练集和测试集
 
 ### 结构1 训练集、验证集和测试集（推荐）
+0、1...6既是文件夹名，又是标签，成为标签文件夹。
+每个标签文件夹下可以有多个文本文件，每个文本文件只有一列数据。
+
 ```text
   Pressure_Simple
   ├── train--------训练集
@@ -80,6 +83,11 @@ pip install -r requirements.txt
       ├── 5
       └── 6
 ```
+
+### 自定义数据集
+你也可以使用，其他数据集格式，例如.txt、.tsv、.csv、.xls、.xlsx等文件存储的数据集。只要输入到模型中的样本是行向量（张量）就可以。
+
+你需要编写自己的**Dataset**类，或者将处理好的样本与标签赋值给**FlowDataset**类的allSample、allLabel属性。
 
 # bash脚本
 
