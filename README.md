@@ -2,6 +2,8 @@
 UTF-8
 
 # Description
+人工智能用于流型识别：一维模型（AI for Flow Pattern Identification: One-dimensional Model）
+
 这是一个基于深度学习的**管道流型识别**项目，提供了多个一维分类模型。采用一维序列数据集。
 
 本项目构建的一维网络架构：**`YOLOv8_1D`**、**`YI-Net`**。
