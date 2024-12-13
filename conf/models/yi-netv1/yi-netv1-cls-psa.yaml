@@ -2,7 +2,8 @@
 # version: v1, 1.0.0
 
 # Parameters
-net_name: YI-Netv1-PSA
+net_name: YI-Net-PSA
+version: v1
 
 ch: 1  # input channels
 nc: 7  # number of classes
