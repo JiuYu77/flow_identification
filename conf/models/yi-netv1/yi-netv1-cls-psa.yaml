@@ -1,9 +1,11 @@
 # YI-Net: One-dimensional Intelligent Network 一维智能网络
 # version: v1, 1.0.0
 
-# Parameters
 net_name: YI-Net-PSA
 version: v1
+full_name: YI-Netv1-PSA
+
+# Parameters
 
 ch: 1  # input channels
 nc: 7  # number of classes
