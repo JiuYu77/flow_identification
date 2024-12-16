@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
+from jyu.engine.predictor import BasePredictor
 
-class Predictor:
-    def __init__(self) -> None:
-        pass
+class Predictor(BasePredictor):
+    pass

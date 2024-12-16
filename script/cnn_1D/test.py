@@ -4,7 +4,7 @@ import sys
 sys.path.append('.')
 import os
 from jyu.nn import MODEL_YAML_DEFAULT
-from jyu.model.supervised.tester import BaseTester
+from jyu.model.supervised.tester import Tester
 
 
 def parse_args():
@@ -62,7 +62,7 @@ def parse_args():
 
 def main():
     opt = parse_args()
-    tester = BaseTester(**vars(opt))
+    tester = Tester(**vars(opt))
     tester.test()
 
 if __name__ == '__main__':
