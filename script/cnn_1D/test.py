@@ -2,9 +2,9 @@
 from argparse import ArgumentParser
 import sys
 sys.path.append('.')
-from nn import MODEL_YAML_DEFAULT
 import os
-from model.yolo.tester import BaseTester
+from jyu.nn import MODEL_YAML_DEFAULT
+from jyu.model.yolo.tester import BaseTester
 
 
 def parse_args():

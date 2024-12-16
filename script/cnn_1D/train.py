@@ -2,9 +2,9 @@
 import sys
 sys.path.append('.')
 from argparse import ArgumentParser
-from nn import MODEL_YAML_DEFAULT
-from utils import print_color
-from model.yolo.trainer import BaseTrainer
+from jyu.nn import MODEL_YAML_DEFAULT
+from jyu.utils import print_color
+from jyu.model.yolo.trainer import BaseTrainer
 
 
 def parse_args():
