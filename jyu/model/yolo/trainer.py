@@ -61,7 +61,7 @@ class BaseTrainer:
             "numWorkers": self.numWorkers,
             "model_name": self.netName,
             "model_parameter_amount": f"{self.modelParamAmount / 1e6:.3f}M",
-            "model_settings":{'model_scale': self.net.scale, "modelYaml": self.modelYaml, 'fuse_':self.net.fuse, 'split_':self.net.split, 'initweightName': self.net.initweightName},
+            "model_settings":{'model_scale': self.net.scale, "modelYaml": self.modelYaml, 'fuse':self.net.fuse, 'split':self.net.split, 'initweightName': self.net.initweightName},
             "lr": self.lr,
             "epoch_num": self.epochNum,
             "epoch": self.epochNum,
@@ -231,15 +231,16 @@ class BaseTrainer:
     def get_net(self):
         # 网络
         print_color(["bright_green", "bold", "\nloading model..."])
-        fuse_, split_, initweightName = False, False, 'xavier'
+        fuse, split, initweightName = False, False, 'xavier'
         if self.model is not None:  # 在已有模型的基础上继续训练
             # 读取训练信息
             path = os.path.dirname(os.path.dirname(self.model))
             yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
-            fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
+            fuse, split = yml['model_settings']['fuse_'], yml['model_settings']['split_']
             self.scale = yml['model_settings']['model_scale']
             self.modelYaml = yml['model_settings']['modelYaml']
-        self.net = YOLO1D(self.modelYaml, self.model, fuse_=fuse_, split_=split_, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
+        # self.net = YOLO1D(self.modelYaml, self.model, fuse=fuse, split=split, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
+        self.net = YI(self.modelYaml, self.model, fuse=fuse, split=split, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
         self.net.set_names(self.data['names'])
 
     def val(self):

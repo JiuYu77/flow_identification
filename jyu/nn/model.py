@@ -52,6 +52,7 @@ class Model(nn.Sequential):
         self.names = None
         self.device = device
         self.fuse, self.split = fuse, split
+        self.initweightName = initweightName
 
         self.args = {"modelYaml": yaml_path, "fuse": fuse, "split": split}
 
@@ -124,14 +125,6 @@ class Model(nn.Sequential):
                 delattr(m, "bn1d")  # remove batchnorm
                 m.forward = m.forward_fuse
 
-    # def _fuse(self, model:nn.Module):
-    #     for m in model.modules():
-    #         if isinstance(m, Conv1d) and hasattr(m, "bn1d"):
-    #             m.conv1d = fuse_conv_and_bn(m.conv1d, m.bn1d)  # update conv
-    #             delattr(m, "bn1d")  # remove batchnorm
-    #             m.forward = m.forward_fuse
-    #     return model
-
     def _split(self):
         for m in self.modules():
             if isinstance(m, C2f1d):
@@ -142,11 +135,16 @@ class Model(nn.Sequential):
         保存权重 params.pt
         f 保存路径, 如: ~/best_params.pt
         '''
-        # state_dict = self.state_dict()
-        # torch.save(state_dict, f)
-
         ckpt = {
             "model": deepcopy(de_parallel(self)).half(),
             "args": self.args,
         }
         torch.save(ckpt, f)
+
+    def save_state_dict(self, f):
+        '''
+        仅保存网络参数
+        f 保存路径, 如: ~/best_params.pt
+        '''
+        state_dict = self.state_dict()
+        torch.save(state_dict, f)
