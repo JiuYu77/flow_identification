@@ -4,7 +4,7 @@ import sys
 sys.path.append('.')
 import os
 from jyu.nn import MODEL_YAML_DEFAULT
-from jyu.model.yolo.tester import BaseTester
+from jyu.model.supervised.tester import BaseTester
 
 
 def parse_args():

@@ -4,7 +4,7 @@ sys.path.append('.')
 from argparse import ArgumentParser
 from jyu.nn import MODEL_YAML_DEFAULT
 from jyu.utils import print_color
-from jyu.model.yolo.trainer import BaseTrainer
+from jyu.model.supervised.trainer import Trainer
 
 
 def parse_args():
@@ -40,7 +40,7 @@ def parse_args():
 
 def main():
     opt = parse_args()
-    trainer = BaseTrainer(**vars(opt))
+    trainer = Trainer(**vars(opt))
     trainer.train()
 
 
