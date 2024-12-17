@@ -3,9 +3,9 @@
 from argparse import ArgumentParser
 import sys
 sys.path.append('.')
-from model import YOLO1D
-from nn import MODEL_YAML_DEFAULT
-from utils import FlowDataset, data_loader, tu, cfg, colorstr, print_color, ROOT, ph, tm, plot
+from jyu.model import YOLO1D
+from jyu.nn import MODEL_YAML_DEFAULT
+from jyu.utils import FlowDataset, data_loader, tu, cfg, colorstr, print_color, ROOT, ph, tm, plot
 import os
 import torch
 import numpy as np

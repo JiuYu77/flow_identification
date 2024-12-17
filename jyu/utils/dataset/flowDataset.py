@@ -10,7 +10,8 @@ from jyu.utils.color_print import print_color
 
 class FlowDataset:
 # class FlowDataset(Dataset):
-    def __init__(self, datasetPath, sampleLength:int, step:int, transformName=None, cls:str=None) -> None:
+    def __init__(self, datasetPath, sampleLength:int, step:int, transformName=None,
+                 cls:str=None, supervised=True):
         # super().__init__()
         self.datasetPath = datasetPath
         self.sampleLength = sampleLength
@@ -20,6 +21,7 @@ class FlowDataset:
         self.allSample = [] # 所有样本
         self.allLabel = [] # 每个样本 对应的标签； 下标相同
         self.totalSampleNum = 0 # 样本总数
+        self.supervised = supervised
 
         if transformName is not None:
             self.transform = tf.get_transform(transformName)
@@ -236,7 +238,11 @@ class FlowDataset:
         #     sample = totensor(sample)
 
         label = self.allLabel[index]
-        return sample, label
+        # return sample, label
+        if self.supervised:  # 监督
+            return sample, label
+        else:  # 无监督
+            return sample, label, index
 
     def do_transform(self):
         for i,v in enumerate(self.allSample):
@@ -244,8 +250,9 @@ class FlowDataset:
             x = self.transform(v)
             self.allSample[i] = x
 
-def data_loader(Dataset, datasetPath, sampleLength:int, step:int, transform, batchSize:int, shuffle=True, numWorkers=0, cls=None):
-    dataset = Dataset(datasetPath, sampleLength, step, transform, cls)
+def data_loader(Dataset, datasetPath, sampleLength:int, step:int, transform, cls=None, supervised=True,
+                batchSize:int=64, shuffle=True, numWorkers=0):
+    dataset = Dataset(datasetPath, sampleLength, step, transform, cls, supervised)
     dataloader = DataLoader(dataset, batch_size=batchSize, shuffle=shuffle, num_workers=numWorkers)
     return dataloader
 

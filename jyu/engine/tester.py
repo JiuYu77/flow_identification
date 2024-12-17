@@ -155,7 +155,8 @@ class BaseTester:
         if deviceName == "windows":
             self.numWorkers = 0
         testDatasetPath, self.classNum = cfg.get_dataset_info(self.dataset, deviceName, train=False)
-        self.testIter = data_loader(FlowDataset, testDatasetPath, self.sampleLength, self.step, self.transform, self.batchSize, shuffle=self.shuffle, numWorkers=self.numWorkers)
+        self.testIter = data_loader(FlowDataset, testDatasetPath, self.sampleLength, self.step, self.transform,
+                                    batchSize=self.batchSize, shuffle=self.shuffle, numWorkers=self.numWorkers)
 
         # 模型
         print('loading model...')

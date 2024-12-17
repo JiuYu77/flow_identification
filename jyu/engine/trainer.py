@@ -214,11 +214,13 @@ class BaseTrainer:
         trainDatasetPath = train_val_PathList[0]
         valDatasetPath = train_val_PathList[1]
         # 训练 数据加载器
-        self.trainIter = data_loader(FlowDataset, trainDatasetPath, sampleLength, step, transform, batchSize, shuffle=shuffle, numWorkers=numWorkers)
+        self.trainIter = data_loader(FlowDataset, trainDatasetPath, sampleLength, step, transform,
+                                     batchSize=batchSize, shuffle=shuffle, numWorkers=numWorkers)
         if transform.lower().find('noise') != -1:
             transform = 'zScore_std'
         # 验证 数据加载器
-        self.valIter = data_loader(FlowDataset, valDatasetPath, sampleLength, step, transform, batchSize, shuffle=shuffle, numWorkers=numWorkers)
+        self.valIter = data_loader(FlowDataset, valDatasetPath, sampleLength, step, transform,
+                                   batchSize=batchSize, shuffle=shuffle, numWorkers=numWorkers)
 
         self.loss = uloss.smart_lossFunction(self.lossName)  # 损失函数
         # loss = uloss.smart_lossFunction('FocalLoss', classNum)  # 损失函数
