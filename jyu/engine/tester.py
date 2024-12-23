@@ -162,7 +162,7 @@ class BaseTester:
         print('loading model...')
         scale = yml['model_settings']['model_scale'] # ########
         modelYaml = self.modelYaml if self.modelYaml else yml['model_settings']['modelYaml']  # ########
-        fuse, split = yml['model_settings']['fuse_'], yml['model_settings']['split_'] # ########
+        fuse, split = yml['model_settings']['fuse'], yml['model_settings']['split'] # ########
         # self.net = YOLO1D(modelYaml, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)
         # self.net = YI(None, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)
         self.net = YI(modelYaml, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)

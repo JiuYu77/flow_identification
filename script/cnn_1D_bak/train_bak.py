@@ -4,10 +4,10 @@ sys.path.append('.')
 from argparse import ArgumentParser
 import torch
 from torch import optim
-from model import YOLOv8_1D
-from nn import MODEL_YAML_DEFAULT
+from jyu.model import YOLOv8_1D
+from jyu.nn import MODEL_YAML_DEFAULT
 import os
-from utils import ROOT, FlowDataset, data_loader, tu, cfg, ph, print_color, tm, plot, uloss
+from jyu.utils import ROOT, FlowDataset, data_loader, tu, cfg, ph, print_color, tm, plot, uloss
 import yaml
 
 

@@ -2,9 +2,9 @@
 from argparse import ArgumentParser
 import sys
 sys.path.append('.')
-from model import YOLOv8_1D
-from nn import MODEL_YAML_DEFAULT
-from utils import FlowDataset, data_loader, tu, cfg, colorstr, print_color, ROOT, ph, tm, plot
+from jyu.model import YOLOv8_1D
+from jyu.nn import MODEL_YAML_DEFAULT
+from jyu.utils import FlowDataset, data_loader, tu, cfg, colorstr, print_color, ROOT, ph, tm, plot
 import os
 import torch
 import numpy as np
@@ -34,26 +34,6 @@ def parse_args():
     parser.add_argument('-my', '--modelYaml', type=str, default=MODEL_YAML_DEFAULT)
 
     # netPath = os.path.join(os.getcwd(), 'result', 'train', '20240317.163818_Yolov8_1D', 'best_params.pt')
-    # netPath = os.path.join('result', 'train', '20240318.132209_Yolov8_1D', 'best_params.pt')
-    # netPath = os.path.join('result', 'train', '20240327.090238_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240327.203215_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240412.162548_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240530.154012_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240704.195356_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240705.110251_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240705.140052_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240717.220859_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240718.085919_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240718.105346_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240718.150219_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240718.152357_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240718.201457_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240719.113718_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240719.150006_Yolov8_1D', 'last_params.pt')
-    netPath = os.path.join('result', 'train', '20240720.142313_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240718.105346_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240721.123959_Yolov8_1D', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20240721.161448_Yolov8_1D', 'best_params.pt')
     netPath = os.path.join('result', 'train', '20240722.112911_Yolov8_1D', 'best_params.pt')
     weight = netPath
     parser.add_argument('-w', '--weights', type=str, default=weight)

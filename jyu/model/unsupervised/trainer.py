@@ -35,6 +35,12 @@ class Trainer(BaseTrainer):
         print(PseudoLabel)
         return PseudoLabel
 
+    def get_porb(self, y_hat_softmax):
+        ys_max = y_hat_softmax.max()
+        ys_min = y_hat_softmax.min()
+        prob = (ys_max + ys_min) / 2
+        return prob
+
     def update_pseudo_label(self, y_hat, index, prob=0.5):
         preLabel = y_hat.argmax(axis=1)
 
@@ -44,15 +50,13 @@ class Trainer(BaseTrainer):
         y_hat_softmax = tmp.values
         # y_hat_softmax = tmp.values.softmax(dim=0)  # y_hat_softmax = torch.softmax(tmp.values, dim=0)
         a ='aaa'
+        prob = self.get_porb(y_hat_softmax)
+        prob = 0.1
         for i, v in enumerate(preLabel):
             if y_hat_softmax[i] > prob:
                 idx = int(index[i])
                 # self.trainIter.dataset.allLabel[idx] = v
                 self.dataset_obj.allLabel[idx] = int(v)
-
-    # def new_dataloader(self):
-    #     dataloader = DataLoader(self.dataset_obj, batch_size=self.batchSize, shuffle=self.shuffle, num_workers=self.numWorkers)
-    #     return dataloader
 
     def _setup_train(self):
         shuffleFlag, dataset, sampleLength, step, transform, batchSize, numWorkers = \
@@ -236,7 +240,7 @@ class Trainer(BaseTrainer):
             line.add(epoch + 1, [trainLoss, trainAcc])
             accLine.add(epoch + 1, [trainAcc])
             lossLine.add(epoch + 1, [trainLoss])
-    
+
         # 画图
         print_color(["drawing..."])
         img_lossAccPath = os.path.join(resultPath, 'loss_acc.png')

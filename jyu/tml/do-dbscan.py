@@ -9,7 +9,7 @@ sys.path.append('.')
 from pca import do_pca
 from som import do_som
 from dbscan import do_dbscan
-from utils import FlowDataset, ph
+from jyu.utils import FlowDataset, ph
 
 def draw(data, c, path):
     # 可视化散点图
@@ -58,12 +58,12 @@ dataset = FlowDataset("../dataset/v4/Pressure/v4_Pressure_Simple/4/train", 4096,
 dataset.allSample = np.array(dataset.allSample)
 dataset.do_transform()
 
-all = dataset.allSample
+all = dataset.allSample[:64]
 data = all
 
 # ######################
 
-pca_data = do_pca(data, 128, True)
+pca_data = do_pca(data, 64, True)
 print('PCA降维后数据:')
 print(pca_data.shape)
 print(pca_data)

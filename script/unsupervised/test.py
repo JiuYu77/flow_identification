@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 import sys
 sys.path.append('.')
-from jyu.model import YOLO1D
+from jyu.model import YI
 from jyu.nn import MODEL_YAML_DEFAULT
 from jyu.utils import FlowDataset, data_loader, tu, cfg, colorstr, print_color, ROOT, ph, tm, plot
 import os
@@ -44,6 +44,8 @@ def parse_args():
     netPath = os.path.join('result', 'train_unsupervised', '20240825.215013_Yolov8_1D', 'weights', '50_params.pt')
     netPath = os.path.join('result', 'train_unsupervised', '20240825.225646_Yolov8_1D', 'weights', 'last_params.pt')
     netPath = os.path.join('result', 'train_unsupervised', '20240827.153703_Yolov8_1D', 'weights', 'last_params.pt')
+    netPath = os.path.join('result', 'train_unsupervised', '20241223.134745_YOLOv8_1D', 'weights', 'best_params.pt')
+
     parser.add_argument('-w', '--weights', type=str, default=netPath)
     # parser.add_argument('--cls', type=str, default=None)
 
@@ -80,15 +82,15 @@ def test_one(dataset,
     if deviceName == "windows":
         numWorkers = 0
     testDatasetPath, classNum = cfg.get_dataset_info(dataset, deviceName, train=False)
-    testIter = data_loader(FlowDataset, testDatasetPath, sampleLength, step, transform,
-                           batchSize, shuffle=shuffle, numWorkers=numWorkers, cls=cls)
+    testIter = data_loader(FlowDataset, testDatasetPath, sampleLength, step, transform,  clss=cls,
+                           batchSize=batchSize, shuffle=shuffle, numWorkers=numWorkers)
 
     # 模型
     print('loading model...')
     scale = yml['model_settings']['model_scale']
     # modelYaml = modelYaml if modelYaml else yml['model_settings']['modelYaml']
-    fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
-    net = YOLO1D(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
+    fuse_, split_ = yml['model_settings']['fuse'], yml['model_settings']['split']
+    net = YI(modelYaml, weights, scale=scale, fuse=fuse_, split=split_, device=device)
     net.eval()
     netName = net.__class__.__name__
     modelParamAmount = sum([p.nelement() for p in net.parameters()])
@@ -223,7 +225,7 @@ def test(dataset,
     scale = yml['model_settings']['model_scale']
     # modelYaml = modelYaml if modelYaml else yml['model_settings']['modelYaml']
     fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
-    net = YOLO1D(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
+    net = YI(modelYaml, weights, scale=scale, fuse_=fuse_, split_=split_, device=device)
     net.eval()
     netName = net.__class__.__name__
     modelParamAmount = sum([p.nelement() for p in net.parameters()])
