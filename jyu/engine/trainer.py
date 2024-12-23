@@ -8,6 +8,16 @@ from jyu.model import *
 from jyu.nn.model import MODEL_YAML_DEFAULT
 from jyu.utils import tu, ph, cfg, print_color, data_loader, FlowDataset, uloss, ROOT, tm, plot
 
+def do_softmax(y_hat):
+        preLabel = y_hat.argmax(axis=1)
+        for i in range(0, y_hat.shape[0]):
+            y_hat[i] = y_hat[i].softmax(dim=0)
+
+        tmp = y_hat.max(axis=1)
+        y_hat_softmax = tmp.values
+        # y_hat_softmax = tmp.values.softmax(dim=0)
+        # y_hat_softmax = torch.softmax(tmp.values, dim=0)
+        a ='aaa'
 
 class BaseTrainer:
     def __init__(
@@ -36,6 +46,54 @@ class BaseTrainer:
         self.lossName = lossName
         self.optimName = optimName
         self.net = None
+
+    def _setup_train(self):
+        shuffleFlag, dataset, sampleLength, step, transform, batchSize, numWorkers = \
+                                        self.shuffleFlag, self.dataset, self.sampleLength, self.step, self.transform, self.batchSize, self.numWorkers
+        assert shuffleFlag == 1 or shuffleFlag == 0, f'shuffle_flag ValueError, except 0 or 1, but got {shuffleFlag}'
+        self.trainTimer = tu.Timer()
+        self.trainTimer.start()
+        self.shuffle = shuffle = shuffleFlag == 1 or not shuffleFlag == 0
+        self.device = tu.get_device()
+
+        # 数据集
+        deviceName = tu.getDeviceName()
+        if deviceName == "windows":
+            numWorkers = 0
+        train_val_PathList, classNum, self.data = cfg.get_dataset_info(dataset, deviceName)
+        trainDatasetPath = train_val_PathList[0]
+        valDatasetPath = train_val_PathList[1]
+        # 训练 数据加载器
+        self.trainIter = data_loader(FlowDataset, trainDatasetPath, sampleLength, step, transform,
+                                     batchSize=batchSize, shuffle=shuffle, numWorkers=numWorkers)
+        if transform.lower().find('noise') != -1:
+            transform = 'zScore_std'
+        # 验证 数据加载器
+        self.valIter = data_loader(FlowDataset, valDatasetPath, sampleLength, step, transform,
+                                   batchSize=batchSize, shuffle=shuffle, numWorkers=numWorkers)
+
+        self.loss = uloss.smart_lossFunction(self.lossName)  # 损失函数
+        # loss = uloss.smart_lossFunction('FocalLoss', classNum)  # 损失函数
+        # loss = uloss.smart_lossFunction('FocalLoss', class_num=classNum)  # 损失函数
+        self.get_net()  # net
+        self.optimizer = tu.smart_optimizer(self.net, self.optimName, self.lr)  # 优化器
+        self.netName = self.net.__class__.__name__
+        self.modelParamAmount = sum([p.nelement() for p in self.net.parameters()])
+
+    def get_net(self):
+        # 网络
+        print_color(["bright_green", "bold", "\nloading model..."])
+        fuse, split, initweightName = False, False, 'xavier'
+        if self.model is not None:  # 在已有模型的基础上继续训练
+            # 读取训练信息
+            path = os.path.dirname(os.path.dirname(self.model))
+            yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
+            fuse, split = yml['model_settings']['fuse_'], yml['model_settings']['split_']
+            self.scale = yml['model_settings']['model_scale']
+            self.modelYaml = yml['model_settings']['modelYaml']
+        # self.net = YOLO1D(self.modelYaml, self.model, fuse=fuse, split=split, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
+        self.net = YI(self.modelYaml, self.model, fuse=fuse, split=split, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
+        self.net.set_names(self.data['names'])
 
     def train(self):
         self._setup_train()  # 训练设置
@@ -171,7 +229,7 @@ class BaseTrainer:
             line.add(epoch + 1, [trainLoss, trainAcc, valAcc])
             accLine.add(epoch + 1, [trainAcc, valAcc])
             lossLine.add(epoch + 1, [trainLoss, valLoss])
-    
+
         # 画图
         print_color(["drawing..."])
         img_lossAccPath = os.path.join(resultPath, 'loss_acc.png')
@@ -196,54 +254,6 @@ class BaseTrainer:
         print(f"| {accumulatorTrain[2] * self.epochNum / timer.sum():.1f} samlpes/sec, on \033[33m{str(self.device)}\033[0m")  # 每秒处理的样本数, 使用的设备
         print(f"| train time consuming: {timeConsuming}")  # 训练耗时
         print("----------------------------------------------")
-
-    def _setup_train(self):
-        shuffleFlag, dataset, sampleLength, step, transform, batchSize, numWorkers = \
-                                        self.shuffleFlag, self.dataset, self.sampleLength, self.step, self.transform, self.batchSize, self.numWorkers
-        assert shuffleFlag == 1 or shuffleFlag == 0, f'shuffle_flag ValueError, except 0 or 1, but got {shuffleFlag}'
-        self.trainTimer = tu.Timer()
-        self.trainTimer.start()
-        self.shuffle = shuffle = shuffleFlag == 1 or not shuffleFlag == 0
-        self.device = tu.get_device()
-
-        # 数据集
-        deviceName = tu.getDeviceName()
-        if deviceName == "windows":
-            numWorkers = 0
-        train_val_PathList, classNum, self.data = cfg.get_dataset_info(dataset, deviceName)
-        trainDatasetPath = train_val_PathList[0]
-        valDatasetPath = train_val_PathList[1]
-        # 训练 数据加载器
-        self.trainIter = data_loader(FlowDataset, trainDatasetPath, sampleLength, step, transform,
-                                     batchSize=batchSize, shuffle=shuffle, numWorkers=numWorkers)
-        if transform.lower().find('noise') != -1:
-            transform = 'zScore_std'
-        # 验证 数据加载器
-        self.valIter = data_loader(FlowDataset, valDatasetPath, sampleLength, step, transform,
-                                   batchSize=batchSize, shuffle=shuffle, numWorkers=numWorkers)
-
-        self.loss = uloss.smart_lossFunction(self.lossName)  # 损失函数
-        # loss = uloss.smart_lossFunction('FocalLoss', classNum)  # 损失函数
-        # loss = uloss.smart_lossFunction('FocalLoss', class_num=classNum)  # 损失函数
-        self.get_net()  # net
-        self.optimizer = tu.smart_optimizer(self.net, self.optimName, self.lr)  # 优化器
-        self.netName = self.net.__class__.__name__
-        self.modelParamAmount = sum([p.nelement() for p in self.net.parameters()])
-
-    def get_net(self):
-        # 网络
-        print_color(["bright_green", "bold", "\nloading model..."])
-        fuse, split, initweightName = False, False, 'xavier'
-        if self.model is not None:  # 在已有模型的基础上继续训练
-            # 读取训练信息
-            path = os.path.dirname(os.path.dirname(self.model))
-            yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
-            fuse, split = yml['model_settings']['fuse_'], yml['model_settings']['split_']
-            self.scale = yml['model_settings']['model_scale']
-            self.modelYaml = yml['model_settings']['modelYaml']
-        # self.net = YOLO1D(self.modelYaml, self.model, fuse=fuse, split=split, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
-        self.net = YI(self.modelYaml, self.model, fuse=fuse, split=split, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
-        self.net.set_names(self.data['names'])
 
     def val(self):
         '''validate'''

@@ -11,7 +11,7 @@ from jyu.utils.color_print import print_color
 class FlowDataset:
 # class FlowDataset(Dataset):
     def __init__(self, datasetPath, sampleLength:int, step:int, transformName=None,
-                 cls:str=None, supervised=True):
+                 clss=None, supervised=True):
         # super().__init__()
         self.datasetPath = datasetPath
         self.sampleLength = sampleLength
@@ -28,12 +28,12 @@ class FlowDataset:
         else:
             self.transform = None
         print_color(["loading dataset..."])
-        if cls is None:
+        if clss is None:
             self._load_data()
-        elif cls == -1:
+        elif clss == -1:
             self._load_data_noLabel()
         else:  # cls 既是文件夹名字，也是类别（标签）
-            self._load_data_oneClass(cls)
+            self._load_data_oneClass(clss)
         self.__len__() # 样本总数
 
     def sample_to_float(self, data):
@@ -250,9 +250,9 @@ class FlowDataset:
             x = self.transform(v)
             self.allSample[i] = x
 
-def data_loader(Dataset, datasetPath, sampleLength:int, step:int, transform, cls=None, supervised=True,
+def data_loader(Dataset, datasetPath, sampleLength:int, step:int, transform, clss=None, supervised=True,
                 batchSize:int=64, shuffle=True, numWorkers=0):
-    dataset = Dataset(datasetPath, sampleLength, step, transform, cls, supervised)
+    dataset = Dataset(datasetPath, sampleLength, step, transform, clss, supervised)
     dataloader = DataLoader(dataset, batch_size=batchSize, shuffle=shuffle, num_workers=numWorkers)
     return dataloader
 

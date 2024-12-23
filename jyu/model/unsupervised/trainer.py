@@ -3,16 +3,25 @@ import os
 import torch
 import yaml
 from torch import optim
+from torch.utils.data import DataLoader
 
 from jyu.engine.trainer import BaseTrainer
 from jyu.utils import tu, data_loader, FlowDataset, cfg, uloss, print_color, tm, ROOT, ph, plot
 
 class Trainer(BaseTrainer):
+    def data_loader(self, Dataset, datasetPath, sampleLength:int, step:int, transform, clss=None, supervised=True,
+                batchSize:int=64, shuffle=True, numWorkers=0, PseudoLabel=None):
+        self.dataset_obj = Dataset(datasetPath, sampleLength, step, transform, clss, supervised)
+        if PseudoLabel:
+            self.dataset_obj.allLabel = PseudoLabel
+        dataloader = DataLoader(self.dataset_obj, batch_size=batchSize, shuffle=shuffle, num_workers=numWorkers)
+        return dataloader
+
     def pseudo_label(self, trainDatasetPath, sampleLength, step, transform):
         import numpy as np
         from jyu.tml import do_pca, do_k_means
         PseudoLabel = []
-        dataset = FlowDataset(trainDatasetPath, sampleLength, step, transform, cls=-1)
+        dataset = FlowDataset(trainDatasetPath, sampleLength, step, transform, clss=-1)
         print_color(['generate pseudo label...'])
         dataset.allSample = np.array(dataset.allSample)
         dataset.do_transform()
@@ -28,14 +37,22 @@ class Trainer(BaseTrainer):
 
     def update_pseudo_label(self, y_hat, index, prob=0.5):
         preLabel = y_hat.argmax(axis=1)
+
+        for i in range(0, y_hat.shape[0]):
+            y_hat[i] = y_hat[i].softmax(dim=0)
         tmp = y_hat.max(axis=1)
-        y_hat_softmax = tmp.values.softmax(dim=0)
-        # y_hat_softmax = torch.softmax(tmp.values, dim=0)
+        y_hat_softmax = tmp.values
+        # y_hat_softmax = tmp.values.softmax(dim=0)  # y_hat_softmax = torch.softmax(tmp.values, dim=0)
         a ='aaa'
         for i, v in enumerate(preLabel):
             if y_hat_softmax[i] > prob:
-                idx = index[i]
-                self.trainIter.dataset.allLabel[idx] = v
+                idx = int(index[i])
+                # self.trainIter.dataset.allLabel[idx] = v
+                self.dataset_obj.allLabel[idx] = int(v)
+
+    # def new_dataloader(self):
+    #     dataloader = DataLoader(self.dataset_obj, batch_size=self.batchSize, shuffle=self.shuffle, num_workers=self.numWorkers)
+    #     return dataloader
 
     def _setup_train(self):
         shuffleFlag, dataset, sampleLength, step, transform, batchSize, numWorkers = \
@@ -58,11 +75,10 @@ class Trainer(BaseTrainer):
         labels = self.pseudo_label(trainDatasetPath, sampleLength, step, "zScore_std")
 
         # 训练 数据加载器
-        self.trainIter = data_loader(FlowDataset, trainDatasetPath, sampleLength, step, transform, cls=-1, supervised=False,
-                                     batchSize=batchSize, shuffle=shuffle, numWorkers=numWorkers)
+        self.trainIter = self.data_loader(FlowDataset, trainDatasetPath, sampleLength, step, transform, clss=-1, supervised=False,
+                                     batchSize=batchSize, shuffle=shuffle, numWorkers=numWorkers, PseudoLabel=labels)
         if transform.lower().find('noise') != -1:
             transform = 'zScore_std'
-        self.trainIter.dataset.allLabel = labels
         # 验证 数据加载器
 
         self.loss = uloss.smart_lossFunction(self.lossName)  # 损失函数
@@ -77,7 +93,7 @@ class Trainer(BaseTrainer):
         self._setup_train()  # 训练设置
         # 路径
         thisDir = tm.get_result_dir() + f"_{self.netName}"
-        resultPath = self.resultPath = os.path.join(ROOT, 'result', 'train', thisDir)
+        resultPath = self.resultPath = os.path.join(ROOT, 'result', 'train_unsupervised', thisDir)
         ph.checkAndInitPath([resultPath, os.path.join(resultPath,  'weights')])
         info_fp_path = os.path.join(resultPath, 'info.yaml')  # 通过yaml文件记录模型数据
         bestWeightPath = os.path.join(resultPath, 'weights', "best_params.pt")  # 模型参数文件
