@@ -32,6 +32,37 @@ class BaseTester:
         self.modelYaml = modelYaml
         self.weights = weights
 
+    def _setup_test(self):
+        shuffleFlag = self.shuffleFlag
+        assert shuffleFlag == 1 or shuffleFlag == 0, f'shuffle_flag ValueError, except 0 or 1, but got {shuffleFlag}'
+        self.shuffle = shuffleFlag == 1 or not shuffleFlag == 0
+        self.device = tu.get_device()
+
+        # 读取训练信息
+        path = os.path.dirname(os.path.dirname(self.weights))
+        yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
+        # transform
+        self.transform = yml['transform'] if self.transform is None else self.transform
+        if self.transform.lower().find('noise') != -1:
+            self.transform = 'zScore_std'
+
+        # 数据集
+        deviceName = tu.getDeviceName()
+        if deviceName == "windows":
+            self.numWorkers = 0
+        testDatasetPath, self.classNum = cfg.get_dataset_info(self.dataset, deviceName, train=False)
+        self.testIter = data_loader(FlowDataset, testDatasetPath, self.sampleLength, self.step, self.transform,
+                                    batchSize=self.batchSize, shuffle=self.shuffle, numWorkers=self.numWorkers)
+
+        # 模型
+        print('loading model...')
+        scale = yml['model_settings']['model_scale'] # ########
+        modelYaml = self.modelYaml if self.modelYaml else yml['model_settings']['modelYaml']  # ########
+        fuse, split = yml['model_settings']['fuse'], yml['model_settings']['split'] # ########
+        # self.net = YOLO1D(modelYaml, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)
+        # self.net = YI(None, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)
+        self.net = YI(modelYaml, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)
+
     def test(self):
         testTimer = tu.Timer()
         print(f"{colorstr('blue', 'timer start...')}")
@@ -135,37 +166,6 @@ class BaseTester:
         print(f"| test time consuming: {timeConsuming}")  # 训练耗时
         print(f"| speed: {speed} samples/sec")  # speed
         print("-----------------------------------------")
-
-    def _setup_test(self):
-        shuffleFlag = self.shuffleFlag
-        assert shuffleFlag == 1 or shuffleFlag == 0, f'shuffle_flag ValueError, except 0 or 1, but got {shuffleFlag}'
-        self.shuffle = shuffleFlag == 1 or not shuffleFlag == 0
-        self.device = tu.get_device()
-
-        # 读取训练信息
-        path = os.path.dirname(os.path.dirname(self.weights))
-        yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
-        # transform
-        self.transform = yml['transform'] if self.transform is None else self.transform
-        if self.transform.lower().find('noise') != -1:
-            self.transform = 'zScore_std'
-
-        # 数据集
-        deviceName = tu.getDeviceName()
-        if deviceName == "windows":
-            self.numWorkers = 0
-        testDatasetPath, self.classNum = cfg.get_dataset_info(self.dataset, deviceName, train=False)
-        self.testIter = data_loader(FlowDataset, testDatasetPath, self.sampleLength, self.step, self.transform,
-                                    batchSize=self.batchSize, shuffle=self.shuffle, numWorkers=self.numWorkers)
-
-        # 模型
-        print('loading model...')
-        scale = yml['model_settings']['model_scale'] # ########
-        modelYaml = self.modelYaml if self.modelYaml else yml['model_settings']['modelYaml']  # ########
-        fuse, split = yml['model_settings']['fuse'], yml['model_settings']['split'] # ########
-        # self.net = YOLO1D(modelYaml, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)
-        # self.net = YI(None, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)
-        self.net = YI(modelYaml, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)
 
     @staticmethod
     def test_function(
