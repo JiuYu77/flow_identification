@@ -34,6 +34,34 @@ class Trainer(BaseTrainer):
         PseudoLabel = [int(item) for item in pre.tolist()]
         print(PseudoLabel)
         return PseudoLabel
+    
+    def do_pseudo_label(self, X, index):
+        import numpy as np
+        from jyu.tml import do_pca, do_k_means, do_dbscan
+        PseudoLabel = []
+        print_color(['generate pseudo label...'])
+        data = X.squeeze(1)
+
+        pca_data = do_pca(data, 2, True)
+        X = low_dim_data = pca_data
+
+        # pre = do_k_means(X, 7, 'auto')
+        pre = do_dbscan(X, 1, 10)
+        m = pre.argmax(axis=1)
+        pre[pre==-1] = m
+        # key = np.unique(pre)
+        # results = {}
+        # for k in key:
+        #     v =  pre[ pre == k ].size
+        #     results[k] = v
+
+        PseudoLabel = [int(item) for item in pre.tolist()]
+        print(PseudoLabel)
+        for i, v in enumerate(PseudoLabel):
+            idx = int(index[i])
+            self.dataset_obj.allLabel[idx] = int(v)
+
+        return PseudoLabel
 
     def get_porb(self, y_hat_softmax):
         ys_max = y_hat_softmax.max()
@@ -51,7 +79,7 @@ class Trainer(BaseTrainer):
         # y_hat_softmax = tmp.values.softmax(dim=0)  # y_hat_softmax = torch.softmax(tmp.values, dim=0)
         a ='aaa'
         prob = self.get_porb(y_hat_softmax)
-        prob = 0.1
+        # prob = 0.1
         for i, v in enumerate(preLabel):
             if y_hat_softmax[i] > prob:
                 idx = int(index[i])
@@ -163,6 +191,10 @@ class Trainer(BaseTrainer):
             accumulatorTrain = tu.Accumulator(3)
             self.net.train()
             for i, (X, y, index) in enumerate(self.trainIter):
+                if epoch == 0:
+                    tt = y.dtype
+                    y = self.do_pseudo_label(X, index)
+                    y = torch.tensor(y, dtype=tt)
                 timer.start()
                 # 正向传播
                 X, y = X.to(self.device), y.to(self.device)
@@ -173,7 +205,7 @@ class Trainer(BaseTrainer):
                 loss_.backward()
                 self.optimizer.step()
 
-                self.update_pseudo_label(y_hat, index) # 更新伪标签
+                # self.update_pseudo_label(y_hat, index) # 更新伪标签
 
                 sampleNum = len(y)  # 一个batch的样本数
                 correctNum = tu.accuracy(y_hat, y)

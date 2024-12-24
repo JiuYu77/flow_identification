@@ -45,6 +45,8 @@ def parse_args():
     netPath = os.path.join('result', 'train_unsupervised', '20240825.225646_Yolov8_1D', 'weights', 'last_params.pt')
     netPath = os.path.join('result', 'train_unsupervised', '20240827.153703_Yolov8_1D', 'weights', 'last_params.pt')
     netPath = os.path.join('result', 'train_unsupervised', '20241223.134745_YOLOv8_1D', 'weights', 'best_params.pt')
+    netPath = os.path.join('result', 'train_unsupervised', '20241223.143508_YOLOv8_1D', 'weights', 'best_params.pt')
+    netPath = os.path.join('result', 'train_unsupervised', '20241223.155108_YOLOv8_1D', 'weights', 'best_params.pt')
 
     parser.add_argument('-w', '--weights', type=str, default=netPath)
     # parser.add_argument('--cls', type=str, default=None)
