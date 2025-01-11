@@ -2,7 +2,7 @@
 from torch.utils.data import Dataset, DataLoader
 import os
 import numpy as np
-
+import random
 import sys
 sys.path.append('.')
 import jyu.utils.transform.transform as tf
@@ -35,6 +35,31 @@ class FlowDataset:
         else:  # cls 既是文件夹名字，也是类别（标签）
             self._load_data_oneClass(clss)
         self.__len__() # 样本总数
+
+    def do_shuffle_numpy(self):
+        '''打乱样本顺序 和 标签顺序'''
+        if type(self.allSample) is list:
+            self.allSample = np.array(self.allSample)
+        indices = np.random.permutation(self.__len__())
+        data_shuffled = self.allSample[indices]
+        if type(self.allLabel) is list:
+            self.allLabel = np.array(self.allLabel)
+        label_shuffled = self.allLabel[indices]
+        return data_shuffled, label_shuffled
+
+    def do_shuffle(self, indices=None):
+        '''打乱样本顺序 和 标签顺序'''
+        if indices is None:
+            # 生成一个随机的索引序列
+            indices = list(range(self.__len__()))
+            random.shuffle(indices)
+        # 使用相同的索引序列打乱两个列表
+        self.allSample = [self.allSample[i] for i in indices]
+        try:
+            self.allLabel = [self.allLabel[i] for i in indices]
+        except:
+            pass
+        return indices
 
     def sample_to_float(self, data):
         '''将(str字符串)样本, 转换为float样本'''

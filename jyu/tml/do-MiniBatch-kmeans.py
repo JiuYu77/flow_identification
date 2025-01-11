@@ -2,14 +2,49 @@
 """K-Means 聚类"""
 
 import numpy as np
+import matplotlib.pyplot as plt
 import math
 import sys
 sys.path.append('.')
 
-from dimensionality_reduction import do_pca, do_som
-from cluster import do_k_means
+from pca import do_pca
+from som import do_som
+from minibatch_k_means import do_MiniBatchKMeans
 from jyu.utils import FlowDataset, ph
-from .utils import draw
+
+def draw(data, c, path):
+    # 可视化散点图
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    # 设置标签
+    ax.set_xlabel('Feature 0')
+    ax.set_ylabel('Feature 1')
+
+    # 绘制散点图
+    # ax.scatter(data[:, 0], data[:, 1])
+    ax.scatter(data[:, 0], data[:, 1], c=c)
+    plt.savefig(path)
+    plt.show()
+    plt.close(fig)
+
+def draw3d(data, c, path):
+    # 可视化散点图
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # 设置标签
+    ax.set_xlabel('Feature 0')
+    ax.set_ylabel('Feature 1')
+    ax.set_zlabel('Feature 2')
+
+    # 绘制散点图
+    # ax.scatter(data[:, 0], data[:, 1], data[:,2])
+    ax.scatter(data[:, 0], data[:, 1], data[:,2], c=c)
+
+    plt.savefig(path)
+    plt.show()
+    plt.close(fig)
 
 def std(x):
     mean = np.mean(x)
@@ -28,15 +63,17 @@ def do_shuffle(data, label):
 
 datasetPath = "../dataset/v4/Pressure/v4_Pressure_Simple/4/train"
 datasetPath = "/home/jyu/apro/flow/dataset/flow/v4/Pressure/v4/train"
+datasetPath = "/home/jyu/apro/flow/dataset/flow/v4/Pressure/v4/val"
 
-# dataset = FlowDataset("../dataset/v4/Pressure/v4_Pressure_Simple/4/val", 4096, 2048, cls=-1)
-# dataset = FlowDataset("../dataset/v4/Pressure/v4_Pressure_Simple/4/val", 4096, 2048)
-# dataset = FlowDataset("../dataset/v4/Pressure/v4_Pressure_Simple/4/train", 4096, 2048, "dwt_zScore")
+# dataset = FlowDataset(datasetPath, 4096, 2048, cls=-1)
+# dataset = FlowDataset(datasetPath, 4096, 2048)
+# dataset = FlowDataset(datasetPath, 4096, 2048, "dwt_zScore")
 dataset = FlowDataset(datasetPath, 4096, 4096, "zScore_std")
 dataset.allSample = np.array(dataset.allSample)
 dataset.do_transform()
-dataset.do_shuffle()
-all = dataset.allSample
+
+# all = dataset.allSample
+all, label = do_shuffle(dataset.allSample, dataset.allLabel)
 data = all
 
 # ######################
@@ -71,9 +108,9 @@ X = low_dim_data
 # PseudoLabel = do_dbscan(X, eps=0.3, min_samples=100)
 # PseudoLabel = do_dbscan(X, eps=0.5, min_samples=10)
 
-PseudoLabel = do_k_means(X, 7, 'auto')
+PseudoLabel = do_MiniBatchKMeans(X, 7, 'auto')
 
-path = "tmp/tml/pca-som-kmeans/"
+path = "tmp/tml/pca-som-MBkmeans/"
 ph.checkAndInitPath(path)
 
 def save_label(p, labels):
@@ -89,10 +126,12 @@ def save_label(p, labels):
 
 save_label(path + "pre.txt", PseudoLabel)
 save_label(path + "true.txt", dataset.allLabel)
+save_label(path + "true-shuffle.txt", label)
 
 print("dbscan.labels_: ", PseudoLabel)
 
 # 可视化散点图
 draw(X, PseudoLabel, path+'pre')
 draw(X, dataset.allLabel, path + "true")
+draw(X, label, path + "true-shuffle")
 

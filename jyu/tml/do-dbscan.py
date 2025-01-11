@@ -6,9 +6,8 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append('.')
 
-from pca import do_pca
-from som import do_som
-from dbscan import do_dbscan
+from dimensionality_reduction import do_pca, do_som
+from cluster import do_dbscan
 from jyu.utils import FlowDataset, ph
 
 def draw(data, c, path):

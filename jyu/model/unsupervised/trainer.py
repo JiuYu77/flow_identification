@@ -12,6 +12,7 @@ class Trainer(BaseTrainer):
     def data_loader(self, Dataset, datasetPath, sampleLength:int, step:int, transform, clss=None, supervised=True,
                 batchSize:int=64, shuffle=True, numWorkers=0, PseudoLabel=None):
         self.dataset_obj = Dataset(datasetPath, sampleLength, step, transform, clss, supervised)
+        self.dataset_obj.do_shuffle(self.indices)
         if PseudoLabel:
             self.dataset_obj.allLabel = PseudoLabel
         dataloader = DataLoader(self.dataset_obj, batch_size=batchSize, shuffle=shuffle, num_workers=numWorkers)
@@ -19,22 +20,42 @@ class Trainer(BaseTrainer):
 
     def pseudo_label(self, trainDatasetPath, sampleLength, step, transform):
         import numpy as np
-        from jyu.tml import do_pca, do_k_means
+        from scipy.stats import mode
+        from jyu.tml import do_pca, do_k_means, do_MiniBatchKMeans, do_Agglomerative, do_birch, do_GaussianMixture, do_SpectralClustering
+
         PseudoLabel = []
         dataset = FlowDataset(trainDatasetPath, sampleLength, step, transform, clss=-1)
         print_color(['generate pseudo label...'])
+        self.indices = dataset.do_shuffle()
         dataset.allSample = np.array(dataset.allSample)
         dataset.do_transform()
         data = dataset.allSample
 
-        pca_data = do_pca(data, 3, True)
+        pca_data = do_pca(data, 2, True)
         X = low_dim_data = pca_data
 
-        pre = do_k_means(X, 7, 'auto')
+        # pre = do_k_means(X, 7, 'auto')
+        # pre = do_MiniBatchKMeans(X, 7, 'auto', batchSize=256, max_iter=100)
+        # pre = do_agg(X, 7)
+        # pre = do_birch(X, 7)
+
+        labels_kmeans = do_k_means(X, 7, 'auto')
+        labels_agglomerative = do_Agglomerative(X, 7)
+        labels_mini = do_MiniBatchKMeans(X, 7, 'auto')
+        labels_birch = do_birch(X, 7)
+        labels_spectral = do_SpectralClustering(X, 7)
+        labels_gmm = do_GaussianMixture(X, 7)
+
+        # 将所有聚类结果汇总
+        all_labels = np.vstack((labels_kmeans, labels_agglomerative, labels_mini, labels_birch, labels_spectral, labels_gmm))
+
+        # 聚类投票：对每个数据点的标签取众数
+        pre = mode(all_labels, axis=0, keepdims=True).mode[0]
+
         PseudoLabel = [int(item) for item in pre.tolist()]
         print(PseudoLabel)
         return PseudoLabel
-    
+
     def do_pseudo_label(self, X, index):
         import numpy as np
         from jyu.tml import do_pca, do_k_means, do_dbscan
@@ -191,10 +212,10 @@ class Trainer(BaseTrainer):
             accumulatorTrain = tu.Accumulator(3)
             self.net.train()
             for i, (X, y, index) in enumerate(self.trainIter):
-                if epoch == 0:
-                    tt = y.dtype
-                    y = self.do_pseudo_label(X, index)
-                    y = torch.tensor(y, dtype=tt)
+                # if epoch == 0:
+                #     tt = y.dtype
+                #     y = self.do_pseudo_label(X, index)
+                #     y = torch.tensor(y, dtype=tt)
                 timer.start()
                 # 正向传播
                 X, y = X.to(self.device), y.to(self.device)
