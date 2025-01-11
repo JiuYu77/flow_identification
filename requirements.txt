@@ -8,3 +8,5 @@ PyYAML>=6.0
 #torchvision>=0.13.1
 ewtpy>=0.2
 PyWavelets>=1.4.1
+#scikit-learn
+#minisom
