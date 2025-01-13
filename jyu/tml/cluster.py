@@ -20,9 +20,9 @@ def do_dbscan(X, eps, min_samples):
     print("   类别数量:", len(unique_elements))
     return dbscan.labels_
 
-def do_k_means(X, n_clusters, n_init, max_iter=1000):
+def do_k_means(X, n_clusters, n_init='warn', max_iter=1000, random_state=None):
     print("do_kmeans...")
-    k_means = KMeans(n_clusters=n_clusters, n_init=n_init, max_iter=max_iter)
+    k_means = KMeans(n_clusters=n_clusters, n_init=n_init, max_iter=max_iter, random_state=random_state)
     Kmeans = k_means.fit(X)
     pre = k_means.predict(X)
     return pre

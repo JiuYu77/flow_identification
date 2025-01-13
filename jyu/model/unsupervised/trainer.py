@@ -21,18 +21,19 @@ class Trainer(BaseTrainer):
     def pseudo_label(self, trainDatasetPath, sampleLength, step, transform):
         import numpy as np
         from scipy.stats import mode
-        from jyu.tml import do_pca, do_k_means, do_MiniBatchKMeans, do_Agglomerative, do_birch, do_GaussianMixture, do_SpectralClustering
+        from jyu.tml import do_pca, do_tSNE, do_k_means, do_MiniBatchKMeans, do_Agglomerative, do_birch, do_GaussianMixture, do_SpectralClustering
 
         PseudoLabel = []
         dataset = FlowDataset(trainDatasetPath, sampleLength, step, transform, clss=-1)
         print_color(['generate pseudo label...'])
         self.indices = dataset.do_shuffle()
         dataset.allSample = np.array(dataset.allSample)
-        dataset.do_transform()
+        # dataset.do_transform()
         data = dataset.allSample
 
-        pca_data = do_pca(data, 2, True)
-        X = low_dim_data = pca_data
+        # low_dim_data = do_pca(data, 4, True)
+        low_dim_data = do_tSNE(data, 3)
+        X = low_dim_data
 
         # pre = do_k_means(X, 7, 'auto')
         # pre = do_MiniBatchKMeans(X, 7, 'auto', batchSize=256, max_iter=100)
@@ -99,7 +100,7 @@ class Trainer(BaseTrainer):
         y_hat_softmax = tmp.values
         # y_hat_softmax = tmp.values.softmax(dim=0)  # y_hat_softmax = torch.softmax(tmp.values, dim=0)
         a ='aaa'
-        prob = self.get_porb(y_hat_softmax)
+        prob = self.get_porb(y_hat_softmax) + 0.1
         # prob = 0.1
         for i, v in enumerate(preLabel):
             if y_hat_softmax[i] > prob:
@@ -226,7 +227,8 @@ class Trainer(BaseTrainer):
                 loss_.backward()
                 self.optimizer.step()
 
-                # self.update_pseudo_label(y_hat, index) # 更新伪标签
+                if epoch > 0:
+                    self.update_pseudo_label(y_hat, index) # 更新伪标签
 
                 sampleNum = len(y)  # 一个batch的样本数
                 correctNum = tu.accuracy(y_hat, y)

@@ -18,19 +18,19 @@ datasetPath = "/home/jyu/apro/flow/dataset/flow/v4/Pressure/v4/train"
 dataset = FlowDataset(datasetPath, 4096, 2048, "zScore_std")
 dataset.do_shuffle()
 dataset.allSample = np.array(dataset.allSample)
-dataset.do_transform()
+# dataset.do_transform()
 all = dataset.allSample
 data = all
 
 # ######################
 
-pca_data = do_pca(data, 4, True)
-print('PCA降维后数据:')
-print(pca_data.shape)
-print(pca_data)
-low_dim_data = pca_data
+# pca_data = do_pca(data, 4, True)
+# print('PCA降维后数据:')
+# print(pca_data.shape)
+# print(pca_data)
+# low_dim_data = pca_data
 
-# low_dim_data = do_tSNE(data, 2)
+low_dim_data = do_tSNE(data, 3)
 
 # 使用多个聚类算法
 X = low_dim_data

@@ -9,7 +9,7 @@ sys.path.append('.')
 from dimensionality_reduction import do_pca, do_som
 from cluster import do_k_means
 from jyu.utils import FlowDataset, ph
-from .utils import draw
+from utils import draw
 
 def std(x):
     mean = np.mean(x)
@@ -32,16 +32,16 @@ datasetPath = "/home/jyu/apro/flow/dataset/flow/v4/Pressure/v4/train"
 # dataset = FlowDataset("../dataset/v4/Pressure/v4_Pressure_Simple/4/val", 4096, 2048, cls=-1)
 # dataset = FlowDataset("../dataset/v4/Pressure/v4_Pressure_Simple/4/val", 4096, 2048)
 # dataset = FlowDataset("../dataset/v4/Pressure/v4_Pressure_Simple/4/train", 4096, 2048, "dwt_zScore")
-dataset = FlowDataset(datasetPath, 4096, 4096, "zScore_std")
+dataset = FlowDataset(datasetPath, 4096, 2048, "zScore_std")
 dataset.allSample = np.array(dataset.allSample)
-dataset.do_transform()
+# dataset.do_transform()
 dataset.do_shuffle()
 all = dataset.allSample
 data = all
 
 # ######################
 
-pca_data = do_pca(data, 32, True)
+pca_data = do_pca(data, 3, True)
 print('PCA降维后数据:')
 print(pca_data.shape)
 print(pca_data)

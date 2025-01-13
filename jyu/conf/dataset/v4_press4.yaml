@@ -12,7 +12,8 @@ train: train  # train samples (relative to 'path')
 # train: val  # train samples (relative to 'path')
 val: val  # val samples (relative to 'path')
 # test: test  # (relative to 'path')
-test: val  # (relative to 'path')
+# test: val  # (relative to 'path')
+test: train  # (relative to 'path')
 
 # Classes
 class_num: 7
