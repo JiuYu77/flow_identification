@@ -32,8 +32,8 @@ elif [[ $arg == 'all' ]];then
     add_all "$arg2"
 elif [[ $arg == 'push' || $arg == 'add_push' ]];then
     add_push "$arg2"
-elif [[ $arg == 'init' ]];then
-    init
+elif [[ $arg == 'git_init' ]];then
+    git_init
 elif [[ $arg == 'user' ]];then
     config_user $arg2 $arg3
 elif [[ $arg == 'conf_list' ]];then

@@ -29,7 +29,7 @@ add_push(){
     git push
 }
 # 执行git init操作
-init(){
+git_init(){
     git init
     add "first commit"
 }
