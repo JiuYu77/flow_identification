@@ -10,7 +10,7 @@ full_name: YI-Netv1
 ch: 1  # input channels
 nc: 7  # number of classes
 
-scales: # model compound scaling constants, i.e. 'model=yolov10_1Dn-cls.yaml' will call yolov10_1D-cls.yaml with scale 'n'
+scales: # model compound scaling constants, i.e. 'model=yi-netv1n-cls.yaml' will call yi-netv1-cls.yaml with scale 'n'
   # [depth, width, max_channels]
   n: [0.33, 0.25, 1024]
   s: [0.33, 0.50, 1024]
@@ -21,7 +21,7 @@ scales: # model compound scaling constants, i.e. 'model=yolov10_1Dn-cls.yaml' wi
 # activation function
 activation: nn.SiLU()  # default activation
 
-# YOLOv10_1D.0n backbone
+# YI-Net backbone
 backbone:
   # [from, repeats, module, args]
   - [-1, 1, Conv1d, [64, 3, 2]]  # 0-P1/2
@@ -34,6 +34,6 @@ backbone:
   - [-1, 1, Conv1d, [1024, 3, 2]]  # 7-P5/32
   - [-1, 3, C2fCIB1d, [1024, True, True]]
 
-# YOLOv10_1D.0n head
+# YI-Net head
 head:
   - [-1, 1, Classify, [nc]]  # Classify
