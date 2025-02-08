@@ -15,7 +15,7 @@ import yaml
 def parse_args():
     print_color(["black", "bold", "process args..."])
     parser = ArgumentParser()
-    parser.add_argument('-d', '--dataset', type=str, choices=['v4_press4', 'v4_press3', 'v4_wms', 'v1_wms'], default='v4_press4', help='dataset name')
+    parser.add_argument('-d', '--dataset', type=str, choices=['v4_press4_unsupervised', 'v4_press3', 'v4_wms', 'v1_wms'], default='v4_press4_unsupervised', help='dataset name')
     parser.add_argument('-e', '--epochNum', type=int, default=100, help='Number of epochs to train.')
     parser.add_argument('-b', '--batchSize', type=int, default=64, help='Number of batch size to train.')
     parser.add_argument('-sl', '--sampleLength', type=int, default=4096, help='Data Length')

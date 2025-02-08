@@ -22,7 +22,7 @@ def dataset_divide(formatData, outPath, cls, fileName, test=True):
     trainPath = os.path.join(outPath, 'train')  # 训练集输出目录
     valPath = os.path.join(outPath, 'val')  # 验证集输出目录
     checkAndInitPath([trainPath, valPath])
-   
+
     if test:  # 需要测试集
         trainSetRadio = 0.8
         valSetRadio = 0.1

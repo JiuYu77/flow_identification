@@ -14,7 +14,7 @@ import yaml
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument('-d', '--dataset', type=str, choices=['v4_press4', 'v4_wms', 'v1_wms'], default='v4_press4', help="数据集的名字，和yaml配置文件名相同，不包括.yaml后缀")
+    parser.add_argument('-d', '--dataset', type=str, choices=['v4_press4_unsupervised', 'v4_wms', 'v1_wms'], default='v4_press4_unsupervised', help="数据集的名字，和yaml配置文件名相同，不包括.yaml后缀")
     parser.add_argument('-b', '--batchSize', type=int, default=64, help='Number of batch size to test.')
     parser.add_argument('-sl', '--sampleLength', type=int, default=4096, help='Data Length')
     parser.add_argument('-s', '--step', type=int, default=2048, help='Step Length')

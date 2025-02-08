@@ -32,13 +32,13 @@ def pressureData_format_and_divide(sourcePath, outPath, idx, test=True):
 
 if __name__ == '__main__':
     sourcePath = "E:\\B_SoftwareInstall\\my_flow\\流型识别数据集\\v4\\Pressure\\v4_Pressure_Source_A"
-    sourcePath = "/home/jyu/apro/flow/dataset/流型识别数据集/v4/Pressure/v4_Pressure_Source_A"
+    sourcePath = "/home/jyu/pro/my_git/dataset/流型识别数据集/v4/Pressure/v4_Pressure_Source_A"
     outPath = [
             "E:\\B_SoftwareInstall\\my_flow\\dataset\\v4\\Pressure\\v4_Pressure_Simple\\3",
             "E:\\B_SoftwareInstall\\my_flow\\dataset\\v4\\Pressure\\v4_Pressure_Simple\\4",
-            "/home/jyu/apro/flow/dataset/flow/v4/Pressure/v4/",
+            "/home/jyu/pro/my_git/dataset/flow/v4/Pressure/v4/",
         ]
     # pressureData_format_and_divide(sourcePath, outPath[0], idx=3, test=False)
     # pressureData_format_and_divide(sourcePath, outPath[1], idx=4, test=True)
-    pressureData_format_and_divide(sourcePath, outPath[2], idx=4, test=False)
+    pressureData_format_and_divide(sourcePath, outPath[2], idx=4, test=True)
     # pressureData_format_and_divide(sourcePath, outPath[1], idx=4)
