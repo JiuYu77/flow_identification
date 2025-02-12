@@ -5,7 +5,7 @@ import torch
 
 
 class Classify(nn.Module):
-    """YOLOv8_1D classification head, i.e. x(b,c1,20,20) to x(b,c2)."""
+    """YOLOv8 classification head, i.e. x(b,c1,20,20) to x(b,c2)."""
 
     def __init__(self, c1, c2, k=1, s=1, p=None, g=1, prob=0.2) -> None:
         super().__init__()
