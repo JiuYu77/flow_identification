@@ -2,7 +2,7 @@
 import sys
 sys.path.append('.')
 import os
-from utils import path
+from jyu.utils import path
 
 def wms_v1_format(sourcePath, outPath):
     """
@@ -34,8 +34,8 @@ def wms_v1_format(sourcePath, outPath):
 
 
 if __name__ == '__main__':
-    sourceRoot = '/home/uu/v1'
-    outRoot = '../dataset/v1/wms'
+    sourceRoot = '/home/jyu/pro/my_git/dataset/流型识别数据集/v1'
+    outRoot = '../dataset/flow/v1/'
 
     sourcePath = os.path.join(sourceRoot, 'train')
     outPath = os.path.join(outRoot, 'train')

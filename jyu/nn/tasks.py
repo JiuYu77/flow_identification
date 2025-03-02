@@ -9,8 +9,8 @@ import sys
 from jyu.utils import ph, LOGGER, colorstr, cfg
 from jyu.utils.ops import make_divisible
 
-from jyu.nn.modules import Conv1d, C2f1d, Classify, C2fCIB1d, SCDown1d, PSA1d, C3k2, C2PSA
-from jyu.nn.other_modules import SENet1d
+from jyu.nn.yolo import Conv1d, C2f1d, Classify, C2fCIB1d, SCDown1d, PSA1d, C3k2, C2PSA
+from jyu.nn.modules import ClassifyV2, C2f1dTR
 
 
 def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
@@ -50,8 +50,9 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
             C2fCIB1d,
             SCDown1d,
             PSA1d,
-            SENet1d,
             C3k2,C2PSA,
+            ClassifyV2,
+            C2f1dTR,
         ):
             c1, c2 = ch[f], args[0]
             if c2 != nc:  # if c2 not equal to number of classes (i.e. for Classify() output)
@@ -127,7 +128,8 @@ def guess_model_name(model):
 
     def cfg2name(cfg):
         """Guess from YAML dictionary."""
-        m = cfg["net_name"]  # output module name
+        # m = cfg["net_name"]  # output module name
+        m = cfg["full_name"]  # output module name
         return m
 
     # Guess from model cfg

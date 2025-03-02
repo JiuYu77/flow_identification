@@ -88,7 +88,7 @@ class BaseTrainer:
             # 读取训练信息
             path = os.path.dirname(os.path.dirname(self.model))
             yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
-            fuse, split = yml['model_settings']['fuse_'], yml['model_settings']['split_']
+            fuse, split = yml['model_settings']['fuse'], yml['model_settings']['split']
             self.scale = yml['model_settings']['model_scale']
             self.modelYaml = yml['model_settings']['modelYaml']
         # self.net = YOLO1D(self.modelYaml, self.model, fuse=fuse, split=split, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
@@ -129,7 +129,7 @@ class BaseTrainer:
             "optimizer": {self.optimizer.__class__.__name__: self.optimizer.state_dict()},
         }
         yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False)
-    
+
         with open(trainIterPath, 'a+') as tIter_fp:
             tIter_fp.write(
                 f"{'epoch':>6}\t{'batch':>6}\t{'NSample':>6}\t{'AccNum':>6}\t{'ACC':>6}\t{'Loss':>6}\t{'AVGLoss':>6}\n")
@@ -158,6 +158,12 @@ class BaseTrainer:
         print_color(["bright_green", "bold", "preparing data..."])
         for epoch in range(self.epochNum):
             epoch_ = self.epoch = epoch + 1
+            if epoch_>50 and epoch_<230 and epoch_ % 50 == 0:
+            # if epoch == 200:
+                print("\n-------------------------------\n")
+                # self.loss = uloss.smart_lossFunction(self.lossName)  # 损失函数
+                self.optimizer = tu.smart_optimizer(self.net, self.optimName, self.lr)  # 优化器
+
             # 训练
             accumulatorTrain = tu.Accumulator(3)
             self.net.train()
@@ -249,7 +255,7 @@ class BaseTrainer:
         yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False)
 
         print("----------------------------------------------")
-        print(f"|\033[33m End training:\033[0m") 
+        print(f"|\033[33m End training:\033[0m")
         print(f"| loss {trainLoss:.4f}, train_acc {trainAcc:.4f}, val_acc {valAcc:.4f}")
         print(f"| {accumulatorTrain[2] * self.epochNum / timer.sum():.1f} samlpes/sec, on \033[33m{str(self.device)}\033[0m")  # 每秒处理的样本数, 使用的设备
         print(f"| train time consuming: {timeConsuming}")  # 训练耗时
@@ -345,7 +351,7 @@ class BaseTrainer:
             "optimizer": {optimizer.__class__.__name__: optimizer.state_dict()},
         }
         yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False)
-    
+
         with open(trainIterPath, 'a+') as tIter_fp:
             tIter_fp.write(
                 f"{'epoch':>6}\t{'batch':>6}\t{'NSample':>6}\t{'AccNum':>6}\t{'ACC':>6}\t{'Loss':>6}\t{'AVGLoss':>6}\n")
@@ -446,7 +452,7 @@ class BaseTrainer:
             line.add(epoch + 1, [trainLoss, trainAcc, valAcc])
             accLine.add(epoch + 1, [trainAcc, valAcc])
             lossLine.add(epoch + 1, [trainLoss, valLoss])
-    
+
         # 画图
         print_color(["drawing..."])
         img_lossAccPath = os.path.join(resultPath, 'loss_acc.png')
@@ -466,7 +472,7 @@ class BaseTrainer:
         yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False)
 
         print("----------------------------------------------")
-        print(f"|\033[33m End training:\033[0m") 
+        print(f"|\033[33m End training:\033[0m")
         print(f"| loss {trainLoss:.4f}, train_acc {trainAcc:.4f}, val_acc {valAcc:.4f}")
         print(f"| {accumulatorTrain[2] * epochNum / timer.sum():.1f} samlpes/sec, on \033[33m{str(device)}\033[0m")  # 每秒处理的样本数, 使用的设备
         print(f"| train time consuming: {timeConsuming}")  # 训练耗时

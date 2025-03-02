@@ -1,6 +1,9 @@
 # encoding
 UTF-8
 
+# Paper
+**[Lightweight Real-Time Network for Multiphase Flow Patterns Identification Based on Upward inclined Pipeline Pressure Data](https://www.sciencedirect.com/science/article/abs/pii/S0955598625000329)**
+
 # Description
 人工智能用于流型识别：一维模型（AI for Flow Pattern Identification: One-dimensional Model）
 

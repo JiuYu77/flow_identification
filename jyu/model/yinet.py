@@ -1,7 +1,11 @@
 # -*- coding: UTF-8 -*-
 from jyu.nn import Model, MODEL_YAML_DEFAULT
 
+from jyu.nn.model import Model2, Model3
+
 class YI(Model):
+# class YI(Model2):
+# class YI(Model3):
     """YI-Net"""
     def __init__(
             self,

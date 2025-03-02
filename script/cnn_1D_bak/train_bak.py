@@ -31,7 +31,7 @@ def parse_args():
                                  'fft_zScore',
                                 ],
                         default="zScore_std", help='Transform for train sample')
-    parser.add_argument('--lr', type=float, default=0.00001, help='learning rate')
+    parser.add_argument('-lr', type=float, default=0.00001, help='learning rate')
     parser.add_argument('-sf', '--shuffleFlag', type=int, default=1, help='1 is True, 0 is False')
     parser.add_argument('-n', '--numWorkers', type=int, default=4)
     parser.add_argument('-my', '--modelYaml', type=str, default=MODEL_YAML_DEFAULT)
