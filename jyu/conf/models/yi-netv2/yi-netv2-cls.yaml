@@ -27,9 +27,9 @@ backbone:
   # [from, repeats, module, args]
   - [-1, 1, Conv1d, [64, 3, 2]]  # 0-P1/2
   - [-1, 1, Conv1d, [128, 3, 2]]  # 1-P2/4
-  - [-1, 3, C2f1d, [128, True]]
+  - [-1, 3, C2f1dTR, [128, True]]
   - [-1, 1, Conv1d, [256, 3, 2]]  # 3-P3/8
-  - [-1, 6, C2f1d, [256, True]]
+  - [-1, 6, C2f1dTR, [256, True]]  # C2f1d
   - [-1, 1, SCDown1d, [512, 3, 2]]  # 5-P4/16
   - [-1, 6, C2f1d, [512, True]]
   - [-1, 1, SCDown1d, [1024, 3, 2]]  # 7-P5/32
@@ -40,4 +40,4 @@ backbone:
 
 # YI-Net head
 head:
-  - [-1, 1, ClassifyV2, [nc]]  # Classify
+  - [-1, 1, Classify, [nc]]  # Classify
