@@ -108,7 +108,7 @@ class Rnn(nn.Module):
         x, _ = self.rnn(x, h0)
         return x[:,-1,:]
 
-class C2f1dTR(C2f1d):
+class C2fTR1d(C2f1d):
     """Faster Implementation of CSP Bottleneck with 2 convolutions"""
 
     def __init__(self, c1, c2, n=1, shortcut=False, g=1, e=0.5) -> None:
