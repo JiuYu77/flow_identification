@@ -33,7 +33,7 @@ def parse_args():
     # parser.add_argument('-my', '--modelYaml', type=str, default=MODEL_YAML_DEFAULT, help='yaml文件名, 如yolov8_1D-cls.yaml')
     # parser.add_argument('-my', '--modelYaml', type=str, default="yi-netv2-cls.yaml", help='yaml文件名, 如yolov8_1D-cls.yaml')
     # parser.add_argument('-my', '--modelYaml', type=str, default="yi-netv2-cls-psa.yaml", help='yaml文件名, 如yolov8_1D-cls.yaml')
-    parser.add_argument('-my', '--modelYaml', type=str, default="yi-netv2-cls-c2f1dTR.yaml", help='yaml文件名, 如yolov8_1D-cls.yaml')
+    parser.add_argument('-my', '--modelYaml', type=str, default="yi-netv2-cls.yaml", help='yaml文件名, 如yolov8_1D-cls.yaml')
     # parser.add_argument('-sc', '--scale', type=str, default=None)
     parser.add_argument('-sc', '--scale', type=str, default='s')
     parser.add_argument('-m', '--model', type=str, default=None, help="模型参数文件的路径, best_params.pt")
