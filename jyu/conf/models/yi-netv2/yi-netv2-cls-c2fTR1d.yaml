@@ -40,4 +40,4 @@ backbone:
 
 # YI-Net head
 head:
-  - [-1, 1, Classify, [nc]]  # Classify
+  - [-1, 1, ClassifyV2, [nc]]  # Classify
