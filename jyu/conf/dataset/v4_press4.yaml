@@ -7,7 +7,7 @@
 dataset_name: v4_press4
 # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
 # path: ../dataset/v4/Pressure/v4_Pressure_Simple/4/  # dataset root dir
-path: ../dataset/flow/v4/Pressure/v4/
+path: ../dataset/flow/v4/Pressure/4/
 train: train  # train samples (relative to 'path')
 val: val  # val samples (relative to 'path')
 test: test  # (relative to 'path')
