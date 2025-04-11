@@ -15,6 +15,7 @@ def parse_args():
     netPath = os.path.join('result', 'train', '20250302.120903_YI-Netv2', 'weights', 'best_params.pt')
     netPath = os.path.join('result', 'train', '20250302.143001_YI-Netv2', 'weights', 'last_params.pt')
     netPath = os.path.join('result', 'train', '20250302.163810_YI-Netv2', 'weights', 'best_params.pt')
+    netPath = os.path.join('result', 'train', '20250326.133420_YI-Netv2', 'weights', 'best_params.pt')
 
 
     weight = netPath
