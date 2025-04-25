@@ -39,9 +39,14 @@ class TransformerBlock(nn.Module):
         """Forward propagates the input through the bottleneck module."""
         if self.conv is not None:
             x = self.conv(x)
-        # b, _, w, h = x.shape
-        b, w, h = x.shape
+        b, c, l = x.shape     # batch_size, channels, length
         p = x.flatten(2).permute(2, 0, 1)
-        # return self.tr(p + self.linear(p)).permute(1, 2, 0).reshape(b, self.c2, w, h)
-        # return self.tr(p + self.linear(p)).permute(1, 2, 0).reshape(b, self.c2, h)
-        return self.tr(p + self.linear(p)).permute(1, 2, 0).reshape(1, b, self.c2, h)
+        return self.tr(p + self.linear(p)).permute(1, 2, 0).reshape(1, b, self.c2, l)
+
+    def forward_bak(self, x):  # 修改之前的/原本的 forward
+        """Forward propagates the input through the bottleneck module."""
+        if self.conv is not None:
+            x = self.conv(x)
+        b, _, w, h = x.shape  # batch_size, channels, width, height
+        p = x.flatten(2).permute(2, 0, 1)
+        return self.tr(p + self.linear(p)).permute(1, 2, 0).reshape(b, self.c2, w, h)

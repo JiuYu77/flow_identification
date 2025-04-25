@@ -113,16 +113,11 @@ class C2fTR1d(C2f1d):
 
     def __init__(self, c1, c2, n=1, shortcut=False, g=1, e=0.5) -> None:
         super().__init__(c1, c2, n, shortcut, g, e)
-        # self.c = int(c2 * e)  # hidden channels
-        # self.m = nn.ModuleList(Bottleneck(self.c, self.c, shortcut, g, k=(1, 1), e=1.0) for _ in range(n))
-        # self.m = nn.ModuleList(Bottleneck(self.c, self.c, shortcut, g, k=(3, 3), e=1.0) for _ in range(n))
-        # self.m = TransformerBlock(c_, c_, 4, n)
         self.m = TransformerBlock(self.c, self.c, 4, n)
 
     def forward(self, x):
         """Forward pass through C2f1d layer."""
         y = list(self.conv1(x).chunk(2, 1))
-        # y.extend(m(y[-1]) for m in self.m)
         y.extend(self.m(y[-1]))
         # y.extend(self.m(y[-1]).reshape(x.size(0), y[0].size(1), y[0].size(2)))
         return self.conv2(torch.cat(y, 1))
