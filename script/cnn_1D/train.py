@@ -31,7 +31,6 @@ def parse_args():
     parser.add_argument('-sf', '--shuffleFlag', type=int, default=1, help='1 is True, 0 is False')
     parser.add_argument('-n', '--numWorkers', type=int, default=4)
     # parser.add_argument('-my', '--modelYaml', type=str, default=MODEL_YAML_DEFAULT, help='yaml文件名, 如yolov8_1D-cls.yaml')
-    # parser.add_argument('-my', '--modelYaml', type=str, default="yi-netv2-cls.yaml", help='yaml文件名, 如yolov8_1D-cls.yaml')
     # parser.add_argument('-my', '--modelYaml', type=str, default="yi-netv2-cls-psa.yaml", help='yaml文件名, 如yolov8_1D-cls.yaml')
     parser.add_argument('-my', '--modelYaml', type=str, default="yi-netv2-cls.yaml", help='yaml文件名, 如yolov8_1D-cls.yaml')
     # parser.add_argument('-sc', '--scale', type=str, default=None)
