@@ -94,6 +94,7 @@ class BaseTrainer:
         # self.net = YOLO1D(self.modelYaml, self.model, fuse=fuse, split=split, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
         self.net = YI(self.modelYaml, self.model, fuse=fuse, split=split, scale=self.scale, initweightName=initweightName, device=self.device)  # 实例化模型
         self.net.set_names(self.data['names'])
+        self.net.print_model_info()  # 模型信息
 
     def train(self):
         self._setup_train()  # 训练设置
