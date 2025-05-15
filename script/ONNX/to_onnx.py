@@ -39,7 +39,7 @@ if dynamic is False:
     dynamic_axes = None
 
 from jyu.utils import ph
-ph.checkAndInitPath(out_onnx)
+ph.checkAndInitPath(root)
 
 torch.onnx.export(
     model,
