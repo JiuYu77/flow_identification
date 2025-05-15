@@ -8,6 +8,7 @@ from jyu.model import YI
 weight = "/root/my_flow/flow_identification/result/train/20250326.133420_YI-Netv2/weights/best_params.pt"
 # weight = "/root/my_flow/flow_identification/result/train/20250425.141300_YOLOv8_1D/weights/best_params.pt"
 weight = "/root/my_flow/flow_identification/result/train/20250425.204828_YI-Netv2/weights/best_params.pt"
+weight = "/root/my_flow/flow_identification/result/train/20250515.204010_YI-Netv2/weights/best_params.pt"
 device = "cuda:0"
 
 model = YI(weights=weight, device=device)
@@ -19,7 +20,7 @@ dummy = torch.randn( sample_shape['batch_size'], sample_shape['channels'], sampl
 print(dummy.shape, type(dummy), "dummy.size(2):", dummy.size(2))
 
 
-root = "./script/ONNX"
+root = "./result/ONNX"
 net_name = model.netName
 out_onnx = f"{root}/{net_name}-dynamic_axes.onnx"
 input_names=["input"]
@@ -36,6 +37,9 @@ dynamic_axes={
 if dynamic is False:
     out_onnx = f"{root}/{net_name}-non_dynamic_axes.onnx"
     dynamic_axes = None
+
+from jyu.utils import ph
+ph.checkAndInitPath(out_onnx)
 
 torch.onnx.export(
     model,
