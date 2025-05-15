@@ -2,3 +2,4 @@
 result/
 hailo_sdk.client.log
 **axes.onnx
+YI-Netv2-dynamic_axes.onnx
