@@ -35,8 +35,8 @@ MODEL_YAML_S = 'yolov8_1Ds-cls.yaml'
 # MODEL_YAML = 'yolov8_1Dx-cls.yaml'
 
 
-# class Model(nn.Module):
-class Model(nn.Sequential):
+# class Model(nn.Sequential):
+class Model(nn.Module):
     def __init__(
             self,
             yaml_path=MODEL_YAML_DEFAULT,
@@ -131,6 +131,34 @@ class Model(nn.Sequential):
         '''
         state_dict = self.state_dict()
         torch.save(state_dict, f)
+
+    def __iter__(self):
+        '''迭代'''
+        return iter(self._modules.values())
+
+    def forward(self, input):
+        for module in self:
+            input = module(input)
+        return input
+
+    def forward_bak(self, input):
+        '''继承自nn.Module，需要 自定义forward函数'''
+        for name, module in self._modules.items():
+            input = module(input)
+        return input
+
+    def print_model_info(self):
+        print("\nprint_model_info: model layers")
+        i = 1
+        # for module in self.modules():
+        for name, module in self._modules.items():
+            if type(module) is nn.Sequential:
+                for m in module:
+                    print(f"  {i:3}  ", m.__class__)
+                    i += 1
+            else:
+                print(f"  {i:3}  ", module.__class__)
+                i += 1
 
 
 from jyu.nn.modules import LSTMBranch
