@@ -62,6 +62,7 @@ class BaseTester:
         # self.net = YOLO1D(modelYaml, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)
         # self.net = YI(None, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)
         self.net = YI(modelYaml, self.weights, scale=scale, fuse=fuse, split=split, device=self.device)
+        self.net.print_model_info()
 
     def test(self):
         testTimer = tu.Timer()
