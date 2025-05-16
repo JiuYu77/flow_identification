@@ -3,13 +3,15 @@ import sys
 sys.path.append('.')
 from argparse import ArgumentParser
 from jyu.nn import MODEL_YAML_DEFAULT
-from jyu.utils import print_color
+from jyu.utils import print_color, cfg
 from jyu.model.supervised.trainer import Trainer
 
 
 def parse_args():
     print_color(["black", "bold", "process args..."])
     parser = ArgumentParser()
+    parser.add_argument('-p', '--param', type=str, default=None, help='训练参数')
+
     parser.add_argument('-d', '--dataset', type=str, choices=['v4_press4', 'v4_press3', 'v4_wms', 'v1_wms'], default='v4_press4', help='dataset name')
     parser.add_argument('-e', '--epochNum', type=int, choices=[100, 200, 300], default=100, help='Number of epochs to train.')
     parser.add_argument('-b', '--batchSize', type=int, default=64, help='Number of batch size to train.')
@@ -30,15 +32,22 @@ def parse_args():
     parser.add_argument('-lr', type=float, choices=[1e-5, 1e-6], default=0.00001, help='learning rate')
     parser.add_argument('-sf', '--shuffleFlag', type=int, default=1, help='1 is True, 0 is False')
     parser.add_argument('-n', '--numWorkers', type=int, default=4)
-    # parser.add_argument('-my', '--modelYaml', type=str, default=MODEL_YAML_DEFAULT, help='yaml文件名, 如yolov8_1D-cls.yaml')
-    # parser.add_argument('-my', '--modelYaml', type=str, default="yi-netv2-cls-psa.yaml", help='yaml文件名, 如yolov8_1D-cls.yaml')
-    parser.add_argument('-my', '--modelYaml', type=str, default="yi-netv2-cls.yaml", help='yaml文件名, 如yolov8_1D-cls.yaml')
+    parser.add_argument('-my', '--modelYaml', type=str, default=MODEL_YAML_DEFAULT, help='yaml文件名, 如yolov8_1D-cls.yaml')
     # parser.add_argument('-sc', '--scale', type=str, default=None)
     parser.add_argument('-sc', '--scale', type=str, default='s')
     parser.add_argument('-m', '--model', type=str, default=None, help="模型参数文件的路径, best_params.pt")
     parser.add_argument('-ls', '--lossName', type=str, default='CrossEntropyLoss', help="损失函数")
     parser.add_argument('-op', '--optimName', type=str, choices=['SGD', 'Adam', 'AdamW', 'LION'] , default='SGD', help="优化器，优化算法，用来更新模型参数")
+
     opt = parser.parse_args()
+
+    if opt.param is not None:
+        yml = cfg.yaml_load(opt.param)
+        for key in yml.keys():
+            tmp = getattr(opt, key)
+            if tmp != yml[key]:
+                setattr(opt, key, yml[key])
+    opt.__delattr__("param")
     return opt
 
 def main():
