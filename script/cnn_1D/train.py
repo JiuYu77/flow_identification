@@ -10,7 +10,7 @@ from jyu.model.supervised.trainer import Trainer
 def parse_args():
     print_color(["black", "bold", "process args..."])
     parser = ArgumentParser()
-    parser.add_argument('-p', '--param', type=str, default=None, help='训练参数')
+    parser.add_argument('-p', '--param', type=str, default=None, help='训练参数文件 .yaml')
 
     parser.add_argument('-d', '--dataset', type=str, choices=['v4_press4', 'v4_press3', 'v4_wms', 'v1_wms'], default='v4_press4', help='dataset name')
     parser.add_argument('-e', '--epochNum', type=int, choices=[100, 200, 300], default=100, help='Number of epochs to train.')
