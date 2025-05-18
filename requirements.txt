@@ -11,3 +11,4 @@ ewtpy>=0.2
 PyWavelets>=1.4.1
 #scikit-learn
 #minisom
+lion-pytorch

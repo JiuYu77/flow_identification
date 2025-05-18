@@ -5,7 +5,7 @@ import sys
 import time
 import numpy as np
 from torch import nn, optim
-from .lion import Lion
+from lion_pytorch import Lion
 from .__init__ import LOGGER, colorstr
 
 
@@ -72,7 +72,7 @@ def smart_optimizer(model:nn.Module, name, lr, momentum=0.5, decay=1e-5):
         optimizer = optim.Adam(g[2], lr=lr, betas=(momentum, 0.999))  # adjust beta1 to momentum
     elif name == 'AdamW':
         optimizer = torch.optim.AdamW(g[2], lr=lr, betas=(momentum, 0.999), weight_decay=0.0)
-    elif name == 'LION':
+    elif name == 'Lion':
         optimizer = Lion(g[2], lr=lr, betas=(momentum, 0.99), weight_decay=0.0)
     else:
         raise NotImplementedError(f'Optimizer {name} not implemented.')
