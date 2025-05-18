@@ -9,7 +9,7 @@ transform: "zScore_std"         # type=str, help='Transform for train sample'
 learningRate: !!float 1e-6      # type=float, help='learning rate'
 shuffleFlag: 1                  # type=int, help='1 is True, 0 is False'
 numWorkers: 4                   # type=int
-modelYaml: "yi-netv2-cls.yaml"  # type=str, help='yaml文件名, 如yolov8_1D-cls.yaml'
+modelYaml: "yi-netv1-cls.yaml"  # type=str, help='yaml文件名, 如yolov8_1D-cls.yaml'
 scale: "s"                      # type=str
 model: null     # type=str, help="模型参数文件的路径, best_params.pt"
 lossName: "CrossEntropyLoss"    # type=str, help="损失函数"
