@@ -8,24 +8,24 @@ class Trainer(BaseTrainer):
             epochNum,  # Number of epochs to train.
             batchSize, sampleLength, step,
             transform:str,  # 用于数据预处理
-            lr,  # learning rate
+            learningRate,  # learning rate
             shuffleFlag, numWorkers,
             modelYaml,  # yaml文件的名字, 如yolov8_1D-cls.yaml。位于conf/yolov8_1D目录, 其实放在conf目录就可以，会在conf文件夹根据文件名搜索.yaml文件
             scale,  # n s
             model,  # 模型参数文件（xxx_params.pt）的路径
             lossName,  # 损失函数
-            optimName  # 优化器，优化算法，用来更新模型参数
+            optimizer  # 优化器，优化算法，用来更新模型参数
     ) -> None:
         super().__init__(
             dataset,
             epochNum,
             batchSize, sampleLength, step,
             transform,
-            lr,  # learning rate
+            learningRate,  # learning rate
             shuffleFlag, numWorkers,
             modelYaml,
             scale,
             model,
             lossName,
-            optimName
+            optimizer
         )

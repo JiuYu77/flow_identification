@@ -26,25 +26,25 @@ class BaseTrainer:
             epochNum,  # Number of epochs to train.
             batchSize, sampleLength, step,
             transform:str,  # 用于数据预处理
-            lr,  # learning rate
+            learningRate,  # learning rate
             shuffleFlag, numWorkers,
             modelYaml,  # yaml文件的名字, 如yolov8_1D-cls.yaml。位于conf/yolov8_1D目录, 其实放在conf目录就可以，会在conf文件夹根据文件名搜索.yaml文件
             scale,  # n s
             model,  # 模型参数文件（xxx_params.pt）的路径
             lossName,  # 损失函数
-            optimName  # 优化器，优化算法，用来更新模型参数
+            optimizer  # 优化器，优化算法，用来更新模型参数
     ) -> None:
         self.dataset = dataset
         self.epochNum = epochNum
         self.batchSize, self.sampleLength, self.step = batchSize, sampleLength, step
         self.transform = transform
-        self.lr = lr
+        self.lr = learningRate
         self.shuffleFlag, self.numWorkers = shuffleFlag, numWorkers
         self.modelYaml = modelYaml
         self.scale = scale
         self.model = model
         self.lossName = lossName
-        self.optimName = optimName
+        self.optim = optimizer
         self.net = None
 
     def _setup_train(self):
@@ -76,7 +76,8 @@ class BaseTrainer:
         # loss = uloss.smart_lossFunction('FocalLoss', classNum)  # 损失函数
         # loss = uloss.smart_lossFunction('FocalLoss', class_num=classNum)  # 损失函数
         self.get_net()  # net
-        self.optimizer = tu.smart_optimizer(self.net, self.optimName, self.lr)  # 优化器
+        self.optim['lr'] = self.lr
+        self.optimizer = tu.smart_optimizer(self.net, **self.optim)  # 优化器
         self.netName = self.net.__class__.__name__
         self.modelParamAmount = sum([p.nelement() for p in self.net.parameters()])
 
@@ -159,11 +160,11 @@ class BaseTrainer:
         print_color(["bright_green", "bold", "preparing data..."])
         for epoch in range(self.epochNum):
             epoch_ = self.epoch = epoch + 1
-            if epoch_>50 and epoch_<230 and epoch_ % 50 == 0:
-            # if epoch == 200:
-                print("\n-------------------------------\n")
-                # self.loss = uloss.smart_lossFunction(self.lossName)  # 损失函数
-                self.optimizer = tu.smart_optimizer(self.net, self.optimName, self.lr)  # 优化器
+            # if epoch_>50 and epoch_<230 and epoch_ % 50 == 0:
+            # # if epoch == 200:
+            #     print("\n-------------------------------\n")
+            #     # self.loss = uloss.smart_lossFunction(self.lossName)  # 损失函数
+            #     self.optimizer = tu.smart_optimizer(self.net, self.optimName, self.lr)  # 优化器
 
             # 训练
             accumulatorTrain = tu.Accumulator(3)
