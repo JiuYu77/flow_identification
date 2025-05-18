@@ -6,7 +6,7 @@
 
 为了保证模型性能，对模型做出改进：提出 `C2fTR1d` 模块，该模块继承字 C2f 模块，并将 `nn.ModuleList`（用于添加 Bottleneck模块）模块，修改为一个`TransformerBlock`模块，以保证 识别/分类 准确率。用此模型代替YOLOv8_1D配置文件中的前两个C2f1d。
 
-经过以上改进参数量有少量增加，为了减少一定的`参数量`，将YOLOv10提出的SCDown模块一维化为`SCDown1d`，用此模块代替YOLOv8_1D配置文件中的后两个卷积Conv1d。
+为了实现进一步轻量化，减少模型`参数量`，将YOLOv10提出的SCDown模块一维化为`SCDown1d`，用此模块代替YOLOv8_1D配置文件中的后两个卷积Conv1d。
 
 最终得到新型一维模型，命名为**YI-Net**，全称为 “*One-dimensional Intelligent Network*”，即“*一维智能网络*”。
 
