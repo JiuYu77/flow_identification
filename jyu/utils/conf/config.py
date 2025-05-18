@@ -6,7 +6,7 @@ import re
 import yaml
 
 
-DATASET_CONFIG_PATH = "./jyu/conf/dataset"
+DATASET_CONFIG_PATH = "./jyu/conf/datasets"
 
 def yaml_load(file, append_filename=False):
     """
