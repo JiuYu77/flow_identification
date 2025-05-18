@@ -47,13 +47,13 @@ def train(dataset,
           epochNum,
           batchSize, sampleLength, step,
           transform:str,  # 用于数据预处理
-          lr,
+          learningRate,
           shuffleFlag, numWorkers,
           modelYaml,  # yaml文件的名字, 如yolov8_1D-cls.yaml。位于conf/yolov8_1D目录, 其实放在conf目录就可以，会在conf文件夹根据文件名搜索.yaml文件
           scale,
           model,
           lossName,
-          optimName  # 优化器，优化算法，用来更新模型参数
+          optimizer  # 优化器，优化算法，用来更新模型参数
           ):
     assert shuffleFlag == 1 or shuffleFlag == 0, f'shuffle_flag ValueError, except 0 or 1, but got {shuffleFlag}'
     trainTimer = tu.Timer()
@@ -91,7 +91,8 @@ def train(dataset,
     # loss = nn.CosineEmbeddingLoss
     # loss = nn.CosineSimilarity()
     loss = uloss.smart_lossFunction('MyLoss', classNum, device)
-    optimizer = tu.smart_optimizer(net, optimName, lr)  # 优化器
+    optimizer['lr'] = learningRate
+    optimizer = tu.smart_optimizer(net, **optimizer)  # 优化器
     netName = net.__class__.__name__
     modelParamAmount = sum([p.nelement() for p in net.parameters()])
 
@@ -119,7 +120,7 @@ def train(dataset,
         "model_name": netName,
         "model_parameter_amount": f"{modelParamAmount / 1e6:.3f}M",
         "model_settings":{'model_scale': net.scale, "modelYaml": modelYaml, 'fuse_':fuse_, 'split_':split_, 'initweightName': initweightName},
-        "lr": lr,
+        "lr": learningRate,
         "epoch_num": epochNum,
         "loss_function": loss.__class__.__name__,
         "train_time_consuming": None,
@@ -148,7 +149,7 @@ def train(dataset,
     print("-----------------------------------------")
     print(f"|\033[33m Start training:\033[0m")
     print(f"|\033[32m training device:\033[0m {device}")
-    print(f"| epoch_num {epochNum}, lr {lr}, batch_size {batchSize}")
+    print(f"| epoch_num {epochNum}, lr {learningRate}, batch_size {batchSize}")
     print(f"| \033[34mmodel_scale:\033[0m {net.scale}")
     print(f"| train_batch_num: {batchNum}")
     print(f"| val_batch_num: {len(valIter)}")
