@@ -10,8 +10,10 @@ from jyu.model.supervised.trainer import Trainer
 def parse_args():
     print_color(["black", "bold", "process args..."])
     parser = ArgumentParser()
-    parser.add_argument('-p', '--param', type=str, default=None, help='训练参数文件 .yaml')
-
+    param = "jyu/conf/param/yi-netv1/yi-netv1.yaml"
+    parser.add_argument('-p', '--param', type=str, default=param, help='训练参数文件 .yaml')
+    '''
+    参数说明：
     parser.add_argument('-d', '--dataset', type=str, choices=['v4_press4', 'v4_press3', 'v4_wms', 'v1_wms'], default='v4_press4', help='dataset name')
     parser.add_argument('-e', '--epochNum', type=int, choices=[100, 200, 300], default=100, help='Number of epochs to train.')
     parser.add_argument('-b', '--batchSize', type=int, default=64, help='Number of batch size to train.')
@@ -37,17 +39,14 @@ def parse_args():
     parser.add_argument('-sc', '--scale', type=str, default='s')
     parser.add_argument('-m', '--model', type=str, default=None, help="模型参数文件的路径, best_params.pt")
     parser.add_argument('-ls', '--lossName', type=str, default='CrossEntropyLoss', help="损失函数")
-    parser.add_argument('-op', '--optimizer', type=str, choices=['SGD', 'Adam', 'AdamW', 'Lion'] , default='SGD', help="优化器，优化算法，用来更新模型参数")
-
+    parser.add_argument('-op', '--optimizer', type=dict, choices=['SGD', 'Adam', 'AdamW', 'Lion'] , default='SGD', help="优化器，优化算法，用来更新模型参数")
+    '''
     opt = parser.parse_args()
 
     if opt.param is not None:
         yml = cfg.yaml_load(opt.param)
-        # print(yml['optim']);exit()
         for key in yml.keys():
-            tmp = getattr(opt, key)
-            if tmp != yml[key]:
-                setattr(opt, key, yml[key])
+            setattr(opt, key, yml[key])
     opt.__delattr__("param")
     return opt
 
