@@ -37,7 +37,7 @@ def parse_args():
     parser.add_argument('-sc', '--scale', type=str, default='s')
     parser.add_argument('-m', '--model', type=str, default=None, help="模型参数文件的路径, best_params.pt")
     parser.add_argument('-ls', '--lossName', type=str, default='CrossEntropyLoss', help="损失函数")
-    parser.add_argument('-op', '--optimName', type=str, choices=['SGD', 'Adam', 'AdamW', 'LION'] , default='SGD', help="优化器，优化算法，用来更新模型参数")
+    parser.add_argument('-op', '--optimName', type=str, choices=['SGD', 'Adam', 'AdamW', 'Lion'] , default='SGD', help="优化器，优化算法，用来更新模型参数")
 
     opt = parser.parse_args()
 
