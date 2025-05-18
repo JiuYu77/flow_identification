@@ -8,9 +8,9 @@ step: 2048                      # type=int, help='Step Length'
 transform: "zScore_std"         # type=str, help='Transform for train sample'
 learningRate: !!float 1e-6      # type=float, help='learning rate'
 shuffleFlag: 1                  # type=int, help='1 is True, 0 is False'
-numWorkers: 4                   # type=int
+numWorkers: 4                   # type=int, help='DataLoader线程数，0表示只有主进程的主线程加载数据'
 modelYaml: "yi-netv1-cls.yaml"  # type=str, help='yaml文件名, 如yolov8_1D-cls.yaml'
-scale: "s"                      # type=str
+scale: "s"                      # type=str, help='模型尺度：n s m l x，null 表示使用默认尺度n'
 model: null     # type=str, help="模型参数文件的路径, best_params.pt"
 lossName: "CrossEntropyLoss"    # type=str, help="损失函数"
 optimizer:                # type=dict, help="优化器，优化算法，用来更新模型参数"
