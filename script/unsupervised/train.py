@@ -32,14 +32,14 @@ def parse_args():
                                  'fft_zScore',
                                 ],
                         default="zScore_std", help='Transform for train sample')
-    parser.add_argument('-lr', type=float, default=0.00001, help='learning rate')
+    parser.add_argument('-lr', '--learningRate', type=float, default=0.00001, help='learning rate')
     parser.add_argument('-sf', '--shuffleFlag', type=int, default=1, help='1 is True, 0 is False')
     parser.add_argument('-n', '--numWorkers', type=int, default=4)
     parser.add_argument('-my', '--modelYaml', type=str, default=MODEL_YAML_DEFAULT)
     parser.add_argument('-sc', '--scale', type=str, default=None)
     parser.add_argument('-m', '--model', type=str, default=None, help="模型参数文件的路径, best_params.pt")
     parser.add_argument('-ls', '--lossName', type=str, default='CrossEntropyLoss', help="损失函数")
-    parser.add_argument('-op', '--optimName', type=str, choices=['SGD', 'Adam', 'AdamW', 'LION'] , default='SGD', help="优化器，优化算法，用来更新模型参数")
+    parser.add_argument('-op', '--optimizer', type=str, choices=['SGD', 'Adam', 'AdamW', 'LION'] , default='SGD', help="优化器，优化算法，用来更新模型参数")
     opt = parser.parse_args()
     return opt
 
