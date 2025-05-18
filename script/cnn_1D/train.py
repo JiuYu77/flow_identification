@@ -29,7 +29,7 @@ def parse_args():
                                  'fft_zScore',
                                 ],
                         default="zScore_std", help='Transform for train sample')
-    parser.add_argument('-lr', type=float, choices=[1e-5, 1e-6], default=0.00001, help='learning rate')
+    parser.add_argument('-lr', '--learningRate', type=float, choices=[1e-5, 1e-6], default=0.00001, help='learning rate')
     parser.add_argument('-sf', '--shuffleFlag', type=int, default=1, help='1 is True, 0 is False')
     parser.add_argument('-n', '--numWorkers', type=int, default=4)
     parser.add_argument('-my', '--modelYaml', type=str, default=MODEL_YAML_DEFAULT, help='yaml文件名, 如yolov8_1D-cls.yaml')
@@ -37,12 +37,13 @@ def parse_args():
     parser.add_argument('-sc', '--scale', type=str, default='s')
     parser.add_argument('-m', '--model', type=str, default=None, help="模型参数文件的路径, best_params.pt")
     parser.add_argument('-ls', '--lossName', type=str, default='CrossEntropyLoss', help="损失函数")
-    parser.add_argument('-op', '--optimName', type=str, choices=['SGD', 'Adam', 'AdamW', 'Lion'] , default='SGD', help="优化器，优化算法，用来更新模型参数")
+    parser.add_argument('-op', '--optimizer', type=str, choices=['SGD', 'Adam', 'AdamW', 'Lion'] , default='SGD', help="优化器，优化算法，用来更新模型参数")
 
     opt = parser.parse_args()
 
     if opt.param is not None:
         yml = cfg.yaml_load(opt.param)
+        # print(yml['optim']);exit()
         for key in yml.keys():
             tmp = getattr(opt, key)
             if tmp != yml[key]:
