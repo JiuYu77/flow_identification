@@ -139,7 +139,8 @@ class Trainer(BaseTrainer):
         # loss = uloss.smart_lossFunction('FocalLoss', classNum)  # 损失函数
         # loss = uloss.smart_lossFunction('FocalLoss', class_num=classNum)  # 损失函数
         self.get_net()  # net
-        self.optimizer = tu.smart_optimizer(self.net, self.optimName, self.lr)  # 优化器
+        self.optim['lr'] = self.lr
+        self.optimizer = tu.smart_optimizer(self.net, **self.optim)  # 优化器
         self.netName = self.net.__class__.__name__
         self.modelParamAmount = sum([p.nelement() for p in self.net.parameters()])
 
