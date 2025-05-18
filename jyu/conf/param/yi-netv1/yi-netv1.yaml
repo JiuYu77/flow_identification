@@ -13,7 +13,7 @@ modelYaml: "yi-netv2-cls.yaml"  # type=str, help='yaml文件名, 如yolov8_1D-cl
 scale: "s"                      # type=str
 model: null     # type=str, help="模型参数文件的路径, best_params.pt"
 lossName: "CrossEntropyLoss"    # type=str, help="损失函数"
-optimizer:                # type=str, help="优化器，优化算法，用来更新模型参数"
+optimizer:                # type=dict, help="优化器，优化算法，用来更新模型参数"
   name: "SGD"
   lr: learningRate
   momentum: 0.5
