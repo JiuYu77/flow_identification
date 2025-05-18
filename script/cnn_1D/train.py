@@ -10,7 +10,7 @@ from jyu.model.supervised.trainer import Trainer
 def parse_args():
     print_color(["black", "bold", "process args..."])
     parser = ArgumentParser()
-    param = "jyu/conf/param/yi-netv1/yi-netv1.yaml"
+    param = "jyu/conf/params/yi-netv1/yi-netv1.yaml"
     parser.add_argument('-p', '--param', type=str, default=param, help='训练参数文件 .yaml')
     '''
     参数说明：
