@@ -164,7 +164,7 @@ class BaseTrainer:
             # # if epoch == 200:
             #     print("\n-------------------------------\n")
             #     # self.loss = uloss.smart_lossFunction(self.lossName)  # 损失函数
-            #     self.optimizer = tu.smart_optimizer(self.net, self.optimName, self.lr)  # 优化器
+            #     self.optimizer = tu.smart_optimizer(self.net, **self.optim)  # 优化器
 
             # 训练
             accumulatorTrain = tu.Accumulator(3)
