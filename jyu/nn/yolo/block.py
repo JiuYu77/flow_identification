@@ -113,11 +113,11 @@ class CIB1d(nn.Module):
         super().__init__()
         c_ = int(c2 * e)  # hidden channels
         self.cv1 = nn.Sequential(
-            Conv1d(c1, c1, 3, g=c1),  # 深度卷积（Depthwise Convolution），kernel_size 3
-            Conv1d(c1, 2 * c_, 1),    # 点卷积（Pointwise Convolution），kernel_size 1
+            Conv1d(c1, c1, 3, g=c1),                                                # 深度卷积（Depthwise Convolution），kernel_size 3
+            Conv1d(c1, 2 * c_, 1),                                                  # 点卷积（Pointwise Convolution），kernel_size 1
             Conv1d(2 * c_, 2 * c_, 3, g=2 * c_) if not lk else RepVGGDW1d(2 * c_),  # 深度卷积
-            Conv1d(2 * c_, c2, 1),    # 点卷积
-            Conv1d(c2, c2, 3, g=c2),  # 深度卷积
+            Conv1d(2 * c_, c2, 1),                                                  # 点卷积
+            Conv1d(c2, c2, 3, g=c2),                                                # 深度卷积
         )
 
         self.add = shortcut and c1 == c2
@@ -207,7 +207,7 @@ class SCDown1d(nn.Module):
     '''YOLOv10'''
     def __init__(self, c1, c2, k, s):
         super().__init__()
-        self.cv1 = Conv1d(c1, c2, 1, 1)  # 点卷积（Pointwise Convolution），kernel_size 1
+        self.cv1 = Conv1d(c1, c2, 1, 1)                       # 点卷积（Pointwise Convolution），kernel_size 1
         self.cv2 = Conv1d(c2, c2, k=k, s=s, g=c2, act=False)  # 深度卷积（Depthwise Convolution），kernel_size 3
 
     def forward(self, x):
