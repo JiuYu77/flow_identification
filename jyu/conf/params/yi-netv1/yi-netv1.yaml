@@ -2,11 +2,12 @@
 
 dataset: "v4_press4"            # type=str, choices=['v4_press4', 'v4_press3', 'v4_wms', 'v1_wms'], help='dataset name')
 epochNum: 300                   # type=int, choices=[100, 200, 300] help='Number of epochs to train.'
-batchSize: 100                   # type=int,  help='Number of batch size to train.'
+batchSize: 100                  # type=int,  help='Number of batch size to train.'
 sampleLength: 4096              # type=int, help='Data Length'
 step: 2048                      # type=int, help='Step Length'
-transform: "zScore_std"         # type=str, help='Transform for train sample'
-learningRate: !!float 1e-6      # type=float, help='learning rate'
+transform: "zScore_randomOne"       # type=str, help='Transform for train sample' 训练集样本 使用的转换操作
+transform2: "zScore_std"        # type=str, help='Transform for val and test sample' 验证集、测试集 和 预测时，样本使用的转换操作
+learningRate: !!float 1e-6      # type=float, [1e-6, 1e-7], help='learning rate'
 shuffleFlag: 1                  # type=int, help='1 is True, 0 is False'
 numWorkers: 4                   # type=int, help='DataLoader线程数，0表示只有主进程的主线程加载数据'
 modelYaml: "yi-netv1-cls.yaml"  # type=str, help='yaml文件名, 如yolov8_1D-cls.yaml'

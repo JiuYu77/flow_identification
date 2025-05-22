@@ -6,6 +6,7 @@ batchSize: 64                    # type=int,  help='Number of batch size to trai
 sampleLength: 4096               # type=int, help='Data Length'
 step: 2048                       # type=int, help='Step Length'
 transform: "ewt_zScore"          # type=str, help='Transform for train sample'
+transform2: "ewt_zScore"        # type=str, help='Transform for val and test sample'
 learningRate: !!float 1e-5       # type=float, help='learning rate'
 shuffleFlag: 1                   # type=int, help='1 is True, 0 is False'
 numWorkers: 4                    # type=int, help='DataLoader线程数，0表示只有主进程的主线程加载数据'
