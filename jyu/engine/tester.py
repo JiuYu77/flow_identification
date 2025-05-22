@@ -42,7 +42,7 @@ class BaseTester:
         path = os.path.dirname(os.path.dirname(self.weights))
         yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
         # transform
-        self.transform = yml['transform'] if self.transform is None else self.transform
+        self.transform = yml['transform2'] if self.transform is None else self.transform
         if self.transform.lower().find('noise') != -1:
             self.transform = 'zScore_std'
 

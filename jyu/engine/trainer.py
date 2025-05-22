@@ -26,6 +26,7 @@ class BaseTrainer:
             epochNum,  # Number of epochs to train.
             batchSize, sampleLength, step,
             transform:str,  # 用于数据预处理
+            transform2:str,
             learningRate,  # learning rate
             shuffleFlag, numWorkers,
             modelYaml,  # yaml文件的名字, 如yolov8_1D-cls.yaml。位于conf/yolov8_1D目录, 其实放在conf目录就可以，会在conf文件夹根据文件名搜索.yaml文件
@@ -38,6 +39,7 @@ class BaseTrainer:
         self.epochNum = epochNum
         self.batchSize, self.sampleLength, self.step = batchSize, sampleLength, step
         self.transform = transform
+        self.transform2 = transform2
         self.lr = learningRate
         self.shuffleFlag, self.numWorkers = shuffleFlag, numWorkers
         self.modelYaml = modelYaml
@@ -48,8 +50,8 @@ class BaseTrainer:
         self.net = None
 
     def _setup_train(self):
-        shuffleFlag, dataset, sampleLength, step, transform, batchSize, numWorkers = \
-                                        self.shuffleFlag, self.dataset, self.sampleLength, self.step, self.transform, self.batchSize, self.numWorkers
+        shuffleFlag, dataset, sampleLength, step, transform, transform2, batchSize, numWorkers = \
+                                        self.shuffleFlag, self.dataset, self.sampleLength, self.step, self.transform, self.transform2, self.batchSize, self.numWorkers
         assert shuffleFlag == 1 or shuffleFlag == 0, f'shuffle_flag ValueError, except 0 or 1, but got {shuffleFlag}'
         self.trainTimer = tu.Timer()
         self.trainTimer.start()
@@ -66,10 +68,8 @@ class BaseTrainer:
         # 训练 数据加载器
         self.trainIter = data_loader(FlowDataset, trainDatasetPath, sampleLength, step, transform,
                                      batchSize=batchSize, shuffle=shuffle, numWorkers=numWorkers)
-        if transform.lower().find('noise') != -1:
-            transform = 'zScore_std'
         # 验证 数据加载器
-        self.valIter = data_loader(FlowDataset, valDatasetPath, sampleLength, step, transform,
+        self.valIter = data_loader(FlowDataset, valDatasetPath, sampleLength, step, transform2,
                                    batchSize=batchSize, shuffle=shuffle, numWorkers=numWorkers)
 
         self.loss = uloss.smart_lossFunction(self.lossName)  # 损失函数
@@ -116,6 +116,7 @@ class BaseTrainer:
             "sample_length": self.sampleLength,
             "step": self.step,
             "transform": self.transform,
+            "transform2": self.transform2,
             "batch_size": self.batchSize,
             "shuffle": self.shuffle,
             "numWorkers": self.numWorkers,
@@ -130,7 +131,7 @@ class BaseTrainer:
             # "optimizer": {self.optimizer.__class__.__name__: self.optimizer.defaults},
             "optimizer": {self.optimizer.__class__.__name__: self.optimizer.state_dict()},
         }
-        yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False)
+        yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False, allow_unicode=True)
 
         with open(trainIterPath, 'a+') as tIter_fp:
             tIter_fp.write(
@@ -254,7 +255,7 @@ class BaseTrainer:
         self.trainTimer.stop()
         timeConsuming = tm.sec_to_HMS(self.trainTimer.sum())
         task_info["train_time_consuming"] = timeConsuming
-        yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False)
+        yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False, allow_unicode=True)
 
         print("----------------------------------------------")
         print(f"|\033[33m End training:\033[0m")
