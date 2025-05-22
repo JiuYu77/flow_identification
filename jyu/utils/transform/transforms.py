@@ -32,58 +32,6 @@ class ZScoreStandardization:
         x = (x - mean) / std
         return x
 
-class Multiple:
-    def __init__(self, n=100) -> None:
-        self.n = n
-
-    def __call__(self, x):
-        return x * self.n
-
-class randomSelector:
-    """
-    随机的选择一个transform分支
-    """
-
-    def __init__(self, transforms: list):
-        super().__init__()
-        self.transforms = transforms
-
-    def __call__(self, x):
-        trans = np.random.choice(self.transforms, 1)
-        return trans(x)
-
-class GaussianNoise:
-    """高斯噪声"""
-    def __init__(self, mean=0, std=0.05, prob=0.618) -> None:
-        self.mean = mean
-        self.std = std
-        self.prob = prob
-
-    def __call__(self, x):
-        p = random.uniform(0, 1)
-        if p >= self.prob:
-            noise = np.random.normal(self.mean, self.std, x.shape)
-            x = x + noise
-        return x
-
-class SPNoise:
-    """添加椒盐噪声"""
-    def __call__(self, x):
-        output = np.zeros(x.shape ,x.dtype)
-        prob = random.uniform(0.0005,0.001)  #随机噪声比例
-        thres = 1 - prob
-        for i in range(x.shape[0]):
-            for j in range(x.shape[1]):
-                rdn = random.random()
-                if rdn < prob:
-                    output[i][j] = 0
-                elif rdn > thres:
-                    output[i][j] = 255
-                else:
-                    output[i][j] = x[i][j]
-        return output
-        # return x
-
 class EWT:
     """Empirical Wavelet Transform"""
     def __init__(self, N=2) -> None:
