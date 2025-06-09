@@ -67,7 +67,6 @@ class BaseTester:
     def test(self):
         testTimer = tu.Timer()
         print(f"{colorstr('blue', 'timer start...')}")
-        testTimer.start()
 
         self._setup_test()
         self.net.eval()
