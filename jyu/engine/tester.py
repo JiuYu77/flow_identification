@@ -97,8 +97,10 @@ class BaseTester:
             "numWorkers": self.numWorkers,
             "net_path": self.weights,
             "test_time_consuming": None,
-            "predict_time_consuming": None,
-            "speed": None
+            "data_predict_time_consuming": None,  # 包括数据预处理
+            "speed": None,                        # 包括数据预处理
+            "predict_time_consuming": None,       # 不包括数据预处理
+            "speed_predict": None                 # 不包括数据预处理
         }
         yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False)
 
@@ -115,12 +117,16 @@ class BaseTester:
         print(f"| test_batch_num: {batchNum}")
         print("-----------------------------------------")
         preTimer = tu.Timer()
+        predictTimer = tu.Timer()
 
         print_color(["bright_green", "preparing data..."])
+        preTimer.start()
         for i, (X,y) in enumerate(self.testIter):
-            preTimer.start()
+            # preTimer.start()
             X, y = X.to(self.device), y.to(self.device)
+            predictTimer.start()
             y_hat = self.net(X)
+            predictTimer.stop()
             preTimer.stop()
             correctNum = tu.accuracy(y_hat, y)  # 预测正确的数量
             totalCorrect += correctNum
@@ -133,14 +139,20 @@ class BaseTester:
                 trueLabel, preLabel = int(y[i]), int(y_hat_[i])
                 confusionMatrix.add(trueLabel, preLabel)
                 sampleNum[1][trueLabel] += 1
+            preTimer.start()
 
         totalCorrect = int(totalCorrect)
         acc = round(totalCorrect / totalNum, 8)
 
         preSec = preTimer.sum()  # 秒数
         speed = int(totalNum / preSec)
-        task_info["predict_time_consuming"] = tm.sec_to_HMS(preSec)
+        task_info["data_predict_time_consuming"] = tm.sec_to_HMS(preSec)
         task_info["speed"] = f"{speed} samples/sec"
+
+        predictSec = predictTimer.sum()
+        speed_predict = int(totalNum / predictSec)
+        task_info["predict_time_consuming"] = tm.sec_to_HMS(predictSec)
+        task_info["speed_predict"] = f"{speed_predict} samples/sec"
 
         # 混淆矩阵
         print_color(["bright_green", "\ndrawing..."])
@@ -166,6 +178,7 @@ class BaseTester:
         print(f"|{colorstr('yellow', ' End testing:')}")
         print(f"| test time consuming: {timeConsuming}")  # 训练耗时
         print(f"| speed: {speed} samples/sec")  # speed
+        print(f"| speed_predict: {speed_predict} samples/sec")  # speed_predict
         print("-----------------------------------------")
 
     @staticmethod
