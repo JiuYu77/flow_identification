@@ -98,6 +98,8 @@ def zScore_probOne():
         #           [0.6, 0.066, 0.066, 0.066, 0.066, 0.066, 0.066]),
         # TSelector([ReturnData(), GaussianNoise(), Reverse(), TimeShift(), WindowWarp(), SliceSplice(), FrequencyPerturb()],
         #           [0.6, 0.066, 0.066, 0.066, 0.066, 0.066, 0.066]),
+        # TSelector([ReturnData(), GaussianNoise(), ScaleAmplitude(), TimeShift(), SliceSplice()],
+        #           [0.6, 0.1, 0.1, 0.1, 0.1]),
         TSelector([ReturnData(), GaussianNoise(), ScaleAmplitude(), TimeShift(), WindowWarp(), SliceSplice(), FrequencyPerturb()],
                   [0.6, 0.066, 0.066, 0.066, 0.066, 0.066, 0.066]),
         ToTensor()
