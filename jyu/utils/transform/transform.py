@@ -10,9 +10,7 @@ class Transform:
 
     def add_trans(self):
         self.add_transform("zScore_std", trans.zScore_std, "标准化")
-        self.add_transform("normalization_MinMax", trans.normalization_MinMax, "归一化")
-        self.add_transform("multiple_zScore", trans.multiple_zScore, "n倍, z-score")
-        self.add_transform("multiple_MinMax", trans.multiple_MinMax, "n倍, Min-Max归一化")
+        self.add_transform("norm_MinMax", trans.normalization_MinMax, "归一化")
         self.add_transform("std_gaussianNoise", trans.std_gaussianNoise, "z-score, gaussian noise")
         self.add_transform("ewt_zScore", trans.ewt_zScore, "EWT, z-score")
         self.add_transform("dwt_zScore", trans.dwt_zScore, "DWT, z-score")
@@ -22,6 +20,8 @@ class Transform:
         self.add_transform("fft", trans.fft, "FFT")
         self.add_transform("ewt", trans.ewt, "EWT")
         self.add_transform("dwt", trans.dwt, "DWT")
+        self.add_transform("zScore_randomOne", trans.zScore_randomOne, "随机选择一个转换操作")
+        self.add_transform("zScore_probOne", trans.zScore_probOne, "按概率选择一个转换操作")
 
 
     def add_transform(self, name, transform, desc):
