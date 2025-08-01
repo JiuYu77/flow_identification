@@ -13,7 +13,7 @@ class ToTensor:
 class MinMaxNormalization:
     """
     线性归一化
-    Min-Max 标准化（也称作离差标准化），即将特征xi的取值范围缩放到 [0,1] 区间内
+    Min-Max 归一化（也称作离差标准化），即将特征xi的取值范围缩放到 [0,1] 区间内
     """
     def __call__(self, x):
         min_ = np.min(x)
