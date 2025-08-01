@@ -4,6 +4,7 @@ import sys
 sys.path.append('.')
 import os
 from jyu.nn import MODEL_YAML_DEFAULT
+import jyu.utils.transform.transform as tf
 from jyu.model.supervised.tester import Tester
 
 
@@ -16,7 +17,7 @@ def parse_args():
     netPath = os.path.join('result', 'train', '20250302.143001_YI-Netv2', 'weights', 'last_params.pt')
     netPath = os.path.join('result', 'train', '20250302.163810_YI-Netv2', 'weights', 'best_params.pt')
     netPath = os.path.join('result', 'train', '20250326.133420_YI-Netv2', 'weights', 'best_params.pt')
-    netPath = os.path.join('result', 'train', '20250518.172246_YI-Netv1', 'weights', 'best_params.pt')
+    netPath = os.path.join('result', 'train', '20250603.175044_YI-Netv1', 'weights', 'best_params.pt')
 
 
     weight = netPath
@@ -27,15 +28,7 @@ def parse_args():
     parser.add_argument('-sl', '--sampleLength', type=int, default=4096, help='Data Length')
     parser.add_argument('-s', '--step', type=int, default=2048, help='Step Length')
     parser.add_argument('-t', '--transform', type=str,
-                        choices=['zScore_std',
-                                 'normalization_MinMax',
-                                 'multiple_zScore',
-                                 'multiple_MinMax',
-                                 'ewt_zScore',
-                                 'dwt_zScore',
-                                 'dwtg_zScore',
-                                 'fft_zScore',
-                                ],
+                        choices=tf.testTransformList,
                         default=None, help='Transform for test sample')
     parser.add_argument('-sf', '--shuffleFlag', type=int, default=1, help='1 is True, 0 is False')
     # parser.add_argument('-n', '--numWorkers', type=int, default=0)

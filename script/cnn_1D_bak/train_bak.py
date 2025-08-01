@@ -8,6 +8,7 @@ from jyu.model import YOLOv8_1D
 from jyu.nn import MODEL_YAML_DEFAULT
 import os
 from jyu.utils import ROOT, FlowDataset, data_loader, tu, cfg, ph, print_color, tm, plot, uloss
+import jyu.utils.transform.transform as tf
 import yaml
 
 
@@ -20,16 +21,7 @@ def parse_args():
     parser.add_argument('-sl', '--sampleLength', type=int, default=4096, help='Data Length')
     parser.add_argument('-st', '--step', type=int, default=2048, help='Step Length')
     parser.add_argument('-t', '--transform', type=str,
-                        choices=['zScore_std',
-                                 'normalization_MinMax',
-                                 'multiple_zScore',
-                                 'multiple_MinMax',
-                                 'std_gaussianNoise',
-                                 'ewt_zScore',
-                                 'dwt_zScore',
-                                 'dwtg_zScore',
-                                 'fft_zScore',
-                                ],
+                        choices=tf.trainTransformList,
                         default="zScore_std", help='Transform for train sample')
     parser.add_argument('-lr', type=float, default=0.00001, help='learning rate')
     parser.add_argument('-sf', '--shuffleFlag', type=int, default=1, help='1 is True, 0 is False')

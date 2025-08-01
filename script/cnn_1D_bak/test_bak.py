@@ -5,6 +5,7 @@ sys.path.append('.')
 from jyu.model import YOLOv8_1D
 from jyu.nn import MODEL_YAML_DEFAULT
 from jyu.utils import FlowDataset, data_loader, tu, cfg, colorstr, print_color, ROOT, ph, tm, plot
+import jyu.utils.transform.transform as tf
 import os
 import torch
 import numpy as np
@@ -18,15 +19,7 @@ def parse_args():
     parser.add_argument('-sl', '--sampleLength', type=int, default=4096, help='Data Length')
     parser.add_argument('-s', '--step', type=int, default=2048, help='Step Length')
     parser.add_argument('-t', '--transform', type=str,
-                        choices=['zScore_std',
-                                 'normalization_MinMax',
-                                 'multiple_zScore',
-                                 'multiple_MinMax',
-                                 'ewt_zScore',
-                                 'dwt_zScore',
-                                 'dwtg_zScore',
-                                 'fft_zScore',
-                                ],
+                        choices=tf.testTransformList,
                         default=None, help='Transform for test sample')
     parser.add_argument('-sf', '--shuffleFlag', type=int, default=1, help='1 is True, 0 is False')
     # parser.add_argument('-n', '--numWorkers', type=int, default=0)

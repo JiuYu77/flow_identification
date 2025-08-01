@@ -9,7 +9,7 @@ def zScore_std():
         ToTensor()
     ])
 
-def normalization_MinMax():
+def MinMax_normalization():
     """归一化"""
     return transforms.Compose([
         MinMaxNormalization(),

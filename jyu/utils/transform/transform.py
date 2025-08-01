@@ -3,6 +3,28 @@ import sys
 sys.path.append('.')
 import jyu.utils.transform.trans as trans
 
+
+trainTransformList = [
+    "zScore_std",
+    "MinMax_norm",
+    "std_gaussianNoise",
+    "ewt_zScore",
+    "dwt_zScore",
+    "dwtg_zScore",
+    "fft_zScore",
+    "zScore_randomOne",
+    "zScore_probOne"
+]
+
+testTransformList = [
+    "zScore_std",
+    "MinMax_norm",
+    "ewt_zScore",
+    "dwt_zScore",
+    "dwtg_zScore",
+    "fft_zScore",
+]
+
 class Transform:
     def __init__(self) -> None:
         self._trans = {}
@@ -10,7 +32,7 @@ class Transform:
 
     def add_trans(self):
         self.add_transform("zScore_std", trans.zScore_std, "标准化")
-        self.add_transform("norm_MinMax", trans.normalization_MinMax, "归一化")
+        self.add_transform("MinMax_norm", trans.MinMax_normalization, "归一化")
         self.add_transform("std_gaussianNoise", trans.std_gaussianNoise, "z-score, gaussian noise")
         self.add_transform("ewt_zScore", trans.ewt_zScore, "EWT, z-score")
         self.add_transform("dwt_zScore", trans.dwt_zScore, "DWT, z-score")
