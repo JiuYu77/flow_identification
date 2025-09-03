@@ -4,7 +4,7 @@
 # └── datasets
 #     └── coco  ← downloads here (20.1 GB)
 
-dataset_name: v4_press3
+dataset_name: v4_wms
 # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
 linux:
   path: /home/uu/my_flow/dataset/v4/WMS/v4_WMS_Simple  # dataset root dir
