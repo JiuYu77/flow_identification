@@ -60,7 +60,10 @@ class Transform:
 
 __trans = Transform()
 
-def get_transform(name):
+def get_transform(name, toTensor:bool=True):
     global __trans
     transform = __trans.get(name)
+    if toTensor:
+        from .transforms_torch import ToTensor
+        transform.append(ToTensor())
     return transform

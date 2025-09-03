@@ -2,91 +2,93 @@
 from .transforms import *
 from .Data_augmentation import *
 
+
+class Compose:
+    """组合各种转换操作"""
+    def __init__(self, transforms:list):
+        self.transforms = transforms
+
+    def __call__(self, x, *args, **kwds):
+        for t in self.transforms:
+            x = t(x)
+        return x
+
+    def append(self, transform):
+        self.transforms.append(transform)
+
 def zScore_std():
     """standardization标准化"""
-    return transforms.Compose([
-        ZScoreStandardization(),
-        ToTensor()
+    return Compose([
+        ZScoreStandardization()
     ])
 
 def MinMax_normalization():
     """归一化"""
-    return transforms.Compose([
+    return Compose([
         MinMaxNormalization(),
-        ToTensor()
     ])
 
 def std_gaussianNoise():
-    return transforms.Compose([
+    return Compose([
         ZScoreStandardization(),
         TSelector([ReturnData(), GaussianNoise()], [0.618, 0.3]),
-        ToTensor()
     ])
 
 def ewt():
-    return transforms.Compose([
+    return Compose([
         EWT(N=2),
-        ToTensor()
     ])
 
 def ewt_zScore():
-    return transforms.Compose([
+    return Compose([
         EWT(N=2),
         ZScoreStandardization(),
-        ToTensor()
     ])
 
 def dwt():
-    return transforms.Compose([
+    return Compose([
         DWT(),
-        ToTensor()
     ])
 
 def dwt_zScore():
-    return transforms.Compose([
+    return Compose([
         DWT(),
         ZScoreStandardization(),
-        ToTensor()
     ])
 
 def dwtg_zScore():
-    return transforms.Compose([
+    return Compose([
         DWTg(),
         ZScoreStandardization(),
-        ToTensor()
     ])
 
 def dwt_norml():
-    return transforms.Compose([
+    return Compose([
         DWT(),
         MinMaxNormalization(),
-        ToTensor()
     ])
 
 def fft():
-    return transforms.Compose([
+    return Compose([
         FFT(),
-        ToTensor()
     ])
 
 def fft_zScore():
-    return transforms.Compose([
+    return Compose([
         FFT(),
         ZScoreStandardization(),
-        ToTensor()
     ])
 
 def zScore_randomOne():
     """标准化 -> 随机选择 数据增强算法，ReturnData则不进行数据增强"""
-    return transforms.Compose([
+    return Compose([
         ZScoreStandardization(),
         TRandomSelector([ReturnData(), GaussianNoise(), Reverse(), ScaleAmplitude(), TimeShift(), WindowWarp()]),
-        ToTensor()
     ])
 
 def zScore_probOne():
     """标准化 -> 概率选择 数据增强算法，ReturnData则不进行数据增强"""
-    return transforms.Compose([
+    return Compose([
         ZScoreStandardization(),
         # TSelector([ReturnData(), GaussianNoise(), Reverse(), ScaleAmplitude(), TimeShift(), WindowWarp(), SliceSplice(), FrequencyPerturb()],
         #           [0.6, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]),
@@ -102,5 +104,4 @@ def zScore_probOne():
         #           [0.6, 0.1, 0.1, 0.1, 0.1]),
         TSelector([ReturnData(), GaussianNoise(), ScaleAmplitude(), TimeShift(), WindowWarp(), SliceSplice(), FrequencyPerturb()],
                   [0.6, 0.066, 0.066, 0.066, 0.066, 0.066, 0.066]),
-        ToTensor()
     ])

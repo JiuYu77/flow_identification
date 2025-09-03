@@ -1,14 +1,7 @@
 # -*- coding: utf-8 -*-
-import torchvision.transforms as transforms
-import torch
 import numpy as np
 import random
 
-
-class ToTensor:
-    def __call__(self, x) -> torch.Tensor:
-        """x是一个样本"""
-        return torch.Tensor(x)
 
 class MinMaxNormalization:
     """
