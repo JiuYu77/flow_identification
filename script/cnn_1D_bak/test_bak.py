@@ -111,7 +111,7 @@ def test(dataset,
     print(f"|{colorstr('yellow', ' Start testing:')}")
     print(f"|{colorstr('green', ' testing device:')} {device}")
     print("-----------------------------------------")
-    testTimer = tu.Timer()
+    testTimer = tm.Timer()
     print(f"{colorstr('blue', 'timer start...')}")
     testTimer.start()
 
