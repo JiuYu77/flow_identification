@@ -65,7 +65,7 @@ class BaseTester:
         self.net.print_model_info()
 
     def test(self):
-        testTimer = tu.Timer()
+        testTimer = tm.Timer()
         print(f"{colorstr('blue', 'timer start...')}")
 
         self._setup_test()
@@ -115,8 +115,8 @@ class BaseTester:
         print(f"|{colorstr('green', ' testing device:')} {self.device}")
         print(f"| test_batch_num: {batchNum}")
         print("-----------------------------------------")
-        preTimer = tu.Timer()
-        predictTimer = tu.Timer()
+        preTimer = tm.Timer()
+        predictTimer = tm.Timer()
 
         print_color(["bright_green", "preparing data..."])
         preTimer.start()
