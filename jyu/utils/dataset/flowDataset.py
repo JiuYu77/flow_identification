@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from torch.utils.data import Dataset, DataLoader
 import os
 import numpy as np
 import random
@@ -8,10 +7,12 @@ sys.path.append('.')
 import jyu.utils.transform.transform as tf
 from jyu.utils.color_print import print_color
 
+# from torch.utils.data import Dataset
+
 class FlowDataset:
 # class FlowDataset(Dataset):
     def __init__(self, datasetPath, sampleLength:int, step:int, transformName=None,
-                 clss=None, supervised=True):
+                 clss=None, supervised=True, toTensor:bool=True):
         # super().__init__()
         self.datasetPath = datasetPath
         self.sampleLength = sampleLength
@@ -24,7 +25,7 @@ class FlowDataset:
         self.supervised = supervised
 
         if transformName is not None:
-            self.transform = tf.get_transform(transformName)
+            self.transform = tf.get_transform(transformName, toTensor)
         else:
             self.transform = None
         print_color(["loading dataset..."])
@@ -275,21 +276,17 @@ class FlowDataset:
             x = self.transform(v)
             self.allSample[i] = x
 
-def data_loader(Dataset, datasetPath, sampleLength:int, step:int, transform, clss=None, supervised=True,
-                batchSize:int=64, shuffle=True, numWorkers=0):
-    dataset = Dataset(datasetPath, sampleLength, step, transform, clss, supervised)
-    dataloader = DataLoader(dataset, batch_size=batchSize, shuffle=shuffle, num_workers=numWorkers)
-    return dataloader
 
 if __name__ == '__main__':
     datasetPath = "E:\\B_SoftwareInstall\\my_flow\\dataset\\v4\\Pressure\\v4_Pressure_Simple\\4\\train"
-    datasetPath = "/home/uu/my_flow/dataset/v4/Pressure/v4_Pressure_Simple/4/val"
+    datasetPath = "/root/my_flow/dataset/flow/v4/Pressure/4/val"
     sampleLength = 4096
     step = 2048
     transformName = "normalization_MinMax"
     transformName = "ewt_zScore"
     batchSize = 64
-    dataloader = data_loader(FlowDataset, datasetPath, sampleLength, step, transformName, batchSize,shuffle=False)
+    from jyu.utils.dataset.dataLoader_torch import data_loader
+    dataloader = data_loader(FlowDataset, datasetPath, sampleLength, step, transformName, batchSize=batchSize, shuffle=False)
     # dataloader = data_loader(FlowDataset, datasetPath, sampleLength, step, transformName, batchSize,shuffle=True)
     for i, (samples, labels) in enumerate(dataloader):
         print(samples.shape)
@@ -303,7 +300,7 @@ if __name__ == '__main__':
         # print(len(samples))
         print(f"\033[32m{labels}\t\033[31m{i}\033[0m")
         # print(len(labels))
-        # print(type(labels))
+        print("type(labels)=", type(labels))
         # print(labels.shape)
         break
         pass
