@@ -112,7 +112,7 @@ class Trainer(BaseTrainer):
         shuffleFlag, dataset, sampleLength, step, transform, batchSize, numWorkers = \
                                         self.shuffleFlag, self.dataset, self.sampleLength, self.step, self.transform, self.batchSize, self.numWorkers
         assert shuffleFlag == 1 or shuffleFlag == 0, f'shuffle_flag ValueError, except 0 or 1, but got {shuffleFlag}'
-        self.trainTimer = tu.Timer()
+        self.trainTimer = tm.Timer()
         self.trainTimer.start()
         self.shuffle = shuffle = shuffleFlag == 1 or not shuffleFlag == 0
         self.device = tu.get_device()
@@ -196,7 +196,7 @@ class Trainer(BaseTrainer):
         lossLine = plot.Line('epoch', 'Loss', xlim=[1, self.epochNum], legend=['train loss'], fmts=('b-', 'r-'), figsize=(5, 4))
 
         batchNum = len(self.trainIter)  # 训练集，一个epoch有多少个batch
-        timer = tu.Timer()
+        timer = tm.Timer()
         bestAcc = 0
         print("-----------------------------------------")
         print(f"|\033[33m Start training:\033[0m")
