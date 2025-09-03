@@ -4,7 +4,8 @@ from pathlib import Path
 ROOT = Path.cwd()
 # ROOT_STR = str(ROOT) # ···/flow_identification
 
-from jyu.utils.dataset.flowDataset import FlowDataset, data_loader
+from jyu.utils.dataset.flowDataset import FlowDataset
+from jyu.utils.dataset.dataLoader_torch import data_loader
 import jyu.utils.torch_utils as tu
 import jyu.utils.conf.config as cfg
 import jyu.utils.path as ph
