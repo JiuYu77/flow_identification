@@ -5,10 +5,14 @@ import sys
 sys.path.append(".")
 from jyu.model import YI
 
+root_pt = "result/train"
+time_dir = "20250603.175044_YI-Netv1"
+
 weight = "/root/my_flow/flow_identification/result/train/20250326.133420_YI-Netv2/weights/best_params.pt"
 # weight = "/root/my_flow/flow_identification/result/train/20250425.141300_YOLOv8_1D/weights/best_params.pt"
 weight = "/root/my_flow/flow_identification/result/train/20250425.204828_YI-Netv2/weights/best_params.pt"
-weight = "/root/my_flow/flow_identification/result/train/20250515.204010_YI-Netv2/weights/best_params.pt"
+weight = f"{root_pt}/{time_dir}/weights/best_params.pt"
+
 device = "cuda:0"
 
 model = YI(weights=weight, device=device)
@@ -20,7 +24,7 @@ dummy = torch.randn( sample_shape['batch_size'], sample_shape['channels'], sampl
 print(dummy.shape, type(dummy), "dummy.size(2):", dummy.size(2))
 
 
-root = "./result/ONNX"
+root = "./result/ONNX/" + time_dir
 net_name = model.netName
 out_onnx = f"{root}/{net_name}-dynamic_axes.onnx"
 input_names=["input"]
