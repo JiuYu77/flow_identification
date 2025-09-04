@@ -10,6 +10,8 @@ from jyu.utils import ph
 rknn = RKNN(verbose=True)
 
 dynamic = True
+# dynamic = False
+
 # 配置模型参数
 if dynamic:
     dynamic_input=[[[1, 1, 4096]], [[12, 1, 4096]], [[31, 1, 4096]]]
