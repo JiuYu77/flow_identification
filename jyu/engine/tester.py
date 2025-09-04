@@ -6,8 +6,10 @@ import numpy as np
 
 from jyu.model import *
 from jyu.nn.model import MODEL_YAML_DEFAULT
-from jyu.utils import tu, ph, cfg, print_color, data_loader, FlowDataset, ROOT, tm, plot, colorstr
-
+from jyu.utils import ph, cfg, print_color, ROOT, tm, plot, colorstr
+from jyu.torch_utils import tu
+from jyu.dataset.flowDataset import FlowDataset
+from jyu.dataloader.dataLoader_torch import data_loader
 
 class BaseTester:
     def __init__(

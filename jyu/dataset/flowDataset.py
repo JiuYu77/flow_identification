@@ -4,7 +4,7 @@ import numpy as np
 import random
 import sys
 sys.path.append('.')
-import jyu.utils.transform.transform as tf
+import jyu.transform.transform as tf
 from jyu.utils.color_print import print_color
 
 # from torch.utils.data import Dataset
@@ -285,7 +285,7 @@ if __name__ == '__main__':
     transformName = "normalization_MinMax"
     transformName = "ewt_zScore"
     batchSize = 64
-    from jyu.utils.dataset.dataLoader_torch import data_loader
+    from jyu.dataloader.dataLoader_torch import data_loader
     dataloader = data_loader(FlowDataset, datasetPath, sampleLength, step, transformName, batchSize=batchSize, shuffle=False)
     # dataloader = data_loader(FlowDataset, datasetPath, sampleLength, step, transformName, batchSize,shuffle=True)
     for i, (samples, labels) in enumerate(dataloader):

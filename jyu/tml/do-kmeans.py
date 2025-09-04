@@ -8,7 +8,8 @@ sys.path.append('.')
 
 from dimensionality_reduction import do_pca, do_som
 from cluster import do_k_means
-from jyu.utils import FlowDataset, ph
+from jyu.utils import ph
+from jyu.dataset.flowDataset import FlowDataset
 from utils import draw
 
 def std(x):

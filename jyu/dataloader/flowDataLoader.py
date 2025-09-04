@@ -55,7 +55,7 @@ class FlowDataLoader:
 if __name__ == '__main__':
     import sys
     sys.path.append('.')
-    from jyu.utils.dataset.flowDataset import FlowDataset
+    from jyu.dataset.flowDataset import FlowDataset
     datasetPath = "/root/my_flow/dataset/flow/v4/Pressure/4/val"
     sampleLength = 4096
     step = 2048

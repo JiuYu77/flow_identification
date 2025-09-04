@@ -5,7 +5,8 @@ from scipy.stats import mode
 import sys
 sys.path.append('.')
 
-from jyu.utils import FlowDataset, ph
+from jyu.utils import ph
+from jyu.dataset.flowDataset import FlowDataset
 from dimensionality_reduction import do_pca, do_som, do_tSNE
 from cluster import *
 from utils import *

@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 from jyu.nn import MODEL_YAML_DEFAULT
 from jyu.utils import print_color, cfg
 from jyu.model.supervised.trainer import Trainer
-import jyu.utils.transform.transform as tf
+import jyu.transform.transform as tf
 
 
 def parse_args():

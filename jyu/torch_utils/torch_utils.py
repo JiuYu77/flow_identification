@@ -6,7 +6,7 @@ import time
 import numpy as np
 from torch import nn, optim
 from lion_pytorch import Lion
-from .__init__ import LOGGER, colorstr
+from ..utils import LOGGER, colorstr
 
 
 def get_device(i=0):

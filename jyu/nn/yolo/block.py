@@ -2,7 +2,7 @@
 from torch import nn
 from conv import Conv1d
 import torch
-from jyu.utils.torch_utils import fuse_conv_and_bn
+from jyu.torch_utils.torch_utils import fuse_conv_and_bn
 
 class C2f1d(nn.Module):
     """Faster Implementation of CSP Bottleneck with 2 convolutions"""

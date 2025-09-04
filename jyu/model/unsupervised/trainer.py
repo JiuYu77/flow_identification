@@ -6,7 +6,11 @@ from torch import optim
 from torch.utils.data import DataLoader
 
 from jyu.engine.trainer import BaseTrainer
-from jyu.utils import tu, data_loader, FlowDataset, cfg, uloss, print_color, tm, ROOT, ph, plot
+from jyu.utils import cfg, print_color, tm, ROOT, ph, plot
+from jyu.torch_utils import tu, uloss
+from jyu.dataset.flowDataset import FlowDataset
+from jyu.dataloader.dataLoader_torch import data_loader
+
 
 class Trainer(BaseTrainer):
     def data_loader(self, Dataset, datasetPath, sampleLength:int, step:int, transform, clss=None, supervised=True,

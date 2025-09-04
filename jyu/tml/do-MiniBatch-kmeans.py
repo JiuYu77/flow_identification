@@ -10,7 +10,9 @@ sys.path.append('.')
 from pca import do_pca
 from som import do_som
 from minibatch_k_means import do_MiniBatchKMeans
-from jyu.utils import FlowDataset, ph
+from jyu.utils import ph
+from jyu.dataset.flowDataset import FlowDataset
+
 
 def draw(data, c, path):
     # 可视化散点图

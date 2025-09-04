@@ -11,7 +11,7 @@ from jyu.nn.yolo import Conv1d, C2f1d
 from jyu.nn.tasks import parse_model, yaml_model_load, guess_model_name, attempt_load_weights
 
 from jyu.utils import LOGGER
-from jyu.utils.torch_utils import InitWeight, fuse_conv_and_bn, de_parallel
+from jyu.torch_utils.torch_utils import InitWeight, fuse_conv_and_bn, de_parallel
 
 
 '''

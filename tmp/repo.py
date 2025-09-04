@@ -88,10 +88,13 @@ sys.path.append('.')
 from argparse import ArgumentParser
 import torch
 from torch import optim
-from model import YOLO1Dv8
-from nn import MODEL_YAML_DEFAULT
+from jyu.model import YOLOv8_1D
+from jyu.nn import MODEL_YAML_DEFAULT
 import os
-from utils import ROOT, FlowDataset, data_loader, tu, cfg, ph, print_color, tm, plot, uloss
+from jyu.utils import ROOT, cfg, ph, print_color, tm, plot
+from jyu.torch_utils import tu, uloss
+from jyu.dataset.flowDataset import FlowDataset
+from jyu.dataloader.dataLoader_torch import data_loader
 import yaml
 
 
@@ -167,7 +170,7 @@ def train(dataset,
         yml = cfg.yaml_load(os.path.join(path, 'info.yaml'))
         fuse_, split_ = yml['model_settings']['fuse_'], yml['model_settings']['split_']
         scale = yml['model_settings']['model_scale']
-    net = YOLO1Dv8(modelYaml, model, fuse_=fuse_, split_=split_, scale=scale, initweightName=initweightName, device=device)  # 实例化模型
+    net = YOLOv8_1D(modelYaml, model, fuse_=fuse_, split_=split_, scale=scale, initweightName=initweightName, device=device)  # 实例化模型
 
     loss = uloss.smart_lossFunction(lossName)  # 损失函数
     # loss = uloss.smart_lossFunction('FocalLoss', classNum)  # 损失函数

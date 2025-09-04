@@ -6,7 +6,10 @@ import sys
 sys.path.append('.')
 
 from tmp.beta.beta import BetaVAE, loss_function
-from jyu.utils import data_loader, FlowDataset, tu
+from jyu.torch_utils import tu
+from jyu.dataset.flowDataset import FlowDataset
+from jyu.dataloader.dataLoader_torch import data_loader
+
 
 # 定义模型和优化器
 model = BetaVAE(latent_dim=20, beta=4.0)  # 可以调整beta值

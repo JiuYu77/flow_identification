@@ -4,7 +4,7 @@ import sys
 sys.path.append('.')
 import os
 from jyu.nn import MODEL_YAML_DEFAULT
-import jyu.utils.transform.transform as tf
+import jyu.transform.transform as tf
 from jyu.model.supervised.tester import Tester
 
 

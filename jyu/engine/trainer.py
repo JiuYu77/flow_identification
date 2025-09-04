@@ -6,7 +6,11 @@ import yaml
 
 from jyu.model import *
 from jyu.nn.model import MODEL_YAML_DEFAULT
-from jyu.utils import tu, ph, cfg, print_color, data_loader, FlowDataset, uloss, ROOT, tm, plot
+from jyu.utils import ph, cfg, print_color, ROOT, tm, plot
+from jyu.torch_utils import tu, uloss
+from jyu.dataset.flowDataset import FlowDataset
+from jyu.dataloader.dataLoader_torch import data_loader
+
 
 def do_softmax(y_hat):
         preLabel = y_hat.argmax(axis=1)

@@ -2,8 +2,8 @@
 """散点图"""
 import sys
 sys.path.append('.')
-from utils import plot
-from utils.plot.getdata import ScatterData
+from jyu.utils import plot
+from jyu.utils.plot.getdata import ScatterData
 
 
 path = [

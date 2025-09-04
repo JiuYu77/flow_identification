@@ -5,7 +5,10 @@ import sys
 sys.path.append('.')
 from jyu.model import YI
 from jyu.nn import MODEL_YAML_DEFAULT
-from jyu.utils import FlowDataset, data_loader, tu, cfg, colorstr, print_color, ROOT, ph, tm, plot
+from jyu.utils import cfg, colorstr, print_color, ROOT, ph, tm, plot
+from jyu.torch_utils import tu
+from jyu.dataset.flowDataset import FlowDataset
+from jyu.dataloader.dataLoader_torch import data_loader
 import os
 import torch
 import numpy as np

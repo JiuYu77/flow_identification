@@ -6,7 +6,10 @@ import sys
 sys.path.append('.')
 
 from tmp.beta3.beta import BetaVAE1D, loss_function
-from jyu.utils import data_loader, FlowDataset, tu
+from jyu.torch_utils import tu
+from jyu.dataset.flowDataset import FlowDataset
+from jyu.dataloader.dataLoader_torch import data_loader
+
 
 device = tu.get_device()
 print(device)

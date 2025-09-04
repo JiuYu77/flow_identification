@@ -7,7 +7,7 @@ import sys
 # sys.path.append('.')
 
 from jyu.utils import ph, LOGGER, colorstr, cfg
-from jyu.utils.ops import make_divisible
+from jyu.torch_utils.ops import make_divisible
 
 from jyu.nn.yolo import Conv1d, C2f1d, Classify, C2fCIB1d, SCDown1d, PSA1d, C3k2, C2PSA
 from jyu.nn.modules import ClassifyV2, C2fTR1d

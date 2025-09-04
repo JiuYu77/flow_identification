@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+"""本文件是调用接口，需import"""
 import sys
 sys.path.append('.')
-import jyu.utils.transform.trans as trans
+import jyu.transform.trans as trans
 
 
 trainTransformList = [

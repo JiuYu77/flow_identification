@@ -8,7 +8,10 @@ from torch import optim
 from jyu.model import YOLO1D
 from jyu.nn import MODEL_YAML_DEFAULT
 import os
-from jyu.utils import ROOT, FlowDataset, data_loader, tu, cfg, ph, print_color, tm, plot, uloss
+from jyu.utils import ROOT, cfg, ph, print_color, tm, plot
+from jyu.torch_utils import tu, uloss
+from jyu.dataset.flowDataset import FlowDataset
+from jyu.dataloader.dataLoader_torch import data_loader
 import yaml
 
 

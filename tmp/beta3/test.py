@@ -4,7 +4,9 @@ import sys
 sys.path.append('.')
 
 from tmp.beta3.beta4 import BetaVAE1D
-from jyu.utils import data_loader, FlowDataset, tu
+from jyu.torch_utils import tu
+from jyu.dataset.flowDataset import FlowDataset
+from jyu.dataloader.dataLoader_torch import data_loader
 from jyu.tml import *
 
 

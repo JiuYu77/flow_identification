@@ -10,7 +10,8 @@ sys.path.append('.')
 import os
 import yaml
 
-from utils import FlowDataset, tm, ph, plot
+from jyu.utils import tm, ph, plot
+from jyu.dataset.flowDataset import FlowDataset
 
 
 def draw(x, y, title, xlabel, ylabel, outPath):
