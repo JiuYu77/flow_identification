@@ -34,12 +34,13 @@ for X, Y in dataloader:
     timer.start()
     outputs = rknn_lite(X) # 推理
     # 后处理（示例：分类模型）
-    pred = np.argmax(outputs, axis=2)
+    pred_label = np.argmax(outputs, axis=2)
     y_hat = np.array(outputs)
     acc_num += accuracy(y_hat, Y)
     timer.stop()
     total_sample_num += len(Y)
-    print("Predicted class:", pred, "acc_num:", acc_num)
+    print("Predicted class:", pred_label, "batch_acc_num", accuracy(y_hat, Y), "acc_num:", acc_num)
+
 
 print("total_sample_num:", total_sample_num)
 print("total_acc_num:", acc_num)
