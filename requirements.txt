@@ -12,3 +12,4 @@ PyWavelets>=1.4.1
 #scikit-learn
 #minisom
 lion-pytorch
+scipy>=1.9.3

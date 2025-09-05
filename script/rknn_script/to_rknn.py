@@ -45,8 +45,8 @@ ph.checkAndInitPath(root)
 trknn = ToRKNN(
     {"verbose":True},
     {
-        "mean_values":[[123.675]],  # ImageNet标准化参数
-        "std_values": [[58.395]],
+        "mean_values":[[7.112949552273706e-12]],  # ImageNet标准化参数
+        "std_values": [[1.0001220703125]],
         "target_platform":"rk3588",
         "quantized_dtype":"asymmetric_quantized-8",  # 启用INT8量化
         "dynamic_input":dynamic_input
