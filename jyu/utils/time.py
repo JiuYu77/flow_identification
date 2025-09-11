@@ -5,10 +5,10 @@ import numpy as np
 
 class Timer:
     """Record multiple running times."""
-    def __init__(self, aotuStart=True):
+    def __init__(self, autoStart=True):
         """Defined in :numref:`subsec_linear_model`"""
         self.times = []
-        if aotuStart:
+        if autoStart:
             self.start()
 
     def time(self):

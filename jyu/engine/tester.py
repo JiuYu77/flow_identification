@@ -98,10 +98,8 @@ class BaseTester:
             "numWorkers": self.numWorkers,
             "net_path": self.weights,
             "test_time_consuming": None,
-            "data_predict_time_consuming": None,  # 包括数据预处理
-            "speed": None,                        # 包括数据预处理
-            "predict_time_consuming": None,       # 不包括数据预处理
-            "speed_predict": None                 # 不包括数据预处理
+            "predict_time_consuming": None,
+            "inference_speed": None
         }
         yaml.dump(task_info, open(info_fp_path, "w"), sort_keys=False)
 
@@ -144,9 +142,9 @@ class BaseTester:
         acc = round(totalCorrect / totalNum, 8)
 
         predictSec = predictTimer.sum() # 秒数
-        speed_predict = int(totalNum / predictSec)
+        inference_speed = int(totalNum / predictSec)
         task_info["predict_time_consuming"] = tm.sec_to_HMS(predictSec)
-        task_info["speed_predict"] = f"{speed_predict} samples/sec"
+        task_info["inference_speed"] = f"{inference_speed} samples/sec"
 
         # 混淆矩阵
         print_color(["bright_green", "\ndrawing..."])
@@ -171,7 +169,7 @@ class BaseTester:
         print("-----------------------------------------")
         print(f"|{colorstr('yellow', ' End testing:')}")
         print(f"| test time consuming: {timeConsuming}")  # 训练耗时
-        print(f"| speed_predict: {speed_predict} samples/sec")  # speed_predict
+        print(f"| inference speed: {inference_speed} samples/sec")  # speed_predict
         print("-----------------------------------------")
 
     @staticmethod
