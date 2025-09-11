@@ -5,18 +5,23 @@ import numpy as np
 
 class Timer:
     """Record multiple running times."""
-    def __init__(self):
+    def __init__(self, aotuStart=True):
         """Defined in :numref:`subsec_linear_model`"""
         self.times = []
-        self.start()
+        if aotuStart:
+            self.start()
+
+    def time(self):
+        return time.time()
 
     def start(self):
         """Start the timer."""
-        self.tik = time.time()
+        self.tik = self.time()
 
     def stop(self):
         """Stop the timer and record the time in a list."""
-        self.times.append(time.time() - self.tik)
+        dt = self.time() - self.tik  # delta-time
+        self.times.append(dt)
         return self.times[-1]
 
     def avg(self):

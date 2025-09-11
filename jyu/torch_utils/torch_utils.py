@@ -6,7 +6,7 @@ import time
 import numpy as np
 from torch import nn, optim
 from lion_pytorch import Lion
-from ..utils import LOGGER, colorstr
+from ..utils import LOGGER, colorstr, tm
 
 
 def get_device(i=0):
@@ -96,6 +96,12 @@ class Accumulator:
 
     def __getitem__(self,idx):
         return self.data[idx]
+
+def time_sync():
+    """Return PyTorch-accurate time."""
+    if torch.cuda.is_available():
+        torch.cuda.synchronize()  # 确保所有的 GPU 操作已完成
+    return time.time()
 
 def accuracy(y_hat, y):
     """预测正确的数量"""
