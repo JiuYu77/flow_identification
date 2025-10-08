@@ -43,17 +43,17 @@ ph.checkAndInitPath(root)
 
 # 转换模型
 trknn = ToRKNN(
-    {"verbose":True},
-    {
+    rknnArgs={"verbose":True},
+    configArgs={
         "mean_values":[[7.112949552273706e-12]],  # ImageNet标准化参数
         "std_values": [[1.0001220703125]],
         "target_platform":"rk3588",
         "quantized_dtype":"asymmetric_quantized-8",  # 启用INT8量化
         "dynamic_input":dynamic_input
     },
-    {"model":model},
-    {"do_quantization":False},
-    {"export_path":export_path}
+    loadArgs={"model":model},
+    buildArgs={"do_quantization":False},
+    exportArgs={"export_path":export_path}
 )
 
 trknn.run()
