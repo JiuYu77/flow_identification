@@ -21,7 +21,7 @@ class ToRKNN:
 
     def _export_rknn(self): # 导出RKNN模型
         r = self.rknn.export_rknn(**self.exportArgs)
-        assert r == 0, "Export RKNN failed!"    
+        assert r == 0, "Export RKNN failed!"
 
     def release(self): # 释放资源
         self.rknn.release()
