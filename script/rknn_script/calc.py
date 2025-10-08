@@ -22,10 +22,7 @@ def calculate_mean_std(dataloader, channels=1):
 
     mean /= total_samples
     std /= total_samples
-    
-    print(f"Mean: {mean.tolist()}")
-    print(f"Std: {std.tolist()}")
-    
+
     return mean.tolist(), std.tolist()
 
 if __name__ == '__main__':
@@ -40,3 +37,5 @@ if __name__ == '__main__':
     dataloader =data_loader(FlowDataset, datasetPath, sampleLength, step, transformName, None, True, batchSize, shuffle, 4)
 
     mean, std = calculate_mean_std(dataloader)
+    print("Mean:", mean)
+    print("Std:", std)
