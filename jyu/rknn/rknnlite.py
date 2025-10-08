@@ -22,4 +22,4 @@ class RknnLite:
         return outputs
 
     def release(self):
-        self.rknn_lite.release()
+        self.rknn_lite.release()  # 释放资源
