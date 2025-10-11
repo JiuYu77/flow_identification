@@ -63,15 +63,6 @@
         "分层泡沫波浪流": "images/foam_wavy.gif",
         "泡沫环状流": "images/foam_annular.gif"
     };
-    const flows = {
-        0: "段塞流",
-        1: "伪段塞流",
-        2: "分层波浪流",
-        3: "分层光滑流",
-        4: "泡沫段塞流",
-        5: "分层泡沫波浪流",
-        6: "泡沫环状流",
-    }
 
     // data = {"sample_length": 100, "step": 10}
     document.getElementById('form').onsubmit = async function(e) {
@@ -84,13 +75,17 @@
             body: JSON.stringify({sample_length, step})
         });
         const data = await res.json();
-        console.log("data", data);
-        console.log("flowType:", data.results[0].flowType);
-        const label = data.results[0].flowType
+ 
+        const label = data.results[0].label
+        const flow_type = data.results[0].flowType
+        const flow_data = data.results[0].flowData
 
-        const flowType = flows[label]
+        console.log("data", data);
+        console.log("label:", label);
+        console.log("flowType:", flow_type);
+
         const resultDiv = document.getElementById('result');
-        resultDiv.querySelector(".flow-type span").textContent = `${flowType}`;
+        resultDiv.querySelector(".flow-type span").textContent = `${flow_type}`;
     }
 
     // document.getElementById('form').onsubmit = async function(e) {

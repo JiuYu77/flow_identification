@@ -16,8 +16,13 @@ CORS(app) # 跨域问题 (CORS), 前端页面和后端服务不在同一个域�
 
 # 流型名称列表
 FLOW_TYPES = [
-    "段塞流", "伪段塞流", "分层波浪流", "分层光滑流",
-    "泡沫段塞流", "分层泡沫波浪流", "泡沫环状流"
+    "段塞流",
+    "伪段塞流",
+    "分层波浪流",
+    "分层光滑流",
+    "泡沫段塞流",
+    "分层泡沫波浪流",
+    "泡沫环状流"
 ]
 rknn_model = "result/rknn/20250603.175044_YI-Netv1/YI-Netv1-dynamic_axes.rknn"
 rknn_lite = RknnLite(rknn_model)
@@ -76,7 +81,8 @@ def predict():
     label = int(pred_label[0][0])
     x = X[0][0].tolist()
     results.append({
-        "flowType": label,
+        "label": label,
+        "flowType": FLOW_TYPES[label],
         "flowData": x,
     })
 
