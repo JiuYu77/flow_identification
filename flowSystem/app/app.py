@@ -72,4 +72,4 @@ def predict():
 if __name__ == '__main__':
     rknn_model = "result/rknn/20250603.175044_YI-Netv1/YI-Netv1-dynamic_axes.rknn"
     rknn_lite = RknnLite(rknn_model)
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
