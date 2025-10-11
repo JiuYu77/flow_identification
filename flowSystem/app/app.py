@@ -73,10 +73,8 @@ def predict():
         print("Predicted class:", pred_label[0])
         print("Predicted class:", int(pred_label[0][0]))
 
-
-
     preLabel = int(pred_label[0][0])  # 预测标签
-    probability = probabilities[0][0]  # 置信度，预测正确的概率
+    probability = str(probabilities[0][0])  # 置信度，预测正确的概率
     x = X[0][0].tolist()
     results.append({
         "preLabel": preLabel,
