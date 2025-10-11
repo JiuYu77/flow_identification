@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify
 import numpy as np
+
+import sys
+sys.path.append('.')
 from jyu.rknn.rknnlite import RknnLite
 from jyu.dataset.flowDataset import FlowDataset
 from jyu.dataloader.flowDataLoader import FlowDataLoader
@@ -20,6 +23,10 @@ def predict_flow_type(data_segment):
     # pred = model.predict(data_segment)
     # return FLOW_TYPES[np.argmax(pred)]
     return np.random.choice(FLOW_TYPES)
+
+@app.route('/', methods=['GET'])
+def index():
+    return "Hello, World!"
 
 @app.route('/api/predict', methods=['POST'])
 def predict():
