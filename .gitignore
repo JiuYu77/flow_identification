@@ -2,3 +2,5 @@
 result/
 hailo_sdk.client.log
 check*.onnx
+flowSystem/web/**/cert.pem
+flowSystem/web/**/cert.key
