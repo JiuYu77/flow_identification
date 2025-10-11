@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import numpy as np
 
 import sys
@@ -8,6 +9,7 @@ from jyu.dataset.flowDataset import FlowDataset
 from jyu.dataloader.flowDataLoader import FlowDataLoader
 
 app = Flask(__name__)
+CORS(app) # 跨域问题 (CORS), 前端页面和后端服务不在同一个域名下，可能会遇到 CORS 问题
 
 # 假设有一个深度学习模型对象 model
 # from model import model
@@ -44,7 +46,7 @@ def predict():
     dataloader = FlowDataLoader(dataset, batchSize, shuffle)
 
     results = []
-    pred_label
+    pred_label = 0
     ii = 0
 
     for X, Y in dataloader:
@@ -56,16 +58,15 @@ def predict():
         # 后处理（示例：分类模型）
         pred_label = np.argmax(outputs, axis=2)
         y_hat = np.array(outputs)
-        total_sample_num += len(Y)
         print("Predicted class:", pred_label)
         print("Predicted class:", pred_label[0])
-        print("Predicted class:", int(pred_label[0]))
+        print("Predicted class:", int(pred_label[0][0]))
 
         print("Predicted class out:", pred_label)
         print("Predicted class out:", pred_label[0])
-        print("Predicted class out:", int(pred_label[0]))
+        print("Predicted class out:", int(pred_label[0][0]))
 
-    results.append({"flowType": int(pred_label[0])})
+    results.append({"flowType": int(pred_label[0][0])})
 
     return jsonify({"results": results})
 
