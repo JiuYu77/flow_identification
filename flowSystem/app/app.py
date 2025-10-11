@@ -78,11 +78,11 @@ def predict():
     print("Predicted class out:", pred_label[0])
     print("Predicted class out:", int(pred_label[0][0]))
 
-    label = int(pred_label[0][0])
+    preLabel = int(pred_label[0][0])  # 预测标签
     x = X[0][0].tolist()
     results.append({
-        "label": label,
-        "flowType": FLOW_TYPES[label],
+        "preLabel": preLabel,
+        "flowType": FLOW_TYPES[preLabel],
         "flowData": x,
     })
 

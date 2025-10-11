@@ -76,12 +76,12 @@
         });
         const data = await res.json();
  
-        const label = data.results[0].label
+        const pre_label = data.results[0].preLabel
         const flow_type = data.results[0].flowType
         const flow_data = data.results[0].flowData
 
         console.log("data", data);
-        console.log("label:", label);
+        console.log("pre_label:", pre_label);
         console.log("flowType:", flow_type);
 
         const resultDiv = document.getElementById('result');
