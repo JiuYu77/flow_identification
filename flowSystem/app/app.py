@@ -19,12 +19,16 @@ FLOW_TYPES = [
     "段塞流", "伪段塞流", "分层波浪流", "分层光滑流",
     "泡沫段塞流", "分层泡沫波浪流", "泡沫环状流"
 ]
+rknn_model = "result/rknn/20250603.175044_YI-Netv1/YI-Netv1-dynamic_axes.rknn"
+rknn_lite = RknnLite(rknn_model)
 
-def predict_flow_type(data_segment):
-    # 这里用随机模拟，实际应调用深度学习模型
-    # pred = model.predict(data_segment)
-    # return FLOW_TYPES[np.argmax(pred)]
-    return np.random.choice(FLOW_TYPES)
+datasetPath = "/home/orangepi/flow/dataset/flow/v4/Pressure/4/val"
+transformName = "zScore_std"
+batchSize = 31
+shuffle=True
+sampleLength = 0
+step = 0
+
 
 @app.route('/', methods=['GET'])
 def index():
@@ -33,17 +37,15 @@ def index():
 @app.route('/api/predict', methods=['POST'])
 def predict():
     req = request.json
-    sampleLength = int(req['sample_length'])
-    step = int(req['step'])
+    length = int(req['sample_length'])
+    stp = int(req['step'])
+    if sampleLength != length or step != stp:
+        sampleLength = length
+        step = stp
+        dataset = FlowDataset(datasetPath, sampleLength, step, transformName, clss=None, supervised=True, toTensor=False)
+        dataloader = FlowDataLoader(dataset, batchSize, shuffle)
 
     print("sampleLength=", sampleLength, "step=", step)
-
-    datasetPath = "/home/orangepi/flow/dataset/flow/v4/Pressure/4/val"
-    transformName = "zScore_std"
-    batchSize = 31
-    shuffle=True
-    dataset = FlowDataset(datasetPath, sampleLength, step, transformName, clss=None, supervised=True, toTensor=False)
-    dataloader = FlowDataLoader(dataset, batchSize, shuffle)
 
     results = []
     pred_label = 0
@@ -76,6 +78,4 @@ def predict():
     return jsonify({"results": results})
 
 if __name__ == '__main__':
-    rknn_model = "result/rknn/20250603.175044_YI-Netv1/YI-Netv1-dynamic_axes.rknn"
-    rknn_lite = RknnLite(rknn_model)
     app.run(host="0.0.0.0", debug=True)
