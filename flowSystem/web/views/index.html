@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>流型识别系统</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/assets/js/flow-curve.js"></script>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
 </head>
@@ -85,7 +86,10 @@
         console.log("flowType:", flow_type);
 
         const resultDiv = document.getElementById('result');
-        resultDiv.querySelector(".flow-type span").textContent = `${flow_type}`;
+        resultDiv.querySelector(".flow-type span").textContent = `${flow_type}`;  // 显示预测类别--流型名字
+
+        var canvas_curve = document.querySelector(".flow-curve").querySelector(".data-curve")
+        draw_flow_curve(canvas_curve, flow_data)
     }
 
     // document.getElementById('form').onsubmit = async function(e) {
