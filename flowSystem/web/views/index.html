@@ -78,7 +78,7 @@
         e.preventDefault();
         const sample_length = document.getElementById('sample_length').value;
         const step = document.getElementById('step').value;
-        const res = await fetch('/api/predict', {
+        const res = await fetch('http://172.25.157.31:5000/api/predict', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({sample_length, step})
