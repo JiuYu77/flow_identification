@@ -29,6 +29,8 @@ shuffle=True
 sampleLength = 0
 step = 0
 
+dataset = None
+dataloader = None
 
 @app.route('/', methods=['GET'])
 def index():
@@ -36,6 +38,9 @@ def index():
 
 @app.route('/api/predict', methods=['POST'])
 def predict():
+    # 声明全局变量
+    global sampleLength, step, dataset, dataloader
+
     req = request.json
     length = int(req['sample_length'])
     stp = int(req['step'])
