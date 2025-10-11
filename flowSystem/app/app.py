@@ -12,9 +12,6 @@ from jyu.dataloader.flowDataLoader import FlowDataLoader
 app = Flask(__name__)
 CORS(app) # 跨域问题 (CORS), 前端页面和后端服务不在同一个域名下，可能会遇到 CORS 问题
 
-# 假设有一个深度学习模型对象 model
-# from model import model
-
 # 流型名称列表
 FLOW_TYPES = [
     "段塞流",
