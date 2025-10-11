@@ -95,8 +95,10 @@ button:hover {
     /* border: 1px solid #4486e9; */
 }
 .flow-type #flow-type {
-    font-size: 20px;
     font-weight: 700;
+}
+.flow-prob #flow-prob{
+    color: #4f8cff;
 }
 .flow-curve{
     height: 110px;
