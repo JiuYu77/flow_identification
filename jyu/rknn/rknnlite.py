@@ -3,7 +3,7 @@ from rknnlite.api import RKNNLite
 
 
 class RknnLite:
-    def __init__(self, rknn_model, core_mask=RKNNLite.NPU_CORE_AUTO):
+    def __init__(self, rknn_model:str, core_mask=RKNNLite.NPU_CORE_AUTO):
         self.rknn_lite = RKNNLite()  # 初始化RKNN Lite
 
         r = self.rknn_lite.load_rknn(rknn_model)  # 加载模型
