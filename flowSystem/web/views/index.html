@@ -80,10 +80,12 @@
         const pre_label = data.results[0].preLabel
         const flow_type = data.results[0].flowType
         const flow_data = data.results[0].flowData
+        const prob = data.results[0].probability
 
         console.log("data", data);
         console.log("pre_label:", pre_label);
         console.log("flowType:", flow_type);
+        console.log("probability:", prob);
 
         const resultDiv = document.getElementById('result');
         resultDiv.querySelector(".flow-type span").textContent = `${flow_type}`;  // 显示预测类别--流型名字

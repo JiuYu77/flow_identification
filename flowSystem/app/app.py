@@ -67,6 +67,7 @@ def predict():
         outputs = rknn_lite(X) # 推理
         # 后处理（示例：分类模型）
         pred_label = np.argmax(outputs, axis=2)
+        probabilities = np.max(outputs, axis=2)
         y_hat = np.array(outputs)
         print("Predicted class:", pred_label)
         print("Predicted class:", pred_label[0])
@@ -77,11 +78,13 @@ def predict():
     print("Predicted class out:", int(pred_label[0][0]))
 
     preLabel = int(pred_label[0][0])  # 预测标签
+    probability = probabilities[0][0]  # 置信度，预测正确的概率
     x = X[0][0].tolist()
     results.append({
         "preLabel": preLabel,
         "flowType": FLOW_TYPES[preLabel],
         "flowData": x,
+        "probability": probability
     })
 
     return jsonify({"results": results})
