@@ -86,6 +86,11 @@
         const data = await res.json();
         console.log("data", data);
         console.log("flowType:", data.results[0].flowType);
+        const label = data.results[0].flowType
+
+        const flowType = flows[label]
+        const resultDiv = document.getElementById('result');
+        resultDiv.querySelector(".flow-type span").textContent = `${flowType}`;
     }
 
     // document.getElementById('form').onsubmit = async function(e) {
