@@ -66,7 +66,10 @@ def predict():
     print("Predicted class out:", pred_label[0])
     print("Predicted class out:", int(pred_label[0][0]))
 
-    results.append({"flowType": int(pred_label[0][0])})
+    results.append({
+        "flowType": int(pred_label[0][0]),
+        "flowData": X[0],
+    })
 
     return jsonify({"results": results})
 
