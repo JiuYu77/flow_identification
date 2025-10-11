@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>流型识别系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>流型识别系统</h1>
+        <div class="content-wrapper">
+            <form id="form" class="form-container">
+                <div class="form-group">
+                    <label for="sample_length">样本长度</label>
+                    <input type="number" id="sample_length" list="sample_length-options" required min="0" value="4096">
+                    <datalist id="sample_length-options">
+                        <option value="4096"></option>
+                        <option value="8192"></option>
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    <label for="step">步长</label>
+                    <input type="number" id="step" list="step-options" required min="0" value="2048">
+                    <datalist id="step-options">
+                        <option value="2048"></option>
+                        <option value="4096"></option>
+                    </datalist>
+                </div>
+                <!-- <div class="form-group">
+                    <label for="pressure_data">压力数据 (逗号分隔)</label>
+                    <textarea id="pressure_data" rows="4" cols="50" required></textarea>
+                </div> -->
+                <button type="submit">识别流型</button>
+            </form>
+            <div class="result" id="result">
+                <div class="card">
+                    <div class="flow-type">
+                        <label for="flow-type">流型</label>
+                        <span id="flow-type"></span>
+                    </div>
+                    <div class="flow-curve">
+                        <label for="data-curve">曲线</label>
+                        <canvas class="data-curve" id="data-curve"></canvas>
+                    </div>
+                    <div class="flow-anim">
+                        <label>动画</label>
+                        <canvas class="flow-animation-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/assets/js/flow-anime.js"></script>
+    <script>
+    const flowAnimations = {
+        "段塞流": "images/slugs.gif",
+        "伪段塞流": "images/pseudo_slugs.gif",
+        "分层波浪流": "images/wavy.gif",
+        "分层光滑流": "images/smooth.gif",
+        "泡沫段塞流": "images/foam_slugs.gif",
+        "分层泡沫波浪流": "images/foam_wavy.gif",
+        "泡沫环状流": "images/foam_annular.gif"
+    };
+    const flows = {
+        0: "段塞流",
+        1: "伪段塞流",
+        2: "分层波浪流",
+        3: "分层光滑流",
+        4: "泡沫段塞流",
+        5: "分层泡沫波浪流",
+        6: "泡沫环状流",
+    }
+
+    // data = {"sample_length": 100, "step": 10}
+    document.getElementById('form').onsubmit = async function(e) {
+        e.preventDefault();
+        const sample_length = document.getElementById('sample_length').value;
+        const step = document.getElementById('step').value;
+        const res = await fetch('/api/predict', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({sample_length, step})
+        });
+        const data = await res.json();
+        console.log("data", data);
+        console.log("flowType:", data.results[0].flowType);
+    }
+
+    // document.getElementById('form').onsubmit = async function(e) {
+    //     e.preventDefault();
+    //     const sample_length = document.getElementById('sample_length').value;
+    //     const step = document.getElementById('step').value;
+    //     const pressure_data = document.getElementById('pressure_data').value
+    //         .split(',').map(Number);
+
+    //     const res = await fetch('/api/predict', {
+    //         method: 'POST',
+    //         headers: {'Content-Type': 'application/json'},
+    //         body: JSON.stringify({sample_length, step, pressure_data})
+    //     });
+    //     const data = await res.json();
+    //     const resultDiv = document.getElementById('result');
+    //     resultDiv.innerHTML = '';
+    //     data.results.forEach((r, idx) => {
+    //         const flowType = r.flow_type;
+    //         const canvasId = `chart${idx}`;
+    //         resultDiv.innerHTML += `
+    //             <div class="card">
+    //                 <div>
+    //                     <div class="flow-anim">
+    //                         ${flowAnimations[flowType] ? `<img src="${flowAnimations[flowType]}" alt="${flowType}">` : ''}
+    //                     </div>
+    //                 </div>
+    //                 <div class="card-content">
+    //                     <div class="flow-type">样本${idx+1}: ${flowType}</div>
+    //                     <div class="chart-container">
+    //                         <canvas id="${canvasId}" width="400" height="100"></canvas>
+    //                     </div>
+    //                 </div>
+    //             </div>
+    //         `;
+    //         setTimeout(() => {
+    //             new Chart(document.getElementById(canvasId), {
+    //                 type: 'line',
+    //                 data: {
+    //                     labels: r.segment.map((_,i)=>i),
+    //                     datasets: [{
+    //                         label: '压力',
+    //                         data: r.segment,
+    //                         borderColor: '#4f8cff',
+    //                         backgroundColor: 'rgba(79,140,255,0.08)',
+    //                         fill: true,
+    //                         pointRadius: 0
+    //                     }]
+    //                 },
+    //                 options: {
+    //                     plugins: { legend: { display: false } },
+    //                     scales: { x: { display: false }, y: { beginAtZero: true } }
+    //                 }
+    //             });
+    //         }, 0);
+    //     });
+    // }
+
+    // *************************************** //
+    function aa(){
+            let idx = 0
+            // const flowType = '段塞流';
+            // const flowType = '伪段塞流';
+            const flowType = '分层波浪流';
+            // const flowType = '分层光滑流';
+            // const flowType = '泡沫段塞流';
+            // const flowType = '分层泡沫波浪流';
+            // const flowType = '泡沫环状流';
+
+            const canvasId = `chart${idx}`;
+            const resultDiv = document.getElementById('result');
+            resultDiv.querySelector(".flow-type span").textContent = `${flowType}`;
+
+            // setTimeout(() => {
+                // new Chart(document.getElementById(canvasId), {
+                //     type: 'line',
+                //     data: {
+                //         labels: r.segment.map((_,i)=>i),
+                //         datasets: [{
+                //             label: '压力',
+                //             data: r.segment,
+                //             borderColor: '#4f8cff',
+                //             backgroundColor: 'rgba(79,140,255,0.08)',
+                //             fill: true,
+                //             pointRadius: 0
+                //         }]
+                //     },
+                //     options: {
+                //         plugins: { legend: { display: false } },
+                //         scales: { x: { display: false }, y: { beginAtZero: true } }
+                //     }
+                // });
+                // 设置流型动画
+            //     setupFlowAnimation(resultDiv.lastElementChild);
+            // }, 0);
+            setTimeout(() => {
+            if (typeof setupFlowAnimation === 'function') {
+                setupFlowAnimation(flowType);
+            } else {
+                console.error('setupFlowAnimation 函数未定义，请检查动画文件是否正常加载');
+            }
+        }, 1000);
+    }
+    // 等待DOM完全加载后再执行
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', aa);
+    } else {
+        aa();
+    }
+    </script>
+</body>
+</html>
