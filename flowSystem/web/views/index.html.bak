@@ -99,8 +99,11 @@
         result_div.querySelector(".flow-type span").textContent = `${flow_type}`;  // 显示预测类别--流型名字
         result_div.querySelector(".flow-prob span").textContent = `${prob}`;       // 置信度--预测概率
 
+        /******************** 曲线 ********************/
         var canvas_curve = document.querySelector(".flow-curve").querySelector(".data-curve");
         draw_flow_curve(canvas_curve, flow_data);
+
+        /******************** 动画 ********************/
     }
 
     // document.getElementById('form').onsubmit = async function(e) {
