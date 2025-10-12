@@ -25,7 +25,7 @@ function draw_flow_curve(canvas, data, options = {}) {
         smooth: true,                   // 是否平滑曲线
         ...options                      // 用户自定义配置
     };
-    
+
     // 首先设置画布高分辨率
     const { ctx, logicalWidth, logicalHeight } = setupHighDPICanvas(canvas);
     // 获取画布的逻辑尺寸（CSS像素）
@@ -74,10 +74,10 @@ function draw_flow_curve(canvas, data, options = {}) {
 function setupHighDPICanvas(canvas) {
     // 获取设备像素比
     const dpr = window.devicePixelRatio || 1;
-    
+
     // 获取画布的显示尺寸
     let displayWidth, displayHeight;
-    
+
     if (canvas.clientWidth && canvas.clientHeight) {
         // 如果canvas已经有CSS尺寸，使用它们
         displayWidth = canvas.clientWidth;
@@ -93,7 +93,7 @@ function setupHighDPICanvas(canvas) {
     // 设置画布的实际尺寸（像素）
     canvas.width = displayWidth * dpr;
     canvas.height = displayHeight * dpr;
-    
+
     // 获取上下文并缩放
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
@@ -111,7 +111,7 @@ function setupHighDPICanvas(canvas) {
 function drawGrid(ctx, width, height, padding, config) {
     ctx.strokeStyle = config.gridColor;
     ctx.lineWidth = 0.5;
-    
+
     // 垂直网格线
     for (let x = padding.left; x <= width - padding.right; x += config.gridStep) {
         ctx.beginPath();
@@ -119,7 +119,7 @@ function drawGrid(ctx, width, height, padding, config) {
         ctx.lineTo(x, height - padding.bottom);
         ctx.stroke();
     }
-    
+
     // 水平网格线
     for (let y = padding.top; y <= height - padding.bottom; y += config.gridStep) {
         ctx.beginPath();
@@ -134,7 +134,7 @@ function drawGrid(ctx, width, height, padding, config) {
  */
 function drawCurve(ctx, data, minValue, valueRange, chartWidth, chartHeight, padding, config) {
     const pointSpacing = chartWidth / (data.length - 1);
-    
+
     ctx.strokeStyle = config.lineColor;
     ctx.lineWidth = config.lineWidth;
     ctx.lineJoin = 'round';
@@ -159,11 +159,11 @@ function drawCurve(ctx, data, minValue, valueRange, chartWidth, chartHeight, pad
  */
 function drawSmoothCurve(ctx, data, minValue, valueRange, chartWidth, chartHeight, padding, pointSpacing) {
     ctx.beginPath();
-    
+
     for (let i = 0; i < data.length; i++) {
         const x = padding.left + i * pointSpacing;
         const y = padding.top + chartHeight - ((data[i] - minValue) / valueRange) * chartHeight;
-        
+
         if (i === 0) {
             ctx.moveTo(x, y);
         } else {
@@ -174,11 +174,11 @@ function drawSmoothCurve(ctx, data, minValue, valueRange, chartWidth, chartHeigh
             const cpY1 = prevY;
             const cpX2 = x - pointSpacing * 0.5;
             const cpY2 = y;
-            
+
             ctx.bezierCurveTo(cpX1, cpY1, cpX2, cpY2, x, y);
         }
     }
-    
+
     ctx.stroke();
 }
 
@@ -187,18 +187,18 @@ function drawSmoothCurve(ctx, data, minValue, valueRange, chartWidth, chartHeigh
  */
 function drawLinearCurve(ctx, data, minValue, valueRange, chartHeight, padding, pointSpacing) {
     ctx.beginPath();
-    
+
     for (let i = 0; i < data.length; i++) {
         const x = padding.left + i * pointSpacing;
         const y = padding.top + chartHeight - ((data[i] - minValue) / valueRange) * chartHeight;
-        
+
         if (i === 0) {
             ctx.moveTo(x, y);
         } else {
             ctx.lineTo(x, y);
         }
     }
-    
+
     ctx.stroke();
 }
 
@@ -207,11 +207,11 @@ function drawLinearCurve(ctx, data, minValue, valueRange, chartHeight, padding, 
  */
 function drawDataPoints(ctx, data, minValue, valueRange, chartHeight, padding, pointSpacing, config) {
     ctx.fillStyle = config.pointColor;
-    
+
     for (let i = 0; i < data.length; i++) {
         const x = padding.left + i * pointSpacing;
         const y = padding.top + chartHeight - ((data[i] - minValue) / valueRange) * chartHeight;
-        
+
         ctx.beginPath();
         ctx.arc(x, y, config.pointRadius, 0, Math.PI * 2);
         ctx.fill();
@@ -224,16 +224,16 @@ function drawDataPoints(ctx, data, minValue, valueRange, chartHeight, padding, p
 function drawAxisLabels(ctx, width, height, padding, minValue, maxValue, dataLength) {
     // 保存上下文状态
     ctx.save();
-    
+
     // 设置清晰的字体
     ctx.fillStyle = '#2c3e50';
     ctx.font = '12px "Helvetica Neue", Arial, sans-serif';
     ctx.textBaseline = 'middle';
-    
+
     // 计算图表区域尺寸
     const chartWidth = width - padding.left - padding.right;
     const chartHeight = height - padding.top - padding.bottom;
-    
+
     // 绘制坐标轴线
     drawAxisLines(ctx, width, height, padding);
 
@@ -241,11 +241,11 @@ function drawAxisLabels(ctx, width, height, padding, minValue, maxValue, dataLen
     ctx.textAlign = 'center';
     const xLabelCount = Math.min(6, dataLength); // 最多显示6个标签
     const xStep = Math.max(1, Math.floor(dataLength / xLabelCount));
-    
+
     for (let i = 0; i < dataLength; i += xStep) {
         const x = padding.left + (i / (dataLength - 1)) * chartWidth;
         const y = height - padding.bottom + 10;
-        
+
         // 绘制X轴刻度线
         ctx.strokeStyle = '#2c3e50';
         ctx.lineWidth = 1;
@@ -253,11 +253,11 @@ function drawAxisLabels(ctx, width, height, padding, minValue, maxValue, dataLen
         ctx.moveTo(x, height - padding.bottom - 5); // 刻度线起点
         ctx.lineTo(x, height - padding.bottom);     // 刻度线终点
         ctx.stroke();
-        
+
         // 添加文本阴影提高可读性
         ctx.fillStyle = 'white';
         ctx.fillText(i.toString(), x, y);
-        
+
         ctx.fillStyle = '#2c3e50';
         ctx.fillText(i.toString(), x, y);
     }
@@ -265,11 +265,11 @@ function drawAxisLabels(ctx, width, height, padding, minValue, maxValue, dataLen
     // Y轴标签（数值）
     ctx.textAlign = 'right';
     const yLabelCount = 5;
-    
+
     for (let i = 0; i <= yLabelCount; i++) {
         const value = minValue + (maxValue - minValue) * (i / yLabelCount);
         const y = padding.top + chartHeight - (i / yLabelCount) * chartHeight;
-        
+
         // 绘制Y轴刻度线
         ctx.strokeStyle = '#2c3e50';
         ctx.lineWidth = 1;
@@ -277,13 +277,13 @@ function drawAxisLabels(ctx, width, height, padding, minValue, maxValue, dataLen
         ctx.moveTo(padding.left, y);                // 刻度线起点
         ctx.lineTo(padding.left + 5, y);            // 刻度线终点
         ctx.stroke();
-        
+
         // 格式化数值显示
         const label = formatAxisValue(value);
-        
+
         // 测量文本宽度
         const textWidth = ctx.measureText(label).width;
-        
+
         // 绘制标签背景（提高可读性）
         ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
         ctx.fillRect(
@@ -292,12 +292,12 @@ function drawAxisLabels(ctx, width, height, padding, minValue, maxValue, dataLen
             textWidth + 8, 
             16
         );
-        
+
         // 绘制标签文本
         ctx.fillStyle = '#2c3e50';
         ctx.fillText(label, padding.left - 8, y);
     }
-    
+
     // 恢复上下文状态
     ctx.restore();
 }
