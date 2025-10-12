@@ -29,6 +29,13 @@
                         <option value="4096"></option>
                     </datalist>
                 </div>
+                <div class="form-group">
+                    <label for="data-source">监控地址</label><!-- 不同的rk3588开发板 -->
+                    <select class="source-options" id="data-source">
+                        <option value="http://172.25.157.31:5000">RK3588-01-address</option>
+                        <option value="http://172.25.157.31:5000">RK3588-02-address</option>
+                    </select>
+                </div>
                 <button type="submit">识别流型</button>
             </form>
             <div class="result" id="result">
@@ -65,12 +72,13 @@
         "泡沫环状流": "images/foam_annular.gif"
     };
 
-    // data = {"sample_length": 100, "step": 10}
     document.getElementById('form').onsubmit = async function(e) {
         e.preventDefault();
         const sample_length = document.getElementById('sample_length').value;
         const step = document.getElementById('step').value;
-        const res = await fetch('http://172.25.157.31:5000/api/predict', {
+        const data_source = document.querySelector('.source-options').value;
+
+        const res = await fetch(data_source+'/api/predict', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({sample_length, step})
@@ -87,9 +95,9 @@
         console.log("flowType:", flow_type);
         console.log("probability:", prob);
 
-        const resultDiv = document.getElementById('result');
-        resultDiv.querySelector(".flow-type span").textContent = `${flow_type}`;  // 显示预测类别--流型名字
-        resultDiv.querySelector(".flow-prob span").textContent = `${prob}`;
+        const result_div = document.getElementById('result');
+        result_div.querySelector(".flow-type span").textContent = `${flow_type}`;  // 显示预测类别--流型名字
+        result_div.querySelector(".flow-prob span").textContent = `${prob}`;       // 置信度--预测概率
 
         var canvas_curve = document.querySelector(".flow-curve").querySelector(".data-curve")
         draw_flow_curve(canvas_curve, flow_data)
