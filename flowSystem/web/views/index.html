@@ -85,10 +85,10 @@
         });
         const data = await res.json();
  
-        const pre_label = data.results[0].preLabel
-        const flow_type = data.results[0].flowType
-        const flow_data = data.results[0].flowData
-        const prob = data.results[0].probability
+        const pre_label = data.results[0].preLabel;
+        const flow_type = data.results[0].flowType;
+        const flow_data = data.results[0].flowData;
+        const prob = data.results[0].probability;
 
         console.log("data", data);
         console.log("pre_label:", pre_label);
@@ -99,8 +99,8 @@
         result_div.querySelector(".flow-type span").textContent = `${flow_type}`;  // 显示预测类别--流型名字
         result_div.querySelector(".flow-prob span").textContent = `${prob}`;       // 置信度--预测概率
 
-        var canvas_curve = document.querySelector(".flow-curve").querySelector(".data-curve")
-        draw_flow_curve(canvas_curve, flow_data)
+        var canvas_curve = document.querySelector(".flow-curve").querySelector(".data-curve");
+        draw_flow_curve(canvas_curve, flow_data);
     }
 
     // document.getElementById('form').onsubmit = async function(e) {
