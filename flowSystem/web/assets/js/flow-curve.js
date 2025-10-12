@@ -5,9 +5,6 @@
  * @param {Object} options - 配置选项（可选）
  */
 function draw_flow_curve(canvas, data, options = {}) {
-    // 首先设置画布高分辨率
-    setupHighDPICanvas(canvas);
-
     // 默认配置
     const config = {
         lineColor: '#3498db',           // 线条颜色
@@ -17,9 +14,9 @@ function draw_flow_curve(canvas, data, options = {}) {
         gridStep: 50,                   // 网格步长
         padding: {                      // 内边距（分别设置）
             top: 20,
-            right: 30,    // 右侧增加内边距给Y轴标签留空间
-            bottom: 30,   // 底部增加内边距给X轴标签留空间
-            left: 40      // 左侧增加内边距给Y轴标签留空间
+            right: 20,    // 右侧增加内边距给Y轴标签留空间
+            bottom: 20,   // 底部增加内边距给X轴标签留空间
+            left: 50      // 左侧增加内边距给Y轴标签留空间
         },
         showGrid: true,                 // 是否显示网格
         showPoints: false,              // 是否显示数据点
@@ -28,25 +25,27 @@ function draw_flow_curve(canvas, data, options = {}) {
         smooth: true,                   // 是否平滑曲线
         ...options                      // 用户自定义配置
     };
-
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
     
-    // 计算实际绘图区域
-    const chartWidth = width - config.padding.left - config.padding.right;
-    const chartHeight = height - config.padding.top - config.padding.bottom;
+    // 首先设置画布高分辨率
+    const { ctx, logicalWidth, logicalHeight } = setupHighDPICanvas(canvas);
+    // 获取画布的逻辑尺寸（CSS像素）
+    // logicalWidth
+    // logicalHeight
+
+    // 计算实际绘图区域（使用逻辑像素）
+    const chartWidth = logicalWidth - config.padding.left - config.padding.right;
+    const chartHeight = logicalHeight - config.padding.top - config.padding.bottom;
 
     // 清除画布
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // 绘制背景
     ctx.fillStyle = config.backgroundColor;
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // 绘制网格
     if (config.showGrid) {
-        drawGrid(ctx, width, height, config.padding, config);
+        drawGrid(ctx, logicalWidth, logicalHeight, config.padding, config);
     }
 
     // 如果没有数据，直接返回
@@ -54,64 +53,64 @@ function draw_flow_curve(canvas, data, options = {}) {
         return;
     }
 
-    // 计算数据范围（添加一些边距让曲线更美观）
+    // 计算数据范围
     const minValue = Math.min(...data);
     const maxValue = Math.max(...data);
-    const valueRange = maxValue - minValue || 1; // 避免除零
-    const valueMargin = valueRange * 0.05; // 5%的边距
+    const valueRange = maxValue - minValue || 1;
+    const valueMargin = valueRange * 0.05;
 
     // 绘制曲线
     drawCurve(ctx, data, minValue - valueMargin, valueRange + 2 * valueMargin, 
               chartWidth, chartHeight, config.padding, config);
 
     // 绘制坐标轴标签
-    drawAxisLabels(ctx, width, height, config.padding, 
+    drawAxisLabels(ctx, logicalWidth, logicalHeight, config.padding, 
                    minValue - valueMargin, maxValue + valueMargin, data.length);
 }
 
 /**
- * 设置高DPI Canvas
+ * 设置高DPI Canvas 并返回缩放后的上下文
  */
 function setupHighDPICanvas(canvas) {
     // 获取设备像素比
     const dpr = window.devicePixelRatio || 1;
     
     // 获取画布的显示尺寸
-    const displayWidth = canvas.clientWidth;
-    const displayHeight = canvas.clientHeight;
+    let displayWidth, displayHeight;
     
-    // 如果画布没有设置显示尺寸，设置一个默认值
-    if (displayWidth === 0 || displayHeight === 0) {
-        canvas.style.width = '600px';
-        canvas.style.height = '400px';
-        return setupHighDPICanvas(canvas); // 重新调用
-    }
-    
-    // 检查画布尺寸是否需要更新
-    if (canvas.width !== displayWidth * dpr || canvas.height !== displayHeight * dpr) {
-        // 设置画布的实际尺寸（像素）
-        canvas.width = displayWidth * dpr;
-        canvas.height = displayHeight * dpr;
-        
-        // 设置画布的显示尺寸（CSS像素）
+    if (canvas.clientWidth && canvas.clientHeight) {
+        // 如果canvas已经有CSS尺寸，使用它们
+        displayWidth = canvas.clientWidth;
+        displayHeight = canvas.clientHeight;
+    } else {
+        // 否则设置一个合理的默认值
+        displayWidth = 800;
+        displayHeight = 500;
         canvas.style.width = displayWidth + 'px';
         canvas.style.height = displayHeight + 'px';
-        
-        // 缩放上下文以匹配像素比
-        const ctx = canvas.getContext('2d');
-        ctx.scale(dpr, dpr);
     }
-}
 
+    // 设置画布的实际尺寸（像素）
+    canvas.width = displayWidth * dpr;
+    canvas.height = displayHeight * dpr;
+    
+    // 获取上下文并缩放
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    return {
+        ctx, 
+        logicalWidth: displayWidth,
+        logicalHeight: displayHeight,
+        scale: dpr,
+    };
+}
 /**
  * 绘制网格
  */
 function drawGrid(ctx, width, height, padding, config) {
     ctx.strokeStyle = config.gridColor;
     ctx.lineWidth = 0.5;
-    
-    const chartWidth = width - padding.left - padding.right;
-    const chartHeight = height - padding.top - padding.bottom;
     
     // 垂直网格线
     for (let x = padding.left; x <= width - padding.right; x += config.gridStep) {
