@@ -22,7 +22,7 @@ constructor() {
         // 基于实际物理特征的流型配置
         // 流型配置
         this.flowConfigs = {
-'段塞流': {
+            '段塞流': {
                 color: '#1E90FF', // 液体蓝色
                 density: 45,
                 speed: 0.6,
