@@ -3,14 +3,44 @@ package http_server
 import (
 	"log"
 	"net/http"
-	"slices"
 )
 
+type Path struct {
+	path   string
+	method string
+}
+
+type Paths []Path
+
+// false 表示路径不存在，不合法
+func (paths Paths) contains(path string) bool {
+	for _, p := range paths {
+		if p.path == path {
+			return true
+		}
+	}
+	return false
+}
+func (paths *Paths) registerPath(path, method string) {
+	if !paths.contains(path) && !paths.containsMethod(method) { // 避免重复注册
+		*paths = append(*paths, Path{path, method})
+	}
+}
+
+func (paths Paths) containsMethod(method string) bool {
+	for _, p := range paths {
+		if p.method == method {
+			return true
+		}
+	}
+	return false
+}
+
 type Http struct {
-	addr       string
-	certFile   string
-	keyFile    string
-	validPaths []string // 记录所有注册的路径，用于检查请求路径是否合法
+	addr     string
+	certFile string
+	keyFile  string
+	paths    Paths // 记录所有注册的路径，用于检查请求路径是否合法
 }
 
 func NewHttp(addr string, opts ...string) *Http {
@@ -22,47 +52,19 @@ func NewHttp(addr string, opts ...string) *Http {
 	return h
 }
 
-// false 表示路径不存在，不合法
-func (h Http) contains(path string) bool {
-	return slices.Contains(h.validPaths, path)
-}
+func (h *Http) handle(httpMethod, relativePath string, handler http.HandlerFunc) {
+	h.paths.registerPath(relativePath, httpMethod)
 
-func (h *Http) registerPath(path string) {
-	if !h.contains(path) { // 避免重复注册
-		h.validPaths = append(h.validPaths, path)
-	}
-}
-
-func (h Http) makeHandler(method string, handler http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != method {
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			LogNotAllowed(method, r.URL.Path) // log
-			return
-		}
-		if !h.contains(r.URL.Path) { // 检查请求路径是否合法
-			w.WriteHeader(http.StatusNotFound)
-			LogNotFound(method, r.URL.Path) // log
-			return
-		}
-
-		LogFound(method, r.URL.Path) // log
-		handler(w, r)
-	}
+	handler = ChainHandlers(handler, Method(httpMethod), ValidPath(relativePath)) // ----------------
+	http.HandleFunc(relativePath, handler)
 }
 
 func (h *Http) GET(relativePath string, handler http.HandlerFunc) {
-	h.registerPath(relativePath)
-
-	handler = h.makeHandler(http.MethodGet, handler)
-	http.HandleFunc(relativePath, handler)
+	h.handle(http.MethodGet, relativePath, handler)
 }
 
 func (h *Http) POST(relativePath string, handler http.HandlerFunc) {
-	h.registerPath(relativePath)
-
-	handler = h.makeHandler(http.MethodPost, handler)
-	http.HandleFunc(relativePath, handler)
+	h.handle(http.MethodPost, relativePath, handler)
 }
 
 func (h *Http) Run(handler http.Handler) {
