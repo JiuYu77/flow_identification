@@ -9,955 +9,982 @@
 // 分层泡沫波浪流
 // 泡沫环状流
 
-class FlowAnimationSystem {
-constructor() {
-        this.canvas = null;
-        this.ctx = null;
-        this.animationId = null;
-        this.currentFlowType = '';
-        this.particles = [];
-        this.time = 0;
-        this.flowDirection = 'right';
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import * as TSL from "three/tsl";
+import * as WEBGPU from "three/webgpu";
 
-        // 基于实际物理特征的流型配置
-        // 流型配置
-        this.flowConfigs = {
-            '段塞流': {
-                color: '#1E90FF', // 液体蓝色
-                density: 45,
-                speed: 0.6,
-                pattern: 'slug',
-                description: '堵塞管道，液塞后有推着液塞前进的气弹'
-            },
-            '伪段塞流': {
-                color: '#1E90FF', // 液体蓝色
-                density: 40,
-                speed: 0.6,
-                pattern: 'pseudoSlug',
-                description: '不稳定液桥，介于分层和段塞之间'
-            },
-            '分层波浪流': {
-                color: '#1E90FF', // 液体蓝色
-                density: 35,
-                speed: 0.6,
-                pattern: 'wavy',
-                description: '气液分层，界面有连续运动波浪',
-                features: { // 添加缺失的特征属性
-                    waveAmplitude: 5
-                }
-            },
-            '分层光滑流': {
-                color: '#1E90FF', // 液体蓝色
-                density: 30,
-                speed: 0.6,
-                pattern: 'smooth',
-                description: '气液完全分离，界面平整光滑'
-            },
-            '泡沫段塞流': {
-                liquidColor: '#1E90FF', // 液体部分蓝色
-                foamColor: '#FFD700',   // 泡沫部分金色
-                density: 50,
-                speed: 0.6,
-                pattern: 'foamSlug',
-                description: '段塞流形态，液塞中存在泡沫'
-            },
-            '分层泡沫波浪流': {
-                liquidColor: '#1E90FF', // 液体部分蓝色
-                foamColor: '#FFD700',   // 泡沫部分金色
-                density: 42,
-                speed: 0.6,
-                pattern: 'foamWavy',
-                description: '分层流，液相有泡沫，界面有波浪'
-            },
-            '泡沫环状流': {
-                liquidColor: '#1E90FF', // 液体部分蓝色
-                foamColor: '#FFD700',   // 泡沫部分金色
-                density: 55,
-                speed: 0.6,
-                pattern: 'foamAnnular',
-                description: '管壁液膜充满泡沫，中心气体流动'
-            }
-        };
-    }
+// 创建透明管道的函数
+function createTransparentPipe(scene) {
+  const geometry = new THREE.CylinderGeometry(
+    pipeRadius,
+    pipeRadius,
+    pipeLength,
+    32,
+  ); // 改为横向圆柱
+  const material = new THREE.MeshPhongMaterial({
+    // color: "#4488ff",
+    color: "#424242",
+    transparent: true,
+    opacity: 0.2,
+    depthWrite: false,
+  });
+  const cylinder = new THREE.Mesh(geometry, material);
+  cylinder.rotation.z = Math.PI / 2; // 将圆柱体绕z轴旋转90度，使其沿x轴横向
 
-    // 初始化动画系统
-    init(canvasElement, direction = 'right') {
-        this.canvas = canvasElement;
-        this.ctx = canvasElement.getContext('2d');
-        this.flowDirection = direction;
-        this.resizeCanvas();
-        window.addEventListener('resize', () => this.resizeCanvas());
-    }
-    // 调整画布大小
-    resizeCanvas() {
-        if (!this.canvas) return;
+  // 重要：设置渲染顺序，透明物体应该最后渲染
+  cylinder.renderOrder = 1; // 设置渲染顺序，确保管道在液体之后渲染
 
-        const container = this.canvas.parentElement;
-        if (container) {
-            this.canvas.width = container.clientWidth;
-            this.canvas.height = container.clientHeight;
-        }
-    }
-
-    // 开始特定流型的动画
-    startFlowAnimation(flowType, direction = 'right') {
-        this.stopAnimation();
-        this.currentFlowType = flowType;
-        this.flowDirection = direction;
-        this.particles = [];
-        this.time = 0;
-        
-        const config = this.flowConfigs[flowType];
-        if (!config) {
-            console.error('未知的流型:', flowType);
-            return;
-        }
-
-        // 创建基于物理特征的粒子系统
-        this.createPhysicalParticles(config);
-        
-        // 开始动画循环
-        this.animate();
-    }
-
-    // 基于物理特征创建粒子
-    createPhysicalParticles(config) {
-        const directionMultiplier = this.flowDirection === 'right' ? 1 : -1;
-        const particleCount = Math.floor((this.canvas.width * this.canvas.height) / 400 * config.density / 50);
-        
-        // 根据流型特征创建不同的粒子分布
-        switch(config.pattern) {
-            case 'slug': // 段塞流：液塞和气弹交替
-                this.createSlugFlowParticles(config, particleCount, directionMultiplier);
-                break;
-            case 'pseudoSlug': // 伪段塞流：不稳定波浪
-                this.createPseudoSlugParticles(config, particleCount, directionMultiplier);
-                break;
-            case 'wavy': // 分层波浪流：分层波浪界面
-                this.createWavyStratifiedParticles(config, particleCount, directionMultiplier);
-                break;
-            case 'smooth': // 分层光滑流：平稳分层
-                this.createSmoothStratifiedParticles(config, particleCount, directionMultiplier);
-                break;
-            case 'foamSlug': // 泡沫段塞流：泡沫液塞
-                this.createFoamSlugParticles(config, particleCount, directionMultiplier);
-                break;
-            case 'foamWavy': // 分层泡沫波浪流：泡沫波浪
-                this.createFoamWavyParticles(config, particleCount, directionMultiplier);
-                break;
-            case 'foamAnnular': // 泡沫环状流：环状泡沫
-                this.createFoamAnnularParticles(config, particleCount, directionMultiplier);
-                break;
-        }
-    }
-
-    // 段塞流粒子创建：液塞和气弹交替
-    // 段塞流粒子创建：堵塞管道，液塞后有举着液塞前进的气弹
-    createSlugFlowParticles(config, count, directionMultiplier) {
-        this.particles = [];
-        
-        // 创建交替的液塞和气弹
-        const segments = [];
-        let currentPosition = this.flowDirection === 'right' ? -this.canvas.width * 0.5 : this.canvas.width * 1.5;
-        const totalSegments = 4;
-        
-        for (let i = 0; i < totalSegments; i++) {
-            const isLiquidSegment = i % 2 === 0;
-            const segmentLength = isLiquidSegment ? this.canvas.width * 0.5 : this.canvas.width * 0.3;
-            
-            segments.push({
-                startX: currentPosition,
-                endX: currentPosition + segmentLength * directionMultiplier,
-                isLiquid: isLiquidSegment,
-                segmentIndex: i
-            });
-            
-            currentPosition += segmentLength * directionMultiplier;
-        }
-        
-segments.forEach(segment => {
-            const particlesPerSegment = Math.floor(count / segments.length * 1.2);
-            
-for (let i = 0; i < particlesPerSegment; i++) {
-                const segmentProgress = Math.random();
-                const initialX = segment.startX + segmentProgress * (segment.endX - segment.startX);
-                
-                if (segment.isLiquid) {
-                    // 液塞：几乎充满管道下部（70-95%高度）
-                    const initialY = this.canvas.height * 0.7 + Math.random() * this.canvas.height * 0.25;
-                    
-                    this.particles.push({
-                        x: initialX,
-                        y: initialY,
-                        size: 2.0 + Math.random() * 1.0,
-                        speed: config.speed,
-                        direction: directionMultiplier,
-                        type: config.pattern,
-                        isLiquidSegment: true,
-                        segmentIndex: segment.segmentIndex,
-                        segmentProgress: segmentProgress,
-                        slugPhase: Math.random() * Math.PI * 2, // 添加缺失的属性
-                        turbulence: 0.5 + Math.random() * 0.5   // 添加缺失的属性
-                    });
-                } else {
-                    // 气弹：少量液体被气体携带（30-50%高度）
-                    const initialY = this.canvas.height * 0.3 + Math.random() * this.canvas.height * 0.2;
-                    
-                    this.particles.push({
-                        x: initialX,
-                        y: initialY,
-                        size: 1.0 + Math.random() * 0.5,
-                        speed: config.speed,
-                        direction: directionMultiplier,
-                        type: config.pattern,
-                        isLiquidSegment: false,
-                        segmentIndex: segment.segmentIndex,
-                        segmentProgress: segmentProgress
-                    });
-                }
-            }
-        });
-    }
-
-    // 段塞流粒子创建：堵塞管道，液塞后有推着液塞前进的气弹
-    createSlugFlowParticles(config, count, directionMultiplier) {
-        this.particles = [];
-        
-        // 创建更真实的段塞流：液塞几乎充满管道，气弹推动前进
-        const segments = [];
-        let currentPosition = this.flowDirection === 'right' ? -this.canvas.width * 0.5 : this.canvas.width * 1.5;
-        const totalSegments = 3; // 减少段数，增加每个液塞的长度
-
-        for (let i = 0; i < totalSegments; i++) {
-            const isLiquidSegment = i % 2 === 0;
-            // 液塞更长，几乎充满管道；气弹较短
-            const segmentLength = isLiquidSegment ? this.canvas.width * 0.7 : this.canvas.width * 0.2;
-            
-            segments.push({
-                startX: currentPosition,
-                endX: currentPosition + segmentLength * directionMultiplier,
-                isLiquid: isLiquidSegment,
-                segmentIndex: i
-            });
-            
-            currentPosition += segmentLength * directionMultiplier;
-        }
-        
-        segments.forEach(segment => {
-            const particlesPerSegment = Math.floor(count / segments.length * 1.5);
-            
-            for (let i = 0; i < particlesPerSegment; i++) {
-                const segmentProgress = Math.random();
-                const initialX = segment.startX + segmentProgress * (segment.endX - segment.startX);
-                
-                if (segment.isLiquid) {
-                    // 液塞：几乎充满管道（80-95%高度），体现堵塞特征
-                    const initialY = this.canvas.height * 0.8 + Math.random() * this.canvas.height * 0.15;
-                    
-                    this.particles.push({
-                        x: initialX,
-                        y: initialY,
-                        size: 2.5 + Math.random() * 1.0, // 更大的粒子体现密集
-                        speed: config.speed,
-                        direction: directionMultiplier,
-                        type: config.pattern,
-                        isLiquidSegment: true,
-                        segmentIndex: segment.segmentIndex,
-                        segmentProgress: segmentProgress,
-                        slugPhase: Math.random() * Math.PI * 2,
-                        turbulence: 0.8 + Math.random() * 0.4 // 更强的湍流
-                    });
-                } else {
-                    // 气弹：少量液体被气体携带（20-40%高度）
-                    const initialY = this.canvas.height * 0.2 + Math.random() * this.canvas.height * 0.2;
-                    
-                    this.particles.push({
-                        x: initialX,
-                        y: initialY,
-                        size: 1.0 + Math.random() * 0.3, // 更小的粒子
-                        speed: config.speed,
-                        direction: directionMultiplier,
-                        type: config.pattern,
-                        isLiquidSegment: false,
-                        segmentIndex: segment.segmentIndex,
-                        segmentProgress: segmentProgress
-                    });
-                }
-            }
-        });
-    }
-
-    // 伪段塞流粒子创建：连续液体流动，低液面与几乎堵塞管道的高液面相间出现
-    createPseudoSlugParticles(config, count, directionMultiplier) {
-        this.particles = [];
-        
-        // 伪段塞流特征：连续的液体流动，高低液面相间
-        // 预先生成连续的液体分布，然后整体流动
-        const highLevelHeight = this.canvas.height * 0.8; // 高液面高度（几乎堵塞）
-        const lowLevelHeight = this.canvas.height * 0.3;  // 低液面高度
-        const segmentLength = this.canvas.width * 0.6;   // 每个液段的长度
-        
-        // 创建连续的液体分布
-        const totalSegments = 3; // 总共3个液段（高低交替）
-        
-        for (let seg = 0; seg < totalSegments; seg++) {
-            const isHighLevel = seg % 2 === 0;
-            const liquidHeight = isHighLevel ? highLevelHeight : lowLevelHeight;
-            const segmentStartX = seg * segmentLength;
-            const segmentEndX = (seg + 1) * segmentLength;
-            
-            // 每个液段的粒子数量
-const particlesPerSegment = Math.floor(count / totalSegments);
-            
-for (let i = 0; i < particlesPerSegment; i++) {
-                // 在液段内均匀分布粒子
-                const segmentProgress = i / particlesPerSegment;
-                const initialX = segmentStartX + segmentProgress * segmentLength;
-                
-                // 粒子在液体中的垂直分布：从底部向上
-                const initialY = this.canvas.height - (liquidHeight * Math.random());
-                
-                // 粒子大小相对均匀
-                const particleSize = 1.5 + Math.random() * 0.5;
-                
-                this.particles.push({
-                    x: initialX,
-                    y: initialY,
-                    size: particleSize,
-                    speed: config.speed,
-                    direction: directionMultiplier,
-                    type: config.pattern,
-                    isHighLevel: isHighLevel,
-                    liquidHeight: liquidHeight,
-                    segmentIndex: seg,
-                    baseX: initialX // 记录基础位置用于循环
-                });
-            }
-        }
-        
-        // 添加一些额外的粒子来增强连续性
-        const extraParticles = count - this.particles.length;
-        for (let i = 0; i < extraParticles; i++) {
-            const initialX = Math.random() * totalSegments * segmentLength;
-            const seg = Math.floor(initialX / segmentLength) % totalSegments;
-            const isHighLevel = seg % 2 === 0;
-            const liquidHeight = isHighLevel ? highLevelHeight : lowLevelHeight;
-            const initialY = this.canvas.height - (liquidHeight * Math.random());
-            
-            this.particles.push({
-                x: initialX,
-                y: initialY,
-                size: 1.5 + Math.random() * 0.5,
-                speed: config.speed,
-                direction: directionMultiplier,
-                type: config.pattern,
-                isHighLevel: isHighLevel,
-                liquidHeight: liquidHeight,
-                segmentIndex: seg,
-                baseX: initialX
-            });
-        }
-    }
-
-    // 分层波浪流粒子创建：类似起波浪的小河
-    createWavyStratifiedParticles(config, count, directionMultiplier) {
-        this.particles = [];
-        
-        // 波浪参数
-        const waveAmplitude = this.canvas.height * 0.4; // 大幅增加波浪幅度到40%
-        const waveFrequency = 0.002; // 降低频率，使波浪更平滑
-        const baseHeight = this.canvas.height * 0.6; // 基线高度60%
-        
-        for (let i = 0; i < count; i++) {
-            let initialX, initialY;
-            
-            // 初始X位置分布
-            if (this.flowDirection === 'right') {
-                initialX = -Math.random() * this.canvas.width * 0.8;
-            } else {
-                initialX = this.canvas.width + Math.random() * this.canvas.width * 0.8;
-            }
-            
-            // 基于X位置的波浪相位，确保波浪连续性
-            const wavePhase = initialX * waveFrequency;
-            const wave = Math.sin(wavePhase) * waveAmplitude;
-            
-            // 创建波浪效果
-            initialY = baseHeight + wave;
-            
-            // 添加随机高度变化，使波浪更自然
-initialY += Math.random() * this.canvas.height * 0.15;
-            
-            this.particles.push({
-                x: initialX,
-                y: initialY,
-                size: 4.0 + Math.random() * 2.0, // 大幅增大粒子尺寸
-                speed: config.speed,
-                direction: directionMultiplier,
-                type: config.pattern,
-                wavePhase: wavePhase,
-                baseY: baseHeight,
-                waveAmplitude: waveAmplitude,
-                waveFrequency: waveFrequency,
-                waveSpeed: 0.008 // 降低波浪移动速度
-            });
-        }
-    }
-
-    // 基于物理特征的粒子更新
-    updateParticleByPhysicalType(particle, config) {
-        const baseSpeed = particle.speed * particle.direction;
-        
-        switch (particle.type) {
-            case 'slug': // 段塞流：强烈的间歇性高速流动
-                // 液塞高速前进，体现堵塞管道和向前推进特征
-                particle.x += baseSpeed * 4.0; // 更快的速度
-            
-                // 液塞内部的强烈湍流混合
-                particle.y += Math.sin(this.time * 0.3 + particle.x * 0.06 + particle.slugPhase) * particle.turbulence * 3.0;
-            
-                // 液塞前缘的强烈冲击效应
-                if (particle.segmentProgress < 0.15) {
-                    particle.x += baseSpeed * 0.5;
-                    particle.size = 2.8; // 前缘粒子更大
-                }
-                
-                // 液塞尾部的液体剥离
-                if (particle.segmentProgress > 0.85) {
-                    particle.y += Math.sin(this.time * 0.4) * 1.0;
-                    particle.size = 2.0; // 尾部粒子稍小
-                }
-                break;
-
-            case 'pseudoSlug': // 伪段塞流：连续液体流动，高低液面相间
-                // 基本流动速度
-                particle.x += baseSpeed * 1.2;
-                
-                // 当粒子流出画布时，重新放回起始位置，保持连续流动
-                const totalSegments = 3;
-                const segmentLength = this.canvas.width * 0.6;
-                const totalLength = totalSegments * segmentLength;
-                
-                if (this.flowDirection === 'right') {
-                    if (particle.x > this.canvas.width + segmentLength) {
-                        // 循环到起始位置
-                        particle.x = -segmentLength + (particle.x - (this.canvas.width + segmentLength));
-                    }
-                } else {
-                    if (particle.x < -segmentLength) {
-                        // 循环到结束位置
-                        particle.x = this.canvas.width + segmentLength + (particle.x + segmentLength);
-                    }
-                }
-                
-                // 根据当前位置更新液段信息
-                const currentSegment = Math.floor((particle.x + totalLength) % totalLength / segmentLength);
-                const isHighLevel = currentSegment % 2 === 0;
-                const liquidHeight = isHighLevel ? (this.canvas.height * 0.8) : (this.canvas.height * 0.3);
-                
-                // 平滑调整到目标高度
-                const targetY = this.canvas.height - (liquidHeight * Math.random());
-                const heightDifference = targetY - particle.y;
-                particle.y += heightDifference * 0.05; // 缓慢调整高度
-                
-                // 保持粒子大小相对稳定
-                particle.size = 1.5 + Math.random() * 0.3;
-                break;
-
-            case 'wavy': // 分层波浪流：类似起波浪的小河
-                particle.x += baseSpeed;
-                
-                // 液体粒子的波浪运动
-                const waveAmplitude = particle.waveAmplitude || 20;
-                const waveFrequency = particle.waveFrequency || 0.005;
-                
-                // 使用基于时间和位置的连续波浪运动
-                const wave = Math.sin(this.time * 0.02 + particle.wavePhase) * waveAmplitude;
-                
-                // 围绕基础位置进行波浪运动
-                particle.y = particle.baseY + wave;
-                
-                // 增强波浪湍流效果，使波浪更自然
-                const turbulence = Math.sin(this.time * 0.08 + particle.x * 0.02) * 3;
-                particle.y += turbulence;
-                
-                // 确保粒子在画布内
-                particle.y = Math.max(0, Math.min(this.canvas.height - particle.size, particle.y));
-                break;
-
-            case 'smooth': // 分层光滑流：非常平稳
-                particle.x += baseSpeed * particle.smoothness;
-                
-                // 极小的垂直波动
-                if (!particle.isGas) {
-                    particle.y += Math.sin(this.time * 0.01) * 0.05;
-                }
-                break;
-
-            case 'foamSlug': // 泡沫段塞流：高粘度间歇流动
-                const foamCycle = (this.time * 0.07 + particle.slugPhase) % (Math.PI * 2);
-                if (foamCycle < Math.PI * 1.5) {
-                    // 泡沫液塞段
-                    particle.x += baseSpeed * 1.8;
-                    particle.size = 1.2 + Math.sin(foamCycle) * particle.foamDensity;
-                } else {
-                    // 气弹段
-                    particle.x += baseSpeed * 0.6;
-                    particle.size = 1.0;
-                }
-                
-                // 粘度效应：减缓垂直运动
-                if (particle.inFoam) {
-                    particle.y += Math.sin(this.time * 0.05) * 0.1 * (1 - particle.viscosityEffect);
-                }
-                break;
-
-            case 'foamWavy': // 分层泡沫波浪流：泡沫波浪界面
-                particle.x += baseSpeed;
-                
-                if (!particle.isGas) {
-                    // 泡沫液体的波浪运动
-                    const foamWave = Math.sin(this.time * 0.04 + particle.wavePhase) * particle.waveAmplitude;
-                    particle.y += foamWave * 0.4;
-                    particle.size = 1.0 + Math.sin(this.time * 0.06) * 0.3;
-                }
-                break;
-
-            case 'foamAnnular': // 泡沫环状流：环状运动
-                particle.x += baseSpeed;
-                
-                if (particle.inLiquidFilm) {
-                    // 壁面液膜粒子的环状运动
-                    particle.annularAngle += 0.02;
-                    const targetY = this.canvas.height / 2 + Math.sin(particle.annularAngle) * 
-                                  (this.canvas.height * 0.4 * (0.8 + particle.foamExpansion));
-                    particle.y += (targetY - particle.y) * 0.1;
-                    particle.size = 1.2 + Math.sin(this.time * 0.05) * 0.4;
-                } else {
-                    // 中心气核粒子
-                    particle.y += Math.sin(this.time * 0.03) * 0.2;
-                }
-                break;
-        }
-    }
-
-    // 处理粒子边界 - 保持波浪连续性
-    handleParticleBoundary(particle) {
-        if (this.flowDirection === 'right') {
-            if (particle.x > this.canvas.width + particle.size) {
-                particle.x = -particle.size;
-                // 对于波浪流，重新计算波浪相位
-                if (particle.type === 'wavy') {
-                    particle.wavePhase = particle.x * particle.waveFrequency;
-                    particle.y = particle.baseY + Math.sin(particle.wavePhase) * particle.waveAmplitude;
-                }
-            }
-        } else {
-            if (particle.x < -particle.size) {
-                particle.x = this.canvas.width + particle.size;
-                // 对于波浪流，重新计算波浪相位
-                if (particle.type === 'wavy') {
-                    particle.wavePhase = particle.x * particle.waveFrequency;
-                    particle.y = particle.baseY + Math.sin(particle.wavePhase) * particle.waveAmplitude;
-                }
-            }
-        }
-    }
-
-    // 泡沫环状流粒子创建：管壁液膜充满泡沫，中心气体流动
-    createFoamAnnularParticles(config, count, directionMultiplier) {
-        this.particles = [];
-        
-        for (let i = 0; i < count; i++) {
-            let initialX, initialY;
-            let isFoamBubble = false; // 修复变量作用域问题
-            
-            if (this.flowDirection === 'right') {
-                initialX = -Math.random() * this.canvas.width * 0.15;
-            } else {
-                initialX = this.canvas.width + Math.random() * this.canvas.width * 0.15;
-            }
-            
-            // 环状流：中心气核，壁面泡沫液膜
-            const inLiquidFilm = Math.random() < 0.7;
-            const angle = Math.random() * Math.PI * 2;
-            const pipeRadius = this.canvas.height * 0.4;
-            
-            if (inLiquidFilm) {
-                // 壁面液膜：充满泡沫气泡
-                const filmThickness = 0.15 + Math.random() * 0.1;
-                const distanceFromCenter = pipeRadius * (0.85 + filmThickness);
-                initialY = this.canvas.height / 2 + Math.sin(angle) * distanceFromCenter;
-                
-                isFoamBubble = Math.random() < 0.8; // 液膜中80%为泡沫
-            } else {
-                // 中心气核
-                const gasRadius = pipeRadius * 0.7;
-                initialY = this.canvas.height / 2 + Math.sin(angle) * gasRadius * Math.random();
-            }
-            
-            this.particles.push({
-                x: initialX,
-                y: initialY,
-                size: inLiquidFilm ? (isFoamBubble ? 1.0 : 1.5) : 1.0,
-                speed: config.speed,
-                direction: directionMultiplier,
-                type: config.pattern,
-                inLiquidFilm: inLiquidFilm,
-                isFoam: inLiquidFilm && isFoamBubble,
-                annularAngle: angle,
-                foamExpansion: 0.1 + Math.random() * 0.2 // 添加缺失的属性
-            });
-        }
-    }
-
-    // 更新粒子状态
-    updateParticles() {
-        const config = this.flowConfigs[this.currentFlowType];
-        
-        this.particles.forEach(particle => {
-            // 根据流型特征更新运动
-            this.updateParticleByPhysicalType(particle, config);
-            
-            // 边界处理
-            this.handleParticleBoundary(particle);
-        });
-    }
-    // 基于物理特征的粒子更新
-    updateParticleByPhysicalType(particle, config) {
-        const baseSpeed = particle.speed * particle.direction;
-        
-        switch (particle.type) {
-            case 'slug': // 段塞流：强烈的间歇性高速流动
-                // 液塞高速前进，体现堵塞管道和向前推进特征
-                particle.x += baseSpeed * 4.0; // 更快的速度
-            
-                // 液塞内部的强烈湍流混合
-                particle.y += Math.sin(this.time * 0.3 + particle.x * 0.06 + particle.slugPhase) * particle.turbulence * 3.0;
-            
-                // 液塞前缘的强烈冲击效应
-                if (particle.segmentProgress < 0.15) {
-                    particle.x += baseSpeed * 0.5;
-                    particle.size = 2.8; // 前缘粒子更大
-                }
-                
-                // 液塞尾部的液体剥离
-                if (particle.segmentProgress > 0.85) {
-                    particle.y += Math.sin(this.time * 0.4) * 1.0;
-                    particle.size = 2.0; // 尾部粒子稍小
-                }
-                break;
-            case 'pseudoSlug': // 伪段塞流：连续液体流动，高低液面相间
-                // 基本流动速度
-                particle.x += baseSpeed * 1.2;
-                
-                // 当粒子流出画布时，重新放回起始位置，保持连续流动
-                const totalSegments = 3;
-                const segmentLength = this.canvas.width * 0.6;
-                const totalLength = totalSegments * segmentLength;
-                
-                if (this.flowDirection === 'right') {
-                    if (particle.x > this.canvas.width + segmentLength) {
-                        // 循环到起始位置
-                        particle.x = -segmentLength + (particle.x - (this.canvas.width + segmentLength));
-                    }
-                } else {
-                    if (particle.x < -segmentLength) {
-                        // 循环到结束位置
-                        particle.x = this.canvas.width + segmentLength + (particle.x + segmentLength);
-                    }
-                }
-                
-                // 根据当前位置更新液段信息
-                const currentSegment = Math.floor((particle.x + totalLength) % totalLength / segmentLength);
-                const isHighLevel = currentSegment % 2 === 0;
-                const liquidHeight = isHighLevel ? (this.canvas.height * 0.8) : (this.canvas.height * 0.3);
-                
-                // 平滑调整到目标高度
-                const targetY = this.canvas.height - (liquidHeight * Math.random());
-                const heightDifference = targetY - particle.y;
-                particle.y += heightDifference * 0.05; // 缓慢调整高度
-                
-                // 保持粒子大小相对稳定
-                particle.size = 1.5 + Math.random() * 0.3;
-                break;
-
-            case 'wavy': // 分层波浪流：连续波浪效果
-                particle.x += baseSpeed;
-                
-                // 波浪运动计算 - 使用更简单的波浪公式
-                const wave = Math.sin(this.time * particle.waveSpeed + particle.wavePhase) * particle.waveAmplitude;
-                
-                // 直接设置Y位置，而不是累加
-                particle.y = particle.baseY + wave;
-                
-                // 确保粒子在画布内
-                particle.y = Math.max(0, Math.min(this.canvas.height - particle.size, particle.y));
-                break;
-
-            case 'smooth': // 分层光滑流：非常平稳
-                particle.x += baseSpeed * particle.smoothness;
-                
-                // 极小的垂直波动
-                if (!particle.isGas) {
-                    particle.y += Math.sin(this.time * 0.01) * 0.05;
-                }
-                break;
-
-            case 'foamSlug': // 泡沫段塞流：高粘度间歇流动
-                const foamCycle = (this.time * 0.07 + particle.slugPhase) % (Math.PI * 2);
-                if (foamCycle < Math.PI * 1.5) {
-                    // 泡沫液塞段
-                    particle.x += baseSpeed * 1.8;
-                    particle.size = 1.2 + Math.sin(foamCycle) * particle.foamDensity;
-                } else {
-                    // 气弹段
-                    particle.x += baseSpeed * 0.6;
-                    particle.size = 1.0;
-                }
-                
-                // 粘度效应：减缓垂直运动
-                if (particle.inFoam) {
-                    particle.y += Math.sin(this.time * 0.05) * 0.1 * (1 - particle.viscosityEffect);
-                }
-                break;
-
-            case 'foamWavy': // 分层泡沫波浪流：泡沫波浪界面
-                particle.x += baseSpeed;
-                
-                if (!particle.isGas) {
-                    // 泡沫液体的波浪运动
-                    const foamWave = Math.sin(this.time * 0.04 + particle.wavePhase) * particle.waveAmplitude;
-                    particle.y += foamWave * 0.4;
-                    particle.size = 1.0 + Math.sin(this.time * 0.06) * 0.3;
-                }
-                break;
-
-            case 'foamAnnular': // 泡沫环状流：环状运动
-                particle.x += baseSpeed;
-                
-                if (particle.inLiquidFilm) {
-                    // 壁面液膜粒子的环状运动
-                    particle.annularAngle += 0.02;
-                    const targetY = this.canvas.height / 2 + Math.sin(particle.annularAngle) * 
-                                  (this.canvas.height * 0.4 * (0.8 + particle.foamExpansion));
-                    particle.y += (targetY - particle.y) * 0.1;
-                    particle.size = 1.2 + Math.sin(this.time * 0.05) * 0.4;
-                } else {
-                    // 中心气核粒子
-                    particle.y += Math.sin(this.time * 0.03) * 0.2;
-                }
-                break;
-        }
-    }
-
-    // 处理粒子边界
-    handleParticleBoundary(particle) {
-        if (this.flowDirection === 'right') {
-            if (particle.x > this.canvas.width + particle.size) {
-                particle.x = -particle.size;
-                particle.y = Math.random() * this.canvas.height;
-            }
-        } else {
-            if (particle.x < -particle.size) {
-                particle.x = this.canvas.width + particle.size;
-                particle.y = Math.random() * this.canvas.height;
-            }
-        }
-    }
-
-    // 绘制粒子 - 基于物理特征
-    drawParticles() {
-        const config = this.flowConfigs[this.currentFlowType];
-        
-        this.particles.forEach(particle => {
-            this.drawPhysicalParticle(particle, config);
-        });
-    }
-
-    // 绘制基于物理特征的粒子
-    drawPhysicalParticle(particle, config) {
-        let alpha = 1.0;
-        const edgeBuffer = 50;
-        
-        // 边缘淡入淡出效果
-        if (this.flowDirection === 'right') {
-            if (particle.x < edgeBuffer) {
-                alpha = particle.x / edgeBuffer;
-            } else if (particle.x > this.canvas.width - edgeBuffer) {
-                alpha = (this.canvas.width - particle.x) / edgeBuffer;
-            }
-        } else {
-            if (particle.x > this.canvas.width - edgeBuffer) {
-                alpha = (this.canvas.width - particle.x) / edgeBuffer;
-            } else if (particle.x < edgeBuffer) {
-                alpha = particle.x / edgeBuffer;
-            }
-        }
-        
-        this.ctx.save();
-        this.ctx.globalAlpha = alpha;
-        
-        // 根据流型特征设置颜色
-        if (config.liquidColor && config.foamColor) {
-            // 泡沫流型：根据粒子类型设置颜色
-            if (particle.type === 'foamSlug') {
-                this.ctx.fillStyle = particle.inFoam ? config.foamColor : config.liquidColor;
-            } else if (particle.type === 'foamWavy') {
-                this.ctx.fillStyle = particle.isGas ? config.liquidColor : config.foamColor;
-            } else if (particle.type === 'foamAnnular') {
-                this.ctx.fillStyle = particle.inLiquidFilm ? config.foamColor : config.liquidColor;
-            }
-        } else {
-            // 普通流型：使用单一颜色
-            this.ctx.fillStyle = config.color;
-        }
-        
-        // 根据流型特征绘制不同形状
-        switch(particle.type) {
-            case 'slug':
-            case 'pseudoSlug':
-                this.drawSlugParticle(particle);
-                break;
-            case 'wavy':
-            case 'smooth':
-                this.drawStratifiedParticle(particle);
-                break;
-            case 'foamSlug':
-            case 'foamWavy':
-            case 'foamAnnular':
-                this.drawFoamParticle(particle);
-                break;
-        }
-        
-        this.ctx.restore();
-    }
-
-    // 绘制段塞流粒子
-    drawSlugParticle(particle) {
-        if (particle.type === 'slug' && particle.isLiquid) {
-            // 液塞粒子：较大的矩形
-            this.ctx.save();
-            this.ctx.translate(particle.x, particle.y);
-            this.ctx.rotate(Math.PI * 0.1);
-            this.ctx.fillRect(-particle.size, -particle.size/2, particle.size*2, particle.size);
-            this.ctx.restore();
-        } else {
-            // 气弹或其他粒子：圆形
-            this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
-    }
-
-    // 绘制分层流粒子
-    drawStratifiedParticle(particle) {
-        if (particle.isGas) {
-            // 气体粒子：较小的圆形
-            this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-            this.ctx.fill();
-        } else {
-            // 液体粒子：椭圆形，代表界面
-            this.ctx.save();
-            this.ctx.translate(particle.x, particle.y);
-            this.ctx.rotate(Math.PI * 0.05);
-            this.ctx.fillRect(-particle.size, -particle.size/3, particle.size*2, particle.size*0.7);
-            this.ctx.restore();
-        }
-    }
-    // 绘制泡沫流粒子
-    drawFoamParticle(particle) {
-        // 泡沫粒子：圆形带光晕效果
-        this.ctx.beginPath();
-        this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        // 泡沫光晕效果
-        this.ctx.globalAlpha *= 0.3;
-        this.ctx.beginPath();
-        this.ctx.arc(particle.x, particle.y, particle.size * 1.5, 0, Math.PI * 2);
-        this.ctx.fill();
-    }
-
-    // 动画循环
-    animate() {
-        if (!this.ctx || !this.canvas) return;
-
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.updateParticles();
-        this.drawParticles();
-        this.time++;
-        this.animationId = requestAnimationFrame(() => this.animate());
-    }
-
-    // 停止动画
-    stopAnimation() {
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-            this.animationId = null;
-        }
-    }
-
-    // 获取流型描述信息
-    getFlowTypeDescription(flowType) {
-        const config = this.flowConfigs[flowType];
-        return config ? config.description : '未知流型';
-    }
-
-    // 获取所有支持的流型列表
-    getSupportedFlowTypes() {
-        return Object.keys(this.flowConfigs);
-    }
-
-    // 设置流动方向
-    setFlowDirection(direction) {
-        if (direction === 'left' || direction === 'right') {
-            this.flowDirection = direction;
-            if (this.currentFlowType) {
-                this.startFlowAnimation(this.currentFlowType, direction);
-            }
-        }
-    }
+  scene.add(cylinder);
+  return cylinder;
 }
 
-// 全局动画系统实例和辅助函数保持不变
-const flowAnimationSystem = new FlowAnimationSystem();
+function createWater() {
+  const textureLoader = new THREE.TextureLoader();
+  const iceDiffuse = textureLoader.load("assets/textures/water.png");
+  iceDiffuse.wrapS = THREE.RepeatWrapping;
+  iceDiffuse.wrapT = THREE.RepeatWrapping;
+  iceDiffuse.colorSpace = THREE.NoColorSpace;
 
-document.addEventListener('DOMContentLoaded', function() {
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            mutation.addedNodes.forEach(function(node) {
-                if (node.nodeType === 1 && node.classList && node.classList.contains('card')) {
-                    setupFlowAnimation(node);
-                }
-            });
+  const triplanarTexture = (...params) => TSL.triplanarTextures(...params);
+  const iceColorNode = triplanarTexture(TSL.texture(iceDiffuse))
+    .add(TSL.color(0x0066ff))
+    .mul(0.8);
+
+  // const geometry2 = new THREE.IcosahedronGeometry( 1, 3 );
+  // const material = new THREE.MeshStandardNodeMaterial( { colorNode: iceColorNode } );
+
+  const timer = TSL.time.mul(0.8);
+
+  // *** 速度、方向 *** //
+
+  // const floorUV = TSL.positionWorld.xzy;
+  // const waterLayer0 = TSL.mx_worley_noise_float( floorUV.mul( 4 ).add( timer ) );
+  // const waterLayer1 = TSL.mx_worley_noise_float( floorUV.mul( 2 ).add( timer ) );
+
+  const waveDirection = TSL.vec2(-1.0, 0.5).normalize(); // 控制波浪传播方向
+  const waveSpeed = 0.8; // 波浪速度
+
+  // 应用方向到 UV
+  const directionalUV = TSL.positionWorld.xz.add(
+    TSL.vec2(waveDirection.x, waveDirection.y).mul(timer.mul(waveSpeed)),
+  );
+
+  const waterLayer0 = TSL.mx_worley_noise_float(directionalUV.mul(4));
+  const waterLayer1 = TSL.mx_worley_noise_float(directionalUV.mul(2));
+  // *** 速度、方向 *** //
+
+  const waterIntensity = waterLayer0.mul(waterLayer1);
+  // const waterColor = waterIntensity.mul( 1.4 ).mix( TSL.color( 0x0487e2 ), TSL.color( 0x74ccf4 ) );
+  const waterColor = waterIntensity
+    .mul(1.4)
+    .mix(TSL.color("#0487e2"), TSL.color("#74ccf4"));
+
+  // linearDepth() returns the linear depth of the mesh
+  const depth = TSL.linearDepth();
+  const depthWater = TSL.viewportLinearDepth.sub(depth);
+  const depthEffect = depthWater.remapClamp(-0.002, 0.04);
+
+  const wavyHeight = 1.5; // .1  0.5  1.5
+  const refractionUV = TSL.screenUV.add(
+    TSL.vec2(0, waterIntensity.mul(wavyHeight)),
+  );
+
+  // linearDepth( viewportDepthTexture( uv ) ) return the linear depth of the scene
+  const depthTestForRefraction = TSL.linearDepth(
+    TSL.viewportDepthTexture(refractionUV),
+  ).sub(depth);
+
+  const depthRefraction = depthTestForRefraction.remapClamp(0, 0.1);
+
+  const finalUV = depthTestForRefraction
+    .lessThan(0)
+    .select(TSL.screenUV, refractionUV);
+
+  const viewportTexture = TSL.viewportSharedTexture(finalUV);
+
+  const waterMaterial = new WEBGPU.MeshBasicNodeMaterial({
+    colorNode: waterColor,
+    transparent: true,
+    backdropAlphaNode: depthRefraction.oneMinus(),
+    backdropNode: depthEffect.mix(
+      TSL.viewportSharedTexture(),
+      viewportTexture.mul(depthRefraction.mix(1, waterColor)),
+    ),
+    opacity: 0.5,
+  });
+
+  // 可控制的参数
+  const waterParams = {
+    direction: [1.0, 0.5], // 波浪方向 [x, y]
+    speed: 0.8, // 波浪速度
+    scale: 4.0, // 波浪尺度
+    intensity: 1.4, // 波浪强度
+    waveHeight: 10, // 波浪高度
+  };
+
+  // const water = new WEBGPU.Mesh( new WEBGPU.BoxGeometry( 50, .001, 50 ), waterMaterial );
+  const water = new WEBGPU.Mesh(
+    new WEBGPU.BoxGeometry(pipeLength, 0.001, 0.3),
+    waterMaterial,
+  );
+  water.position.set(0, 0, 0);
+
+  return { water: water, waterMaterial: waterMaterial };
+}
+// 创建段塞流
+function createSlugFlow(scene) {
+  const liquidGroup = new THREE.Group();
+
+  const segmentCount = 7;
+  const segmentLength = 0.3;
+  const gapLength = 0.5;
+  const radius = 0.15;
+
+  // const geometry = new THREE.CylinderGeometry(radius, radius, segmentLength, 32);
+  // 创建更真实的液体几何体 - 使用球体端盖的胶囊形状
+  const geometry = new THREE.CapsuleGeometry(radius, segmentLength, 16, 16);
+
+  const material = new THREE.MeshPhongMaterial({
+    // color: '#0000ff',
+    color: "#4488ff",
+    transparent: true,
+    opacity: 0.5,
+
+    specular: "#ffffff", // 高光颜色
+    shininess: 100, // 光泽度
+    reflectivity: 0.5, // 反射率
+  });
+
+  for (let i = 0; i < segmentCount; i++) {
+    const cylinder = new THREE.Mesh(geometry, waterMaterial);
+    cylinder.rotation.z = Math.PI / 2;
+
+    // 重要：液体应该在管道之前渲染
+    cylinder.renderOrder = 0;
+
+    // 初始位置：每个段塞流段的位置, 从管道左侧开始
+    cylinder.position.set(
+      pipeLeftBoundary + segmentLength / 2 + i * (segmentLength + gapLength),
+      0,
+      0,
+    );
+
+    // 为每个液体段添加独特的纹理偏移
+    cylinder.userData = {
+      textureOffset: Math.random() * 100,
+      wavePhase: Math.random() * Math.PI * 2,
+      bubbleIntensity: 0.5 + Math.random() * 0.5,
+      originalScale: new THREE.Vector3().copy(cylinder.scale),
+    };
+
+    liquidGroup.add(cylinder);
+  }
+
+  scene.add(liquidGroup);
+
+  // 更新液体流动 - 精确控制版本
+  function updateLiquidFlow(liquidGroup) {
+    const flowSpeed = 0.15;
+    const currentTime = Date.now() * 0.001;
+
+    liquidGroup.children.forEach((segment, index) => {
+      let currentX = segment.position.x;
+      // 向右移动
+      currentX += flowSpeed * 0.016; // 假设60fps，每帧移动距离
+
+      // 检查是否完全流出管道右侧
+      // const segmentRightEdge = currentX - segmentLength / 2 - radius;
+      const segmentRightEdge = currentX - segmentLength / 2 - radius * 2;
+      if (segmentRightEdge > pipeRightBoundary) {
+        // 找到最左侧的液体段位置
+        let leftmostX = pipeRightBoundary;
+
+        liquidGroup.children.forEach((s, i) => {
+          if (s.position.x < leftmostX) leftmostX = s.position.x;
         });
+
+        // 回到所有液体段的最左侧
+        currentX = leftmostX - (segmentLength + gapLength);
+      }
+
+      // 设置位置
+      segment.position.x = currentX;
+
+      const userData = segment.userData;
+      const material = segment.material;
+      // 旋转效果 - 模拟液体内部流动
+      // segment.rotation.x = Math.sin(currentTime * 1.2 + index * 0.3) * 0.08;
+      // 气泡效果 - 动态改变粗糙度
+      // const bubbleEffect = Math.sin(currentTime * 3 + userData.wavePhase) * 0.05;
+      // material.roughness = 5.15 + bubbleEffect * userData.bubbleIntensity;
+      // 表面张力效果 - 轻微的形状变化
+      const surfaceTension = Math.sin(currentTime * 2.5 + index) * 0.02;
+      segment.scale.y = userData.originalScale.y + surfaceTension;
+      segment.scale.z = userData.originalScale.z - surfaceTension * 0.5;
     });
+  }
+  return { slugGroup: liquidGroup, updateSlugFlow: updateLiquidFlow };
+}
 
-    observer.observe(document.getElementById('result'), {
-        childList: true,
-        subtree: true
+// 创建半个圆柱体的函数
+function createHalfCylinder(options = {}) {
+  const {
+    radiusTop = 0.15,
+    radiusBottom = 0.15,
+    height = 3,
+    radialSegments = 32,
+    position = { x: 0, y: 0, z: 0 },
+    rotation = { x: 0, y: 0, z: -Math.PI / 2 },
+    halfType = "vertical", // 'vertical' 或 'horizontal'
+    MeshPhongMaterial = {
+      color: "#4488ff",
+      transparent: true,
+      opacity: 0.5,
+      side: THREE.DoubleSide, // 双面渲染，确保半圆柱体看起来完整
+    },
+  } = options;
+
+  // 创建圆柱体几何体，但只使用一半的面
+  const geometry = new THREE.CylinderGeometry(
+    radiusTop,
+    radiusBottom,
+    height,
+    radialSegments,
+  );
+
+  // 获取几何体的顶点和面数据
+  const positionAttribute = geometry.getAttribute("position");
+  const indices = geometry.getIndex();
+
+  // 根据半圆柱体类型过滤顶点
+  const verticesToKeep = new Set();
+
+  if (halfType === "vertical") {
+    // 垂直切割：保留y轴正方向的一半
+    for (let i = 0; i < positionAttribute.count; i++) {
+      const x = positionAttribute.getX(i);
+      if (x >= 0) {
+        // 保留x轴正方向的一半
+        verticesToKeep.add(i);
+      }
+    }
+  } else {
+    // 水平切割：保留上半部分
+    for (let i = 0; i < positionAttribute.count; i++) {
+      const y = positionAttribute.getY(i);
+      if (y >= 0) {
+        // 保留y轴正方向的一半
+        verticesToKeep.add(i);
+      }
+    }
+  }
+
+  // 创建新的索引数组，只保留需要的面
+  const newIndices = [];
+  if (indices) {
+    for (let i = 0; i < indices.count; i += 3) {
+      const a = indices.getX(i);
+      const b = indices.getX(i + 1);
+      const c = indices.getX(i + 2);
+
+      // 只有当三角形的所有顶点都在保留范围内时才保留这个面
+      if (
+        verticesToKeep.has(a) &&
+        verticesToKeep.has(b) &&
+        verticesToKeep.has(c)
+      ) {
+        newIndices.push(a, b, c);
+      }
+    }
+  }
+
+  // 创建新的几何体
+  const halfGeometry = new THREE.BufferGeometry();
+
+  // 复制顶点属性
+  const newPositions = [];
+  const vertexMap = new Map();
+  let newIndex = 0;
+
+  const uvAttribute = geometry.getAttribute("uv");
+  const newUVs = []; // uv 坐标数组, 贴图需要
+
+  for (let i = 0; i < positionAttribute.count; i++) {
+    if (verticesToKeep.has(i)) {
+      newPositions.push(
+        positionAttribute.getX(i),
+        positionAttribute.getY(i),
+        positionAttribute.getZ(i),
+      );
+      // 复制UV坐标（如果存在）
+      if (uvAttribute) {
+        newUVs.push(uvAttribute.getX(i), uvAttribute.getY(i));
+      }
+      vertexMap.set(i, newIndex);
+      newIndex++;
+    }
+  }
+
+  // 重新映射索引
+  const remappedIndices = newIndices.map((oldIndex) => vertexMap.get(oldIndex));
+
+  // 设置UV坐标（如果复制了UV数据）
+  if (newUVs.length > 0) {
+    // console.log("newUVs", newUVs);
+    halfGeometry.setAttribute(
+      "uv",
+      new THREE.Float32BufferAttribute(newUVs, 2),
+    );
+  } else {
+    // 如果没有UV坐标，创建简单的UV映射
+    halfGeometry.computeBoundingBox();
+    const bbox = halfGeometry.boundingBox;
+    const size = new THREE.Vector3();
+    bbox.getSize(size);
+
+    const uvs = [];
+    for (let i = 0; i < newPositions.length / 3; i++) {
+      const x = newPositions[i * 3];
+      const y = newPositions[i * 3 + 1];
+      const z = newPositions[i * 3 + 2];
+
+      // 简单的UV映射
+      const u = (x - bbox.min.x) / size.x;
+      const v = (z - bbox.min.z) / size.z;
+      uvs.push(u, v);
+    }
+    halfGeometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  }
+
+  halfGeometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(newPositions, 3),
+  );
+  halfGeometry.setIndex(remappedIndices);
+  halfGeometry.computeVertexNormals();
+  halfGeometry.userData = {
+    name: "halfCylinder",
+  };
+
+  const material = new THREE.MeshPhongMaterial(MeshPhongMaterial);
+  // const material = new THREE.MeshPhongNodeMaterial(MeshPhongMaterial);
+  // const material = new THREE.MeshBasicNodeMaterial(MeshPhongMaterial);
+
+  const halfCylinder = new THREE.Mesh(halfGeometry, material);
+  halfCylinder.position.set(position.x, position.y, position.z);
+  halfCylinder.rotation.set(rotation.x, rotation.y, rotation.z);
+
+  halfCylinder.renderOrder = 0;
+
+  return halfCylinder;
+}
+
+// 创建伪段塞流
+function createPseudoSlugFlow(scene) {
+  const pseudoSlugGroup = new THREE.Group();
+
+  const segmentCount = 7;
+  const segmentLength = 0.3;
+  const gapLength = 0.5;
+  const radius = 0.15;
+
+  // const geometry = new THREE.CylinderGeometry(radius, radius, segmentLength, 32);
+  // 创建更真实的液体几何体 - 使用球体端盖的胶囊形状
+  const geometry = new THREE.CapsuleGeometry(radius, segmentLength, 16, 16);
+
+  const material = new THREE.MeshPhongMaterial({
+    // color: '#0000ff',
+    color: "#4488ff",
+    transparent: true,
+    opacity: 0.5,
+
+    specular: "#ffffff", // 高光颜色
+    shininess: 100, // 光泽度
+    reflectivity: 0.5, // 反射率
+  });
+
+  for (let i = 0; i < segmentCount; i++) {
+    // const cylinder = new THREE.Mesh(geometry, material);
+    const cylinder = new THREE.Mesh(geometry, waterMaterial);
+    cylinder.rotation.z = Math.PI / 2;
+
+    // 重要：液体应该在管道之前渲染
+    cylinder.renderOrder = 0;
+
+    // 初始位置：每个段塞流段的位置, 从管道左侧开始
+    cylinder.position.set(
+      pipeLeftBoundary + segmentLength / 2 + i * (segmentLength + gapLength),
+      0,
+      0,
+    );
+
+    // 为每个液体段添加独特的纹理偏移
+    cylinder.userData = {
+      textureOffset: Math.random() * 100,
+      wavePhase: Math.random() * Math.PI * 2,
+      bubbleIntensity: 0.5 + Math.random() * 0.5,
+      originalScale: new THREE.Vector3().copy(cylinder.scale),
+    };
+
+    pseudoSlugGroup.add(cylinder);
+  }
+
+  // 创建半个圆柱体 - 竖直切割
+  const halfCylinderHorizontal = createHalfCylinder({ height: pipeLength });
+  pseudoSlugGroup.add(halfCylinderHorizontal);
+
+  scene.add(pseudoSlugGroup);
+
+  // 动画
+  function updatePseudoSlugFlow(liquidGroup) {
+    const flowSpeed = 0.15;
+
+    liquidGroup.children.forEach((segment, index) => {
+      let currentX = segment.position.x;
+      // 向右移动
+      currentX += flowSpeed * 0.016; // 假设60fps，每帧移动距离
+
+      if (segment.geometry.userData.name !== "halfCylinder") {
+        // 检查是否完全流出管道右侧
+        // const segmentRightEdge = currentX - segmentLength / 2 - radius;
+        const segmentRightEdge = currentX - segmentLength / 2 - radius * 2;
+        if (segmentRightEdge > pipeRightBoundary) {
+          // 找到最左侧的液体段位置
+          let leftmostX = pipeRightBoundary;
+
+          liquidGroup.children.forEach((s, i) => {
+            if (s.geometry.userData.name !== "halfCylinder")
+              if (s.position.x < leftmostX) leftmostX = s.position.x;
+          });
+
+          // 回到所有液体段的最左侧
+          currentX = leftmostX - (segmentLength + gapLength);
+        }
+
+        // 设置位置
+        segment.position.x = currentX;
+      }
     });
-});
+  }
 
-function setupFlowAnimation(flowType, canvasClassName = '.flow-animation-canvas') {
-    const canvas = document.querySelector(canvasClassName);
-
-    flowAnimationSystem.init(canvas, 'right');
-    flowAnimationSystem.startFlowAnimation(flowType, 'right');
+  return {
+    pseudoSlugGroup: pseudoSlugGroup,
+    updatePseudoSlugFlow: updatePseudoSlugFlow,
+  };
 }
 
-function createFlowAnimation(containerId, flowType, canvasClassName = '.flow-animation-canvas',direction = 'right') {
-    const canvas = document.querySelector(canvasClassName);
+// 创建分层波浪流
+function createStratifiedWavyFlow(scene) {
+  const stratifiedWavyGroup = new THREE.Group();
 
-    const animationSystem = new FlowAnimationSystem();
-    animationSystem.init(canvas, direction);
-    animationSystem.startFlowAnimation(flowType, direction);
-    
-    return animationSystem;
+  // 创建波浪形状的液体段
+  const waveSegmentCount = 7; // 增加段数以获得更平滑的波浪
+  const waveAmplitude = 0.05; // 波浪幅度
+  const waveFrequency = 2.0; // 波浪频率
+  const segmentLength = 0.2; // 每段长度
+  const radius = 0.1; // 液体半径
+
+  // 创建波浪材质
+  const waveMaterial = new THREE.MeshPhongMaterial({
+    color: "#4488ff",
+    transparent: true,
+    opacity: 0.7,
+    specular: "#ffffff",
+    shininess: 80,
+    reflectivity: 0.6,
+  });
+  const geometry = new THREE.CapsuleGeometry(radius, segmentLength, 8, 8);
+
+  // 创建波浪形状的液体段
+  for (let i = 0; i < waveSegmentCount; i++) {
+    // 使用胶囊几何体创建波浪段
+    // const waveSegment = new THREE.Mesh(geometry, waveMaterial);
+    const waveSegment = new THREE.Mesh(geometry, waterMaterial);
+
+    // 设置初始位置和旋转
+    waveSegment.rotation.z = Math.PI / 2; // 横向放置
+    waveSegment.position.x = pipeLeftBoundary + i * segmentLength + i * 0.5;
+
+    // 为每个波浪段添加独特的波浪参数
+    waveSegment.userData = {
+      wavePhase: (i / waveSegmentCount) * Math.PI * 2, // 相位偏移
+      waveAmplitude: waveAmplitude,
+      waveFrequency: waveFrequency,
+      originalY: 0,
+      isWaveSegment: true,
+    };
+
+    stratifiedWavyGroup.add(waveSegment);
+  }
+
+  const halfCylinderHorizontal = createHalfCylinder({ height: pipeLength });
+
+  stratifiedWavyGroup.add(halfCylinderHorizontal);
+
+  scene.add(stratifiedWavyGroup);
+
+  function updateStratifiedWavyFlow(liquidGroup) {
+    const flowSpeed = 0.15;
+    const currentTime = Date.now() * 0.001;
+
+    liquidGroup.children.forEach((segment, index) => {
+      let currentX = segment.position.x;
+      // 向右移动
+      currentX += flowSpeed * 0.016; // 假设60fps，每帧移动距离
+
+      if (segment.userData.isWaveSegment) {
+        // 检查是否流出管道
+        const segmentRightEdge = currentX - segmentLength / 2 - radius / 2;
+        if (segmentRightEdge > pipeRightBoundary) {
+          // 重置到管道左侧
+          currentX = pipeLeftBoundary - segmentLength / 2;
+        }
+
+        // 设置X位置
+        segment.position.x = currentX;
+
+        // 计算波浪效果
+        const wavePhase =
+          segment.userData.wavePhase +
+          currentTime * segment.userData.waveFrequency;
+        const waveOffset = Math.sin(wavePhase) * segment.userData.waveAmplitude;
+
+        // 应用波浪偏移到Y轴
+        segment.position.y = segment.userData.originalY + waveOffset;
+
+        // 添加轻微的旋转效果模拟波浪
+        segment.rotation.y = Math.sin(wavePhase * 0.5) * 0.1;
+      }
+    });
+  }
+
+  return {
+    stratifiedWavyGroup: stratifiedWavyGroup,
+    updateStratifiedWavyFlow: updateStratifiedWavyFlow,
+  };
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = FlowAnimationSystem;
+// 创建分层平滑流
+function createStratifiedSmoothFlow(scene) {
+  const stratifiedSmoothGroup = new THREE.Group();
+
+  const halfCylinderHorizontal = createHalfCylinder({
+    height: pipeLength,
+    MeshPhongMaterial: {
+      color: "#4488ff",
+      opacity: 0.5,
+      transparent: true,
+      side: THREE.DoubleSide, // 双面渲染，确保半圆柱体看起来完整
+    },
+  });
+  const halfCylinderHorizontal2 = createHalfCylinder({
+    position: { x: -3, y: 0, z: 0 },
+  });
+
+  // stratifiedSmoothGroup.add(halfCylinderHorizontal, halfCylinderHorizontal2);
+  stratifiedSmoothGroup.add(halfCylinderHorizontal);
+
+  scene.add(stratifiedSmoothGroup);
+
+  function updateStratifiedSmoothFlow(liquidGroup) {
+    // const flowSpeed = 0.15;
+    // const currentTime = Date.now() * 0.001;
+    // liquidGroup.children.forEach((segment, index) => {
+    //     let currentX = segment.position.x;
+    //     // 向右移动
+    //     currentX += flowSpeed * 0.016;  // 假设60fps，每帧移动距离
+    //     if ((currentX-pipeLength/2) > pipeRightBoundary){
+    //         currentX = pipeLeftBoundary*2;
+    //     }
+    //     segment.position.x = currentX;
+    // });
+  }
+
+  return {
+    stratifiedSmoothGroup: stratifiedSmoothGroup,
+    updateStratifiedSmoothFlow: updateStratifiedSmoothFlow,
+  };
 }
+
+/**
+ * 通用 WebGPU 泡沫粒子系统
+ * 支持全圆液体或下半圆液体
+ *
+ * @param {THREE.Scene} scene
+ * @param {Object} options
+ * @param {number} [options.pipeLength=5] 管道长度
+ * @param {number} [options.liquidRadius=0.15] 液体半径
+ * @param {boolean} [options.half=false] 是否为下半圆液体
+ * @param {number} [options.count=800] 泡沫数量
+ * @returns {Object} { updateFoam(dt), flowSpeed, points }
+ */
+function createFoam(scene, options = {}) {
+  const COUNT = options.count ?? 800;
+  const pipeLength = options.pipeLength ?? 5;
+  const liquidRadius = options.liquidRadius ?? 0.15;
+  const isHalf = options.half ?? false; // true => 下半圆流
+  const flowSpeedDefault = 1.0;
+
+  // === 1. 准备几何 ===
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(COUNT * 3);
+  const velocities = new Float32Array(COUNT * 3);
+  const sizes = new Float32Array(COUNT);
+  const uvs = new Float32Array(COUNT * 2);
+
+  // === 2. 初始化泡沫粒子 ===
+  for (let i = 0; i < COUNT; i++) {
+    const ix = i * 3;
+
+    // X：沿管道方向分布（不靠边）
+    positions[ix] = Math.random() * (pipeLength * 0.9) - pipeLength / 2;
+
+    // Y/Z：生成在液体圆截面内（或下半圆）
+    const r = Math.sqrt(Math.random()) * liquidRadius;
+    const theta = isHalf
+      ? Math.random() * Math.PI // 下半圆
+      : Math.random() * Math.PI * 2; // 全圆
+
+    let y = r * Math.cos(theta);
+    let z = r * Math.sin(theta);
+
+    if (isHalf) y = -Math.abs(y); // 让下半圆部分都在下方
+
+    positions[ix + 1] = y;
+    positions[ix + 2] = z;
+
+    // 速度
+    velocities[ix] = 0.03 + Math.random() * 0.03;
+    velocities[ix + 1] = Math.random() * 0.01 - 0.005;
+    velocities[ix + 2] = Math.random() * 0.01 - 0.005;
+
+    sizes[i] = 3 + Math.random() * 8;
+    uvs[i * 2] = Math.random();
+    uvs[i * 2 + 1] = Math.random();
+  }
+
+  geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+  geo.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
+
+  // === 3. 泡沫贴图 ===
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 128;
+  const ctx = canvas.getContext("2d");
+  const grad = ctx.createRadialGradient(64, 64, 5, 64, 64, 60);
+  grad.addColorStop(0, "rgba(255,255,255,1)");
+  grad.addColorStop(0.4, "rgba(255,255,255,0.4)");
+  grad.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+  const bubbleTex = new THREE.CanvasTexture(canvas);
+
+  // === 4. 材质 ===
+  const mat = new WEBGPU.PointsNodeMaterial({
+    transparent: true,
+    depthWrite: false,
+    sizeAttenuation: true,
+    blending: THREE.AdditiveBlending,
+    color: new THREE.Color(0xffffff),
+    map: bubbleTex,
+  });
+
+  // === 5. 创建对象 ===
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+
+  // === 6. 更新逻辑 ===
+  let flowSpeed = flowSpeedDefault;
+
+  function randomYZ() {
+    const r = Math.sqrt(Math.random()) * liquidRadius;
+    const theta = isHalf
+      ? Math.random() * Math.PI
+      : Math.random() * Math.PI * 2;
+    let y = r * Math.cos(theta);
+    let z = r * Math.sin(theta);
+    if (isHalf) y = -Math.abs(y);
+    return { y, z };
+  }
+
+  function updateFoam(dt = 0.016) {
+    for (let i = 0; i < COUNT; i++) {
+      const ix = i * 3;
+      positions[ix] += velocities[ix] * dt * 60 * flowSpeed;
+
+      // 循环流动
+      if (positions[ix] > pipeLength / 2) {
+        positions[ix] = -pipeLength / 2;
+        const { y, z } = randomYZ();
+        positions[ix + 1] = y;
+        positions[ix + 2] = z;
+      }
+    }
+    geo.attributes.position.needsUpdate = true;
+  }
+
+  return {
+    updateFoam,
+    get flowSpeed() {
+      return flowSpeed;
+    },
+    set flowSpeed(v) {
+      flowSpeed = Math.max(0, v);
+    },
+    points,
+  };
+}
+
+// 创建泡沫段塞流
+function createFoamySlugFlow(scene) {}
+
+// 创建分层泡沫波浪流
+function createStratifiedFoamyWavyFlow(scene) {}
+
+// 创建泡沫环状流
+function createFoamyAnnularFlow(scene) {
+  const foamyAnnular = new THREE.Group();
+
+  const radius = 0.15;
+  const geometry = new THREE.CylinderGeometry(radius, radius, pipeLength, 32); // 改为横向圆柱
+  const material = new THREE.MeshPhongMaterial({
+    color: "#4488ff",
+    transparent: true,
+    opacity: 0.2,
+    depthWrite: false,
+  });
+
+  const cylinder = new THREE.Mesh(geometry, waterMaterial);
+  cylinder.rotation.z = Math.PI / 2; // 将圆柱体绕z轴旋转90度，使其沿x轴横向
+  cylinder.renderOrder = 0;
+
+  foamyAnnular.add(cylinder);
+  scene.add(foamyAnnular);
+
+  return { foamyAnnular: foamyAnnular };
+}
+
+// 管道参数
+const pipeRadius = 0.2; // 管道半径
+// const pipeLength = 3; // 管道长度
+const pipeLength = 5; // 管道长度
+const pipeLeftBoundary = -pipeLength / 2; // 管道左边界：-1
+const pipeRightBoundary = pipeLength / 2; // 管道右边界：1
+
+const { water, waterMaterial } = createWater();
+
+function main() {
+  // 获取canvas画布元素
+  const canvas = document.querySelector(".flow-animation-canvas");
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  // 创建渲染器
+  // const renderer = new THREE.WebGLRenderer({
+  //     antialias:true, canvas:canvas,
+  //     alpha: true // 允许透明背景
+  // });
+
+  const renderer = new WEBGPU.WebGPURenderer({
+    antialias: true,
+    canvas: canvas,
+    alpha: true, // 允许透明背景
+  });
+
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight); // 渲染器的大小设置为画布的大小
+  renderer.setPixelRatio(window.devicePixelRatio); // 设置像素比以适应高分辨率屏幕
+  // renderer.sortObjects = true; // 重要：启用透明度排序
+
+  // 创建相机
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    canvas.clientWidth / canvas.clientHeight,
+    0.1,
+    500,
+  );
+  camera.position.set(0.1, 0.8, 1);
+  camera.lookAt(0, 0, 0);
+
+  // 创建轨道控制器
+  //   const controls = new OrbitControls(camera, renderer.domElement);
+  //   controls.target.set(0, 0, 0);
+  //   controls.update();
+
+  // 显示坐标轴
+  //   const axesHelper = new THREE.AxesHelper();
+  //   scene.add(axesHelper);
+
+  // 添加环境光
+  const ambientLight = new THREE.AmbientLight(0x909090, 10);
+  scene.add(ambientLight);
+  // 添加定向光(平行光)
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  directionalLight.position.set(5, 5, 5);
+  // scene.add(directionalLight);
+  const pointLight = new THREE.PointLight(0xffffd0, 0.5); // 点光源
+  pointLight.position.set(0, 2, 2);
+  scene.add(pointLight);
+
+  // 透明管道
+  const transparentPipe = createTransparentPipe(scene);
+  transparentPipe.visible = false;
+
+  // 段塞流
+  const { slugGroup, updateSlugFlow } = createSlugFlow(scene);
+  slugGroup.visible = false; // 隐藏
+
+  // 伪段塞流
+  const { pseudoSlugGroup, updatePseudoSlugFlow } = createPseudoSlugFlow(scene);
+  pseudoSlugGroup.visible = false; // 隐藏
+
+  // 分层波浪流
+  const { stratifiedWavyGroup, updateStratifiedWavyFlow } =
+    createStratifiedWavyFlow(scene);
+  stratifiedWavyGroup.visible = false; // 隐藏
+
+  // 分层平滑流
+  const { stratifiedSmoothGroup, updateStratifiedSmoothFlow } =
+    createStratifiedSmoothFlow(scene);
+  stratifiedSmoothGroup.visible = false; // 隐藏
+
+  // 泡沫段塞流
+  createFoamySlugFlow(scene);
+
+  // 分层泡沫波浪流
+  const foam_half = createFoam(scene, { half: true });
+  foam_half.flowSpeed = 0.2;
+  foam_half.points.visible = false;
+
+  createStratifiedFoamyWavyFlow(scene);
+
+  // 泡沫环状流
+  const foam = createFoam(scene);
+  foam.flowSpeed = 0.1;
+  foam.points.visible = false;
+
+  const { foamyAnnular } = createFoamyAnnularFlow(scene);
+  foamyAnnular.visible = false;
+
+  var flowType = "slug"; // 'slug' 'pseudoSlug' 'stratifiedWavy' 'stratifiedSmooth' 'foamySlug' 'stratifiedFoamyWavy' 'foamyAnnular'
+  flowType = "pseudoSlug";
+  flowType = "stratifiedWavy";
+  // flowType = 2;
+  // flowType = 'stratifiedSmooth';
+  // flowType = 'foamySlug';
+  // flowType = 'stratifiedFoamyWavy';
+  // flowType = 'foamyAnnular';
+
+  scene.add(water);
+  water.visible = false;
+
+  // 动画循环
+  function animate() {
+    flowType = flow_result.pre_label;
+    requestAnimationFrame(animate);
+
+    if (flowType != undefined) {
+      transparentPipe.visible = true; // 显示管道
+    }
+
+    // 液体流动动画
+    switch (true) {
+      case ["slug", 0].includes(flowType):
+        pseudoSlugGroup.visible = false;
+        stratifiedSmoothGroup.visible = false; // 隐藏
+        stratifiedWavyGroup.visible = false;
+        foamyAnnular.visible = false;
+        foam.points.visible = false;
+        foam_half.points.visible = false;
+
+        slugGroup.visible = true; // 显示
+        water.visible = false;
+        updateSlugFlow(slugGroup);
+        break;
+      case ["pseudoSlug", 1].includes(flowType):
+        slugGroup.visible = false;
+        stratifiedSmoothGroup.visible = false;
+        stratifiedWavyGroup.visible = false;
+        foamyAnnular.visible = false;
+        foam.points.visible = false;
+        foam_half.points.visible = false;
+
+        pseudoSlugGroup.visible = true;
+        water.visible = true;
+        updatePseudoSlugFlow(pseudoSlugGroup);
+        break;
+      case ["stratifiedWavy", 2].includes(flowType):
+        slugGroup.visible = false;
+        pseudoSlugGroup.visible = false;
+        stratifiedSmoothGroup.visible = false;
+        foamyAnnular.visible = false;
+        foam.points.visible = false;
+        foam_half.points.visible = false;
+
+        stratifiedWavyGroup.visible = true;
+        water.visible = true;
+        updateStratifiedWavyFlow(stratifiedWavyGroup);
+        break;
+      case ["stratifiedSmooth", 3].includes(flowType):
+        slugGroup.visible = false;
+        pseudoSlugGroup.visible = false;
+        stratifiedWavyGroup.visible = false;
+        foamyAnnular.visible = false;
+        foam.points.visible = false;
+        foam_half.points.visible = false;
+
+        stratifiedSmoothGroup.visible = true;
+        water.visible = true;
+        updateStratifiedSmoothFlow(stratifiedSmoothGroup);
+        break;
+      case ["foamySlug", 4].includes(flowType):
+        slugGroup.visible = false;
+        pseudoSlugGroup.visible = false;
+        stratifiedWavyGroup.visible = false;
+        foamyAnnular.visible = false;
+        stratifiedSmoothGroup.visible = false;
+        water.visible = false;
+        foam_half.points.visible = false;
+
+        foam.points.visible = true;
+        foam.updateFoam();
+
+        slugGroup.visible = true; // 显示
+        updateSlugFlow(slugGroup);
+        break;
+      case ["stratifiedFoamyWavy", 5].includes(flowType):
+        slugGroup.visible = false;
+        pseudoSlugGroup.visible = false;
+        stratifiedSmoothGroup.visible = false;
+        foamyAnnular.visible = false;
+        foam.points.visible = false;
+
+        stratifiedWavyGroup.visible = true;
+        water.visible = true;
+        updateStratifiedWavyFlow(stratifiedWavyGroup);
+
+        foam_half.points.visible = true;
+        foam_half.updateFoam();
+        break;
+      case ["foamyAnnular", 6].includes(flowType):
+        slugGroup.visible = false;
+        pseudoSlugGroup.visible = false;
+        stratifiedWavyGroup.visible = false;
+        stratifiedSmoothGroup.visible = false;
+        water.visible = false;
+
+        foamyAnnular.visible = true;
+        foam.points.visible = true; // 泡沫
+        foam.updateFoam();
+        break;
+      default:
+        break;
+    }
+
+    renderer.renderAsync(scene, camera);
+  }
+
+  animate(); // 启动动画循环
+}
+
+main();
