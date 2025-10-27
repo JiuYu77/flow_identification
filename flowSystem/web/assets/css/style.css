@@ -101,8 +101,9 @@ button:hover {
     color: #4f8cff;
 }
 .flow-curve{
-    height: 110px;
+    height: 230px;
     margin-top: 20px;
+    /* border: 1px solid #fa1313; */
 }
 .flow-curve .data-curve {
     /* width: 400px; */
@@ -111,15 +112,17 @@ button:hover {
     border: 1px solid #81e944;
 }
 .flow-anim {
-    height: 110px;
+    height: 230px;
     align-items: center;
     justify-content: center;
     margin-bottom: 8px;
-    margin-top: 140px;
+    margin-top: 20px;
+    /* border: 1px solid #faa513; */
 }
 .flow-anim .flow-animation-canvas {
     width: 100%;
-    height: 80%;
+    /* height: 80%; */
+    height: 200px;
     border-top: 1px solid #4f8cff;
     border-bottom: 1px solid #4f8cff;
     background: #ffffff;
