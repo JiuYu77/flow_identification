@@ -1,5 +1,5 @@
 body {
-    font-family: 'Roboto', Arial, sans-serif;
+    font-family: "Roboto", Arial, sans-serif;
     background: #f6f8fa;
     margin: 0;
     padding: 0;
@@ -9,7 +9,7 @@ body {
     margin: 40px auto;
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
     padding: 32px 28px 24px 28px;
 }
 
@@ -24,7 +24,7 @@ body {
     background: #f9fafb;
     border-radius: 10px;
     padding: 24px;
-    box-shadow: 0 2px 8px rgba(60,80,120,0.07);
+    box-shadow: 0 2px 8px rgba(60, 80, 120, 0.07);
 }
 
 .result {
@@ -51,7 +51,8 @@ label {
     font-weight: 700;
     color: #3b4a5a;
 }
-input[type="number"], select {
+input[type="number"],
+select {
     padding: 8px 12px;
     border: 1px solid #d1d5db;
     border-radius: 6px;
@@ -59,10 +60,79 @@ input[type="number"], select {
     background: #f9fafb;
     transition: border-color 0.2s;
 }
-input[type="number"]:focus, select:focus {
+input[type="number"]:focus,
+select:focus {
     border-color: #4f8cff;
     outline: none;
 }
+
+/* -------------------------------------------- */
+/* 隐藏原生复选框（保留可访问性） */
+.custom-checkbox {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* 自定义复选框容器（label） */
+.checkbox-label {
+  position: relative;
+  padding-left: 24px; /* 为自定义复选框预留空间 */
+  cursor: pointer;
+  line-height: 1;
+  font-size: 14px;
+  color: #333;
+}
+
+/* 未选中状态的样式（伪元素模拟复选框） */
+.checkbox-label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #ccc;
+  border-radius: 3px; /* 圆角 */
+  background-color: #fff;
+  transition: all 0.2s ease;
+}
+
+/* 选中状态的样式（边框变色） */
+.custom-checkbox:checked + .checkbox-label::before {
+  border-color: #409eff; /* 选中时边框颜色 */
+  background-color: #409eff; /* 选中时背景色 */
+}
+
+/* 选中状态的勾选图标（伪元素模拟对勾） */
+.custom-checkbox:checked + .checkbox-label::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 6px;
+  height: 12px;
+  border: solid white; /* 对勾颜色（与背景对比） */
+  border-width: 0 2px 2px 0; /* 只保留右下边框，模拟对勾 */
+  transform: rotate(45deg); /* 旋转成对勾形状 */
+}
+
+/* 禁用状态样式 */
+.custom-checkbox:disabled + .checkbox-label {
+  color: #999;
+  cursor: not-allowed;
+}
+.custom-checkbox:disabled + .checkbox-label::before {
+  background-color: #f5f5f5;
+  border-color: #ddd;
+}
+/* -------------------------------------------- */
+
 button {
     background: linear-gradient(90deg, #4f8cff 0%, #38c6fa 100%);
     color: #fff;
@@ -72,7 +142,7 @@ button {
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(79,140,255,0.08);
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.08);
     transition: background 0.2s;
 }
 button:hover {
@@ -84,7 +154,7 @@ button:hover {
 .card {
     background: #f9fafb;
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(60,80,120,0.07);
+    box-shadow: 0 2px 8px rgba(60, 80, 120, 0.07);
     padding: 18px 20px 16px 20px;
     margin-bottom: 22px;
     align-items: flex-start;
@@ -97,10 +167,10 @@ button:hover {
 .flow-type #flow-type {
     font-weight: 700;
 }
-.flow-prob #flow-prob{
+.flow-prob #flow-prob {
     color: #4f8cff;
 }
-.flow-curve{
+.flow-curve {
     height: 230px;
     margin-top: 20px;
     /* border: 1px solid #fa1313; */
@@ -125,7 +195,8 @@ button:hover {
     height: 200px;
     border-top: 1px solid #4f8cff;
     border-bottom: 1px solid #4f8cff;
-    background: #ffffff;
+    background-color: #ffffff;
+    background-color: #0b1220;
 }
 .flow-anim img {
     max-width: 140px;
@@ -136,7 +207,15 @@ button:hover {
     margin-top: 8px;
 }
 @media (max-width: 600px) {
-    .container { padding: 12px 6px; }
-    .card { flex-direction: column; gap: 10px; }
-    .flow-anim { width: 100%; height: 70px; }
+    .container {
+        padding: 12px 6px;
+    }
+    .card {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .flow-anim {
+        width: 100%;
+        height: 70px;
+    }
 }
