@@ -7,6 +7,7 @@
     <script src="/assets/js/flow-curve.js"></script>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+    {{ template "threejs_head.shtml" }}
 </head>
 <body>
     <div class="container">
@@ -60,17 +61,13 @@
             </div>
         </div>
     </div>
-    <script src="/assets/js/flow-anime.js"></script>
     <script>
-    const flowAnimations = {
-        "段塞流": "images/slugs.gif",
-        "伪段塞流": "images/pseudo_slugs.gif",
-        "分层波浪流": "images/wavy.gif",
-        "分层光滑流": "images/smooth.gif",
-        "泡沫段塞流": "images/foam_slugs.gif",
-        "分层泡沫波浪流": "images/foam_wavy.gif",
-        "泡沫环状流": "images/foam_annular.gif"
-    };
+    const flow_result = {
+        pre_label: undefined,
+        flow_type: undefined,
+        flow_data: undefined,
+        prob: undefined,
+    }
 
     document.getElementById('form').onsubmit = async function(e) {
         e.preventDefault();
@@ -84,135 +81,29 @@
             body: JSON.stringify({sample_length, step})
         });
         const data = await res.json();
- 
-        const pre_label = data.results[0].preLabel;
-        const flow_type = data.results[0].flowType;
-        const flow_data = data.results[0].flowData;
-        const prob = data.results[0].probability;
+
+        flow_result.pre_label = data.results[0].preLabel;
+        flow_result.flow_type = data.results[0].flowType;
+        flow_result.flow_data = data.results[0].flowData;
+        flow_result.prob = data.results[0].probability;
 
         console.log("data", data);
-        console.log("pre_label:", pre_label);
-        console.log("flowType:", flow_type);
-        console.log("probability:", prob);
+        console.log("flow_result:", flow_result)
 
         const result_div = document.getElementById('result');
-        result_div.querySelector(".flow-type span").textContent = `${flow_type}`;  // 显示预测类别--流型名字
-        result_div.querySelector(".flow-prob span").textContent = `${prob}`;       // 置信度--预测概率
+        // 显示预测类别--流型名字
+        result_div.querySelector(".flow-type span").textContent = `${flow_result.flow_type}`;
+        // 置信度--预测概率
+        result_div.querySelector(".flow-prob span").textContent = `${flow_result.prob}`;
 
         /******************** 曲线 ********************/
         var canvas_curve = document.querySelector(".flow-curve").querySelector(".data-curve");
-        draw_flow_curve(canvas_curve, flow_data);
+        draw_flow_curve(canvas_curve, flow_result.flow_data);
 
         /******************** 动画 ********************/
-    }
-
-    // document.getElementById('form').onsubmit = async function(e) {
-    //     e.preventDefault();
-    //     const sample_length = document.getElementById('sample_length').value;
-    //     const step = document.getElementById('step').value;
-    //     const pressure_data = document.getElementById('pressure_data').value
-    //         .split(',').map(Number);
-
-    //     const res = await fetch('/api/predict', {
-    //         method: 'POST',
-    //         headers: {'Content-Type': 'application/json'},
-    //         body: JSON.stringify({sample_length, step, pressure_data})
-    //     });
-    //     const data = await res.json();
-    //     const resultDiv = document.getElementById('result');
-    //     resultDiv.innerHTML = '';
-    //     data.results.forEach((r, idx) => {
-    //         const flowType = r.flow_type;
-    //         const canvasId = `chart${idx}`;
-    //         resultDiv.innerHTML += `
-    //             <div class="card">
-    //                 <div>
-    //                     <div class="flow-anim">
-    //                         ${flowAnimations[flowType] ? `<img src="${flowAnimations[flowType]}" alt="${flowType}">` : ''}
-    //                     </div>
-    //                 </div>
-    //                 <div class="card-content">
-    //                     <div class="flow-type">样本${idx+1}: ${flowType}</div>
-    //                     <div class="chart-container">
-    //                         <canvas id="${canvasId}" width="400" height="100"></canvas>
-    //                     </div>
-    //                 </div>
-    //             </div>
-    //         `;
-    //         setTimeout(() => {
-    //             new Chart(document.getElementById(canvasId), {
-    //                 type: 'line',
-    //                 data: {
-    //                     labels: r.segment.map((_,i)=>i),
-    //                     datasets: [{
-    //                         label: '压力',
-    //                         data: r.segment,
-    //                         borderColor: '#4f8cff',
-    //                         backgroundColor: 'rgba(79,140,255,0.08)',
-    //                         fill: true,
-    //                         pointRadius: 0
-    //                     }]
-    //                 },
-    //                 options: {
-    //                     plugins: { legend: { display: false } },
-    //                     scales: { x: { display: false }, y: { beginAtZero: true } }
-    //                 }
-    //             });
-    //         }, 0);
-    //     });
-    // }
-
-    // *************************************** //
-    function aa(){
-            let idx = 0
-            // const flowType = '段塞流';
-            // const flowType = '伪段塞流';
-            const flowType = '分层波浪流';
-            // const flowType = '分层光滑流';
-            // const flowType = '泡沫段塞流';
-            // const flowType = '分层泡沫波浪流';
-            // const flowType = '泡沫环状流';
-
-            const canvasId = `chart${idx}`;
-            const resultDiv = document.getElementById('result');
-            // resultDiv.querySelector(".flow-type span").textContent = `${flowType}`;
-
-            // setTimeout(() => {
-                // new Chart(document.getElementById(canvasId), {
-                //     type: 'line',
-                //     data: {
-                //         labels: r.segment.map((_,i)=>i),
-                //         datasets: [{
-                //             label: '压力',
-                //             data: r.segment,
-                //             borderColor: '#4f8cff',
-                //             backgroundColor: 'rgba(79,140,255,0.08)',
-                //             fill: true,
-                //             pointRadius: 0
-                //         }]
-                //     },
-                //     options: {
-                //         plugins: { legend: { display: false } },
-                //         scales: { x: { display: false }, y: { beginAtZero: true } }
-                //     }
-                // });
-                // 设置流型动画
-            //     setupFlowAnimation(resultDiv.lastElementChild);
-            // }, 0);
-            setTimeout(() => {
-            if (typeof setupFlowAnimation === 'function') {
-                setupFlowAnimation(flowType);
-            } else {
-                console.error('setupFlowAnimation 函数未定义，请检查动画文件是否正常加载');
-            }
-        }, 1000);
-    }
-    // 等待DOM完全加载后再执行
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', aa);
-    } else {
-        aa();
+        
     }
     </script>
+    <script type="module" src="assets/js/flow-anime.js"></script>
 </body>
 </html>
