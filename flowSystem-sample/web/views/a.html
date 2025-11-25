@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Three.js — 泡沫 (Foam) 示例</title>
+  <style>
+    html,body{height:100%;margin:0;background:#0b1220}
+    #app{width:100%;height:100%;overflow:hidden}
+    .info{position:fixed;left:12px;top:12px;color:#ddd;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;z-index:10}
+    a{color:#8cf}
+  </style>
+        {{ template "threejs_head.shtml" }}
+</head>
+<body>
+  <div id="app"></div>
+  <div class="info">three.js 泡沫示例 — 鼠标拖拽旋转，滚轮缩放。<br>打开控制台可见实时日志。</div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const container = document.getElementById('app');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0b1220, 0.06);
+
+    const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 1000);
+    camera.position.set(0, 8, 18);
+
+    const renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    // controls.enableDamping = true;
+
+    // 地面 / 水面平面高度
+    const surfaceY = 0.8;
+
+    // 生成圆形泡泡贴图（canvas）
+    function makeBubbleTexture(){
+      const size = 128;
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // 背景透明
+      ctx.clearRect(0,0,size,size);
+
+      // 软光晕
+      const grad = ctx.createRadialGradient(size*0.35, size*0.35, size*0.05, size*0.5, size*0.5, size*0.6);
+      grad.addColorStop(0, 'rgba(255,255,255,0.95)');
+      grad.addColorStop(0.4, 'rgba(220,240,255,0.5)');
+      grad.addColorStop(1, 'rgba(200,220,255,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,size,size);
+
+      // 高光
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.arc(size*0.34, size*0.34, size*0.14, 0, Math.PI*2);
+      ctx.fill();
+
+      // 边缘圈
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+      ctx.lineWidth = 2;
+      ctx.arc(size*0.5, size*0.5, size*0.46, 0, Math.PI*2);
+      ctx.stroke();
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    const bubbleTexture = makeBubbleTexture();
+
+    // === 泡泡粒子系统 (bubbles) ===
+    const BUBBLE_COUNT = 600;
+    const bubbleGeo = new THREE.BufferGeometry();
+    const bubblePos = new Float32Array(BUBBLE_COUNT * 3);
+    const bubbleSize = new Float32Array(BUBBLE_COUNT);
+    const bubbleAlpha = new Float32Array(BUBBLE_COUNT);
+
+    // per-particle state (in JS arrays)
+    const bubbleVel = new Float32Array(BUBBLE_COUNT * 3);
+    const bubbleLife = new Float32Array(BUBBLE_COUNT);
+
+    function initBubbles(){
+      for(let i=0;i<BUBBLE_COUNT;i++){
+        const ix = i*3;
+        const x = (Math.random()*2 - 1) * 8; // 横向范围
+        const y = -6 - Math.random()*6; // 从水下起
+        const z = (Math.random()*2 - 1) * 8;
+        bubblePos[ix] = x;
+        bubblePos[ix+1] = y;
+        bubblePos[ix+2] = z;
+
+        bubbleSize[i] = 8 + Math.random()*24; // 点大小基准
+        bubbleAlpha[i] = 0.9;
+
+        bubbleVel[ix] = (Math.random()*2 -1) * 0.02; // x drift
+        bubbleVel[ix+1] = 0.02 + Math.random()*0.06; // upward speed
+        bubbleVel[ix+2] = (Math.random()*2 -1) * 0.02; // z drift
+
+        bubbleLife[i] = 0;
+      }
+
+      bubbleGeo.setAttribute('position', new THREE.BufferAttribute(bubblePos, 3).setUsage(THREE.DynamicDrawUsage));
+      bubbleGeo.setAttribute('size', new THREE.BufferAttribute(bubbleSize, 1).setUsage(THREE.DynamicDrawUsage));
+      bubbleGeo.setAttribute('alpha', new THREE.BufferAttribute(bubbleAlpha, 1).setUsage(THREE.DynamicDrawUsage));
+    }
+
+    // === 泡沫（泡泡破裂后在表面展开的细小颗粒）===
+    const FOAM_CAPACITY = 2000; // 池大小
+    const foamGeo = new THREE.BufferGeometry();
+    const foamPos = new Float32Array(FOAM_CAPACITY * 3);
+    const foamSize = new Float32Array(FOAM_CAPACITY);
+    const foamAlpha = new Float32Array(FOAM_CAPACITY);
+    const foamVel = new Float32Array(FOAM_CAPACITY * 3);
+    const foamLife = new Float32Array(FOAM_CAPACITY);
+
+    // foam pool index
+    let foamIndex = 0;
+
+    function initFoam(){
+      for(let i=0;i<FOAM_CAPACITY;i++){
+        const ix = i*3;
+        foamPos[ix] = 0; foamPos[ix+1] = -999; foamPos[ix+2] = 0;
+        foamSize[i] = 2;
+        foamAlpha[i] = 0;
+        foamVel[ix] = foamVel[ix+1] = foamVel[ix+2] = 0;
+        foamLife[i] = 0;
+      }
+      foamGeo.setAttribute('position', new THREE.BufferAttribute(foamPos, 3).setUsage(THREE.DynamicDrawUsage));
+      foamGeo.setAttribute('size', new THREE.BufferAttribute(foamSize, 1).setUsage(THREE.DynamicDrawUsage));
+      foamGeo.setAttribute('alpha', new THREE.BufferAttribute(foamAlpha, 1).setUsage(THREE.DynamicDrawUsage));
+    }
+
+    // Shader material for points with per-point size & alpha
+    const pointVertex = `
+      attribute float size;
+      attribute float alpha;
+      varying float vAlpha;
+      void main(){
+        vAlpha = alpha;
+        vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+        // size attenuation
+        gl_PointSize = size * (300.0 / -mvPos.z);
+        gl_Position = projectionMatrix * mvPos;
+      }
+    `;
+
+    const pointFragment = `
+      uniform sampler2D map;
+      uniform vec3 color;
+      varying float vAlpha;
+      void main(){
+        vec4 tex = texture2D(map, gl_PointCoord);
+        // discard soft edges (keeps performance)
+        if(tex.a < 0.05) discard;
+        gl_FragColor = vec4(color, vAlpha * tex.a);
+      }
+    `;
+
+    const bubbleMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        map: { value: bubbleTexture },
+        color: { value: new THREE.Color(0xeef8ff) }
+      },
+      vertexShader: pointVertex,
+      fragmentShader: pointFragment,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.NormalBlending,
+    });
+
+    const foamMaterial = bubbleMaterial.clone();
+    foamMaterial.uniforms.color.value = new THREE.Color(0xfffffb);
+    foamMaterial.blending = THREE.NormalBlending;
+
+    // Points objects
+    let bubblePoints, foamPoints;
+
+    function buildSystems(){
+      bubblePoints = new THREE.Points(bubbleGeo, bubbleMaterial);
+      bubblePoints.frustumCulled = false;
+      scene.add(bubblePoints);
+
+      foamPoints = new THREE.Points(foamGeo, foamMaterial);
+      foamPoints.frustumCulled = false;
+      scene.add(foamPoints);
+    }
+
+    initBubbles();
+    initFoam();
+    buildSystems();
+
+    // 环境: 简单水面和光照
+    const hemi = new THREE.HemisphereLight(0xcceeff, 0x111122, 0.8);
+    scene.add(hemi);
+    const dir = new THREE.DirectionalLight(0xffffff, 0.6);
+    dir.position.set(5,10,7);
+    scene.add(dir);
+
+    // 透明的水面平面（仅用于视觉）
+    const waterMat = new THREE.MeshStandardMaterial({color:0x1a5aa6, transparent:true, opacity:0.25, roughness:0.8, metalness:0.0});
+    const waterGeo = new THREE.PlaneGeometry(40,40);
+    const water = new THREE.Mesh(waterGeo, waterMat);
+    water.rotation.x = -Math.PI/2;
+    water.position.y = surfaceY;
+    scene.add(water);
+
+    // 处理窗口尺寸
+    window.addEventListener('resize', ()=>{
+      camera.aspect = innerWidth/innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+
+    // 泡沫生成函数（从一个位置喷出若干小泡沫）
+    function spawnFoam(x,z, amount=12){
+      for(let i=0;i<amount;i++){
+        const idx = foamIndex % FOAM_CAPACITY;
+        const ix = idx*3;
+        foamPos[ix] = x + (Math.random()*2 -1) * 0.5;
+        foamPos[ix+1] = surfaceY + (Math.random()*0.02);
+        foamPos[ix+2] = z + (Math.random()*2 -1) * 0.5;
+
+        foamSize[idx] = 2 + Math.random()*6;
+        foamAlpha[idx] = 0.9;
+
+        const speed = 0.05 + Math.random()*0.25;
+        foamVel[ix] = (Math.random()*2 - 1) * speed * 0.4;
+        foamVel[ix+1] = -0.01 - Math.random()*0.02; // foam 会沿表面略下
+        foamVel[ix+2] = (Math.random()*2 - 1) * speed * 0.4;
+
+        foamLife[idx] = 0; // restart life
+
+        foamIndex++;
+      }
+      // 标记为需要上传
+      foamGeo.attributes.position.needsUpdate = true;
+      foamGeo.attributes.size.needsUpdate = true;
+      foamGeo.attributes.alpha.needsUpdate = true;
+    }
+
+    // 动画循环：更新泡泡和泡沫
+    const clock = new THREE.Clock();
+    function animate(){
+      const dt = Math.min(clock.getDelta(), 0.05);
+
+      // bubbles
+      for(let i=0;i<BUBBLE_COUNT;i++){
+        const ix = i*3;
+        bubblePos[ix] += bubbleVel[ix] * (1 + Math.sin(i + clock.elapsedTime*0.5) * 0.5) * 60 * dt;
+        bubblePos[ix+1] += bubbleVel[ix+1] * 60 * dt;
+        bubblePos[ix+2] += bubbleVel[ix+2] * 60 * dt;
+
+        // 微小横向漂移
+        bubbleVel[ix] += (Math.random()*2 -1) * 0.002;
+        bubbleVel[ix+2] += (Math.random()*2 -1) * 0.002;
+
+        // when reach surface -> spawn foam and reset bubble
+        if(bubblePos[ix+1] >= surfaceY){
+          spawnFoam(bubblePos[ix], bubblePos[ix+2], 6 + Math.floor(Math.random()*8));
+          // reset bubble to below
+          bubblePos[ix] = (Math.random()*2 - 1) * 8;
+          bubblePos[ix+1] = -6 - Math.random()*6;
+          bubblePos[ix+2] = (Math.random()*2 - 1) * 8;
+          bubbleSize[i] = 8 + Math.random()*24;
+          bubbleVel[ix] = (Math.random()*2 -1) * 0.02;
+          bubbleVel[ix+1] = 0.02 + Math.random()*0.06;
+          bubbleVel[ix+2] = (Math.random()*2 -1) * 0.02;
+        }
+      }
+      bubbleGeo.attributes.position.needsUpdate = true;
+
+      // foam updates: move, fade, spread
+      for(let i=0;i<FOAM_CAPACITY;i++){
+        const ix = i*3;
+        if(foamPos[ix+1] < -900) continue; // inactive
+        foamPos[ix] += foamVel[ix] * 60 * dt;
+        foamPos[ix+1] += foamVel[ix+1] * 60 * dt;
+        foamPos[ix+2] += foamVel[ix+2] * 60 * dt;
+
+        foamLife[i] += dt;
+        // fade out over 2.0s
+        const lifeRatio = foamLife[i] / (1.6 + Math.random()*1.2);
+        foamAlpha[i] = Math.max(0, 0.9 * (1 - lifeRatio));
+        foamSize[i] *= 0.999; // slowly shrink
+
+        if(foamAlpha[i] <= 0.01){
+          // deactivate
+          foamPos[ix+1] = -999;
+          foamAlpha[i] = 0;
+        }
+      }
+      foamGeo.attributes.position.needsUpdate = true;
+      foamGeo.attributes.size.needsUpdate = true;
+      foamGeo.attributes.alpha.needsUpdate = true;
+
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // 快速调试：在画面点击生成大量泡泡
+    window.addEventListener('pointerdown', (e)=>{
+      // 转换屏幕坐标到世界平面 y=surfaceY
+      const mouse = new THREE.Vector2((e.clientX / innerWidth)*2 -1, -(e.clientY / innerHeight)*2 +1);
+      const ray = new THREE.Raycaster();
+      ray.setFromCamera(mouse, camera);
+      const plane = new THREE.Plane(new THREE.Vector3(0,1,0), -surfaceY);
+      const pos = new THREE.Vector3();
+      ray.ray.intersectPlane(plane, pos);
+      // spawn some bubbles near click
+      for(let i=0;i<12;i++){
+        const ix = (Math.floor(Math.random()*BUBBLE_COUNT))*3;
+        bubblePos[ix] = pos.x + (Math.random()*2 -1) * 1.2;
+        bubblePos[ix+1] = pos.y - (1 + Math.random()*2);
+        bubblePos[ix+2] = pos.z + (Math.random()*2 -1) * 1.2;
+      }
+      bubbleGeo.attributes.position.needsUpdate = true;
+    });
+
+    console.log('泡沫示例已启动 — 在画面单击可以生成更多泡泡');
+  </script>
+</body>
+</html>

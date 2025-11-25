@@ -24,7 +24,7 @@ function createTransparentPipe(scene) {
   ); // 改为横向圆柱
   const material = new THREE.MeshPhongMaterial({
     // color: "#4488ff",
-    color: "#424242",
+    color: "#ffffff",
     transparent: true,
     opacity: 0.2,
     depthWrite: false,
@@ -39,99 +39,6 @@ function createTransparentPipe(scene) {
   return cylinder;
 }
 
-function createWater() {
-  const textureLoader = new THREE.TextureLoader();
-  const iceDiffuse = textureLoader.load("assets/textures/water.png");
-  iceDiffuse.wrapS = THREE.RepeatWrapping;
-  iceDiffuse.wrapT = THREE.RepeatWrapping;
-  iceDiffuse.colorSpace = THREE.NoColorSpace;
-
-  const triplanarTexture = (...params) => TSL.triplanarTextures(...params);
-  const iceColorNode = triplanarTexture(TSL.texture(iceDiffuse))
-    .add(TSL.color(0x0066ff))
-    .mul(0.8);
-
-  // const geometry2 = new THREE.IcosahedronGeometry( 1, 3 );
-  // const material = new THREE.MeshStandardNodeMaterial( { colorNode: iceColorNode } );
-
-  const timer = TSL.time.mul(0.8);
-
-  // *** 速度、方向 *** //
-
-  // const floorUV = TSL.positionWorld.xzy;
-  // const waterLayer0 = TSL.mx_worley_noise_float( floorUV.mul( 4 ).add( timer ) );
-  // const waterLayer1 = TSL.mx_worley_noise_float( floorUV.mul( 2 ).add( timer ) );
-
-  const waveDirection = TSL.vec2(-1.0, 0.5).normalize(); // 控制波浪传播方向
-  const waveSpeed = 0.8; // 波浪速度
-
-  // 应用方向到 UV
-  const directionalUV = TSL.positionWorld.xz.add(
-    TSL.vec2(waveDirection.x, waveDirection.y).mul(timer.mul(waveSpeed)),
-  );
-
-  const waterLayer0 = TSL.mx_worley_noise_float(directionalUV.mul(4));
-  const waterLayer1 = TSL.mx_worley_noise_float(directionalUV.mul(2));
-  // *** 速度、方向 *** //
-
-  const waterIntensity = waterLayer0.mul(waterLayer1);
-  // const waterColor = waterIntensity.mul( 1.4 ).mix( TSL.color( 0x0487e2 ), TSL.color( 0x74ccf4 ) );
-  const waterColor = waterIntensity
-    .mul(1.4)
-    .mix(TSL.color("#0487e2"), TSL.color("#74ccf4"));
-
-  // linearDepth() returns the linear depth of the mesh
-  const depth = TSL.linearDepth();
-  const depthWater = TSL.viewportLinearDepth.sub(depth);
-  const depthEffect = depthWater.remapClamp(-0.002, 0.04);
-
-  const wavyHeight = 1.5; // .1  0.5  1.5
-  const refractionUV = TSL.screenUV.add(
-    TSL.vec2(0, waterIntensity.mul(wavyHeight)),
-  );
-
-  // linearDepth( viewportDepthTexture( uv ) ) return the linear depth of the scene
-  const depthTestForRefraction = TSL.linearDepth(
-    TSL.viewportDepthTexture(refractionUV),
-  ).sub(depth);
-
-  const depthRefraction = depthTestForRefraction.remapClamp(0, 0.1);
-
-  const finalUV = depthTestForRefraction
-    .lessThan(0)
-    .select(TSL.screenUV, refractionUV);
-
-  const viewportTexture = TSL.viewportSharedTexture(finalUV);
-
-  const waterMaterial = new WEBGPU.MeshBasicNodeMaterial({
-    colorNode: waterColor,
-    transparent: true,
-    backdropAlphaNode: depthRefraction.oneMinus(),
-    backdropNode: depthEffect.mix(
-      TSL.viewportSharedTexture(),
-      viewportTexture.mul(depthRefraction.mix(1, waterColor)),
-    ),
-    opacity: 0.5,
-  });
-
-  // 可控制的参数
-  const waterParams = {
-    direction: [1.0, 0.5], // 波浪方向 [x, y]
-    speed: 0.8, // 波浪速度
-    scale: 4.0, // 波浪尺度
-    intensity: 1.4, // 波浪强度
-    waveHeight: 10, // 波浪高度
-  };
-
-  // const water = new WEBGPU.Mesh( new WEBGPU.BoxGeometry( 50, .001, 50 ), waterMaterial );
-  const water = new WEBGPU.Mesh(
-    new WEBGPU.BoxGeometry(pipeLength, 0.001, 0.3),
-    waterMaterial,
-  );
-  water.position.set(0, 0, 0);
-
-  return { water: water, waterMaterial: waterMaterial };
-}
 // 创建段塞流
 function createSlugFlow(scene) {
   const liquidGroup = new THREE.Group();
@@ -242,6 +149,10 @@ function createHalfCylinder(options = {}) {
       transparent: true,
       opacity: 0.5,
       side: THREE.DoubleSide, // 双面渲染，确保半圆柱体看起来完整
+      shininess: 80,
+      reflectivity: 0.6,
+      emissive: "#4488ff", // 自发光颜色
+      emissiveIntensity:  0.3, // 自发光强度
     },
   } = options;
 
@@ -396,7 +307,7 @@ function createPseudoSlugFlow(scene) {
   const material = new THREE.MeshPhongMaterial({
     // color: '#0000ff',
     color: "#4488ff",
-    transparent: true,
+transparent: true,
     opacity: 0.5,
 
     specular: "#ffffff", // 高光颜色
@@ -515,7 +426,7 @@ function createStratifiedWavyFlow(scene) {
       isWaveSegment: true,
     };
 
-    stratifiedWavyGroup.add(waveSegment);
+    // stratifiedWavyGroup.add(waveSegment);
   }
 
   const halfCylinderHorizontal = createHalfCylinder({ height: pipeLength });
@@ -578,33 +489,12 @@ function createStratifiedSmoothFlow(scene) {
       side: THREE.DoubleSide, // 双面渲染，确保半圆柱体看起来完整
     },
   });
-  const halfCylinderHorizontal2 = createHalfCylinder({
-    position: { x: -3, y: 0, z: 0 },
-  });
 
-  // stratifiedSmoothGroup.add(halfCylinderHorizontal, halfCylinderHorizontal2);
   stratifiedSmoothGroup.add(halfCylinderHorizontal);
 
   scene.add(stratifiedSmoothGroup);
 
-  function updateStratifiedSmoothFlow(liquidGroup) {
-    // const flowSpeed = 0.15;
-    // const currentTime = Date.now() * 0.001;
-    // liquidGroup.children.forEach((segment, index) => {
-    //     let currentX = segment.position.x;
-    //     // 向右移动
-    //     currentX += flowSpeed * 0.016;  // 假设60fps，每帧移动距离
-    //     if ((currentX-pipeLength/2) > pipeRightBoundary){
-    //         currentX = pipeLeftBoundary*2;
-    //     }
-    //     segment.position.x = currentX;
-    // });
-  }
-
-  return {
-    stratifiedSmoothGroup: stratifiedSmoothGroup,
-    updateStratifiedSmoothFlow: updateStratifiedSmoothFlow,
-  };
+  return stratifiedSmoothGroup;
 }
 
 /**
@@ -659,13 +549,15 @@ function createFoam(scene, options = {}) {
     velocities[ix + 1] = Math.random() * 0.01 - 0.005;
     velocities[ix + 2] = Math.random() * 0.01 - 0.005;
 
-    sizes[i] = 3 + Math.random() * 8;
+    // 修复：设置较小的粒子尺寸
+    sizes[i] = 0.05 + Math.random() * 0.05; // 从15-30改为0.05-0.1
     uvs[i * 2] = Math.random();
     uvs[i * 2 + 1] = Math.random();
   }
 
   geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  geo.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+  // 修复：Three.js标准粒子尺寸属性名是"size"
+  geo.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
   geo.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
 
   // === 3. 泡沫贴图 ===
@@ -681,17 +573,20 @@ function createFoam(scene, options = {}) {
   const bubbleTex = new THREE.CanvasTexture(canvas);
 
   // === 4. 材质 ===
-  const mat = new WEBGPU.PointsNodeMaterial({
+  // 修复：使用正确的材质设置
+  const mat = new THREE.PointsMaterial({
     transparent: true,
     depthWrite: false,
-    sizeAttenuation: true,
+    sizeAttenuation: true, // 启用尺寸衰减
     blending: THREE.AdditiveBlending,
     color: new THREE.Color(0xffffff),
     map: bubbleTex,
+    size: 0.1, // 基础尺寸设置为0.1（非常小）
   });
 
   // === 5. 创建对象 ===
   const points = new THREE.Points(geo, mat);
+  points.renderOrder = 2; // 泡沫渲染顺序设为2（后渲染，显示在上层）
   scene.add(points);
 
   // === 6. 更新逻辑 ===
@@ -772,8 +667,14 @@ const pipeLength = 5; // 管道长度
 const pipeLeftBoundary = -pipeLength / 2; // 管道左边界：-1
 const pipeRightBoundary = pipeLength / 2; // 管道右边界：1
 
-const { water, waterMaterial } = createWater();
+import { createPipeSmoothWaterFlow, createWaveWater } from './flow-anime-util.js';
+const waveWater = createWaveWater();
+const water = waveWater.water;
+const waterMaterial = waveWater.waterMaterial;
+const updateWaterAnimation = waveWater.updateWaterAnimation;
 
+
+// 主函数
 function main() {
   // 获取canvas画布元素
   const canvas = document.querySelector(".flow-animation-canvas");
@@ -781,15 +682,10 @@ function main() {
   const scene = new THREE.Scene();
 
   // 创建渲染器
-  // const renderer = new THREE.WebGLRenderer({
-  //     antialias:true, canvas:canvas,
-  //     alpha: true // 允许透明背景
-  // });
-
-  const renderer = new WEBGPU.WebGPURenderer({
-    antialias: true,
-    canvas: canvas,
-    alpha: true, // 允许透明背景
+  const renderer = new THREE.WebGLRenderer({
+      antialias:true,
+      canvas:canvas,
+      alpha: true // 允许透明背景
   });
 
   renderer.setSize(canvas.clientWidth, canvas.clientHeight); // 渲染器的大小设置为画布的大小
@@ -816,15 +712,22 @@ function main() {
   //   scene.add(axesHelper);
 
   // 添加环境光
-  const ambientLight = new THREE.AmbientLight(0x909090, 10);
+  const ambientLight = new THREE.AmbientLight("#88aaff", 2);
   scene.add(ambientLight);
+
   // 添加定向光(平行光)
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  directionalLight.position.set(5, 5, 5);
-  // scene.add(directionalLight);
-  const pointLight = new THREE.PointLight(0xffffd0, 0.5); // 点光源
-  pointLight.position.set(0, 2, 2);
-  scene.add(pointLight);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  directionalLight.position.set(1, 3, 1);
+  scene.add(directionalLight);
+  // 添加底部填充光 - 专门照亮下半部分
+  const bottomLight = new THREE.DirectionalLight("#88aaff", 0.8);
+  bottomLight.position.set(0, -2, 0);
+  scene.add(bottomLight);
+  
+  // 点光源
+  // const pointLight = new THREE.PointLight(0xffffd0, 1.5); 
+  // pointLight.position.set(0, 2, 2);
+  // scene.add(pointLight);
 
   // 透明管道
   const transparentPipe = createTransparentPipe(scene);
@@ -844,9 +747,14 @@ function main() {
   stratifiedWavyGroup.visible = false; // 隐藏
 
   // 分层平滑流
-  const { stratifiedSmoothGroup, updateStratifiedSmoothFlow } =
-    createStratifiedSmoothFlow(scene);
+  const stratifiedSmoothGroup = createStratifiedSmoothFlow(scene);
   stratifiedSmoothGroup.visible = false; // 隐藏
+  const smoothWaterFlow = createPipeSmoothWaterFlow(scene, {
+    pipeLength: pipeLength,
+    pipeWidth: 0.3,
+    enableBubbles: true,
+  });
+  smoothWaterFlow.visible = false;
 
   // 泡沫段塞流
   createFoamySlugFlow(scene);
@@ -878,6 +786,7 @@ function main() {
   scene.add(water);
   water.visible = false;
 
+
   // 动画循环
   function animate() {
     flowType = flow_result.pre_label;
@@ -887,6 +796,7 @@ function main() {
       transparentPipe.visible = true; // 显示管道
     }
 
+    updateWaterAnimation();
     // 液体流动动画
     switch (true) {
       case ["slug", 0].includes(flowType):
@@ -896,6 +806,7 @@ function main() {
         foamyAnnular.visible = false;
         foam.points.visible = false;
         foam_half.points.visible = false;
+        smoothWaterFlow.visible = false;
 
         slugGroup.visible = true; // 显示
         water.visible = false;
@@ -908,9 +819,10 @@ function main() {
         foamyAnnular.visible = false;
         foam.points.visible = false;
         foam_half.points.visible = false;
+        smoothWaterFlow.visible = false;
+        water.visible = false;
 
         pseudoSlugGroup.visible = true;
-        water.visible = true;
         updatePseudoSlugFlow(pseudoSlugGroup);
         break;
       case ["stratifiedWavy", 2].includes(flowType):
@@ -920,6 +832,7 @@ function main() {
         foamyAnnular.visible = false;
         foam.points.visible = false;
         foam_half.points.visible = false;
+        smoothWaterFlow.visible = false;
 
         stratifiedWavyGroup.visible = true;
         water.visible = true;
@@ -932,10 +845,11 @@ function main() {
         foamyAnnular.visible = false;
         foam.points.visible = false;
         foam_half.points.visible = false;
+        water.visible = false;
 
         stratifiedSmoothGroup.visible = true;
-        water.visible = true;
-        updateStratifiedSmoothFlow(stratifiedSmoothGroup);
+        smoothWaterFlow.visible = true;
+        smoothWaterFlow.update();
         break;
       case ["foamySlug", 4].includes(flowType):
         slugGroup.visible = false;
@@ -945,6 +859,7 @@ function main() {
         stratifiedSmoothGroup.visible = false;
         water.visible = false;
         foam_half.points.visible = false;
+        smoothWaterFlow.visible = false;
 
         foam.points.visible = true;
         foam.updateFoam();
@@ -958,6 +873,7 @@ function main() {
         stratifiedSmoothGroup.visible = false;
         foamyAnnular.visible = false;
         foam.points.visible = false;
+        smoothWaterFlow.visible = false;
 
         stratifiedWavyGroup.visible = true;
         water.visible = true;
@@ -972,6 +888,7 @@ function main() {
         stratifiedWavyGroup.visible = false;
         stratifiedSmoothGroup.visible = false;
         water.visible = false;
+        smoothWaterFlow.visible = false;
 
         foamyAnnular.visible = true;
         foam.points.visible = true; // 泡沫
@@ -981,7 +898,7 @@ function main() {
         break;
     }
 
-    renderer.renderAsync(scene, camera);
+    renderer.render(scene, camera);
   }
 
   animate(); // 启动动画循环

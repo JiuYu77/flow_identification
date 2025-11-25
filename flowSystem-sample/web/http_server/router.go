@@ -8,6 +8,8 @@ func Router(addr string, opts ...string) *Http {
 
 	// 页面
 	h.GET("/", Index)
+	// 测试
+	h.GET("/a", A)
 
 	return h
 }
