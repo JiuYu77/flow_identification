@@ -1,0 +1,178 @@
+.flowSci-container {
+    padding: 0;
+}
+
+.flowSci-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h2 {
+        margin: 0;
+        color: #303133;
+    }
+}
+
+.flowSci-card {
+    margin-bottom: 24px;
+}
+
+.flowSci-content-layout {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+
+    .flowSci-text-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .flowSci-intro-text {
+        font-size: 16px;
+        line-height: 1.8;
+        color: #606266;
+        margin-bottom: 24px;
+        text-align: justify;
+    }
+
+    .flowSci-feature-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .flowSci-feature-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #409eff;
+        font-size: 14px;
+
+        .el-icon {
+            color: #67c23a;
+            font-size: 16px;
+        }
+    }
+
+    .flowSci-image-content {
+        flex: 0 0 400px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .flowSci-image-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .flowSci-image-group {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .flowSci-image-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .flowSci-image-wrapper {
+        // width: 160px;
+        // height: 120px;
+        width: 343px;
+
+        border: 2px solid #e4e7ed;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        
+        &:hover {
+            border-color: #409eff;
+            box-shadow: 0 4px 16px rgba(64, 158, 255, 0.2);
+            transform: translateY(-2px);
+        }
+    }
+
+    .flowSci-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+        
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+
+    .flowSci-image-caption {
+        font-size: 12px;
+        color: #606266;
+        text-align: center;
+        font-weight: 500;
+        line-height: 1.4;
+        max-width: 160px;
+    }
+
+    // 响应式设计
+    @media (max-width: 768px) {
+        .flowSci-content-layout {
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .flowSci-image-content {
+            flex: none;
+            width: 100%;
+        }
+        
+        .flowSci-image-group {
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .flowSci-image-item {
+            width: 100%;
+        }
+        
+        .flowSci-image-wrapper {
+            width: 100%;
+            max-width: 200px;
+            height: 150px;
+        }
+        
+        .flowSci-image-caption {
+            max-width: 200px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .flowSci-image-wrapper {
+            max-width: 180px;
+            height: 135px;
+        }
+        
+        .flowSci-image-caption {
+            max-width: 180px;
+            font-size: 11px;
+        }
+    }
+    
+    .flowSci-image-placeholder {
+        width: 100%;
+        max-width: 300px;
+    }
+}

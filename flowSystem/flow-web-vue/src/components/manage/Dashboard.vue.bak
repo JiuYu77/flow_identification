@@ -1,0 +1,236 @@
+<template>
+    <div class="dashboard-container">
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <el-card class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-icon">
+                        <el-icon><TrendCharts /></el-icon>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">1,234</div>
+                        <div class="stat-label">今日分析</div>
+                    </div>
+                </div>
+            </el-card>
+            
+            <el-card class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-icon success">
+                        <el-icon><SuccessFilled /></el-icon>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">98.5%</div>
+                        <div class="stat-label">识别准确率</div>
+                    </div>
+                </div>
+            </el-card>
+            
+            <el-card class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-icon warning">
+                        <el-icon><Warning /></el-icon>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">23</div>
+                        <div class="stat-label">待处理</div>
+                    </div>
+                </div>
+            </el-card>
+            
+            <el-card class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-icon info">
+                        <el-icon><DataBoard /></el-icon>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">5,678</div>
+                        <div class="stat-label">总数据量</div>
+                    </div>
+                </div>
+            </el-card>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="charts-grid">
+            <el-card class="chart-card">
+                <template #header>
+                    <div class="chart-header">
+                        <span>分析趋势</span>
+                        <el-button type="primary" text>查看详情</el-button>
+                    </div>
+                </template>
+                <div class="chart-placeholder">
+                    <el-empty description="图表组件待实现" :image-size="100" />
+                </div>
+            </el-card>
+            
+            <el-card class="chart-card">
+                <template #header>
+                    <div class="chart-header">
+                        <span>流型分布</span>
+                        <el-button type="primary" text>查看详情</el-button>
+                    </div>
+                </template>
+                <div class="chart-placeholder">
+                    <el-empty description="图表组件待实现" :image-size="100" />
+                </div>
+            </el-card>
+        </div>
+
+        <!-- 最近活动 -->
+        <el-card class="activity-card">
+            <template #header>
+                <div class="activity-header">
+                    <span>最近活动</span>
+                </div>
+            </template>
+            <el-timeline>
+                <el-timeline-item
+                    v-for="(activity, index) in recentActivities"
+                    :key="index"
+                    :timestamp="activity.time"
+                >
+                    {{ activity.content }}
+                </el-timeline-item>
+            </el-timeline>
+        </el-card>
+    </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+// 图标导入
+import {
+    TrendCharts,
+    SuccessFilled,
+    Warning,
+    DataBoard
+} from '@element-plus/icons-vue'
+
+// 最近活动数据
+const recentActivities = ref([
+    { time: '2024-01-15 14:30', content: '用户 admin 登录系统' },
+    { time: '2024-01-15 14:25', content: '完成流型分析任务 #1234' },
+    { time: '2024-01-15 14:10', content: '上传新的数据文件' },
+    { time: '2024-01-15 13:45', content: '系统配置已更新' }
+])
+</script>
+
+<style scoped>
+.dashboard-container {
+    padding: 0;
+    overflow-y: auto;
+}
+
+/* 统计卡片网格 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.stat-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: #409eff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+
+.stat-icon.success {
+    background: #67c23a;
+}
+
+.stat-icon.warning {
+    background: #e6a23c;
+}
+
+.stat-icon.info {
+    background: #909399;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #303133;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #909399;
+}
+
+/* 图表网格 */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.chart-card {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chart-placeholder {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 活动卡片 */
+.activity-card {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.activity-header {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-container {
+        padding: 16px;
+    }
+}
+</style>

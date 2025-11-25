@@ -1,0 +1,40 @@
+server:
+  host: ""
+  port: 8080
+
+mysql:
+  user: "root"
+  password: "fuck"
+  host: "127.0.0.1"
+  port: 3306
+  database: "flow_system"
+  charset: "utf8mb4"
+  parseTime: "True"
+  loc: "Local"
+
+redis:
+  host: "127.0.0.1"
+  port: 6379
+  password: ""
+  db: 0
+  poolSize: 30
+  minIdleConns: 10
+
+smtp:
+  host: "smtp.126.com"
+  port: 465
+  username: "jyu777@126.com"
+  password: "XDt4JsqeLGR7trXy"
+  from: "jyu777@126.com"
+verifier:
+  expiry: 5m # 5 分钟 Minute m; s 秒, 300s, 5m10s; h 小时, 1h5m10s
+  cleanup: 10m
+
+auth:
+  jwtKey: flow-system-secret-key
+  accessTokenExpire: 2h # 访问令牌过期时间为2小时
+  refreshTokenExpire: 168h # 刷新令牌过期时间为7天
+
+data:
+  rootDir: "./upload_data"
+  jwtKey: flow-system-secret-file-key

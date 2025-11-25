@@ -1,0 +1,20 @@
+// 导入样式文件
+@use './login';
+@use './dialog';
+@use './manage';
+@use './flowScience';
+
+// 全局样式重置
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#app {
+    height: 100%;
+    width: 100%;
+}

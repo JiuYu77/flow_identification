@@ -1,0 +1,652 @@
+// 现代化设计变量
+$primary-color: #409eff;
+$primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$glass-bg: rgba(255, 255, 255, 0.25);
+$glass-border: rgba(255, 255, 255, 0.18);
+$text-primary: #2d3748;
+$text-secondary: #718096;
+$text-light: #a0aec0;
+$shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
+$shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
+
+// 登录页面样式 - 现代化炫目设计
+.login-container {
+    min-height: 100vh;
+    background: $primary-gradient;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.login-box {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    padding: 50px 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 100;
+    transition: all 0.4s ease;
+    
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 
+            0 35px 60px rgba(0, 0, 0, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.system-logo {
+    margin-bottom: 24px;
+    
+    .logo-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: $primary-gradient;
+        padding: 16px;
+        box-shadow: $shadow-soft;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+        
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+    
+    .fallback-text {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 900;
+        color: white;
+        box-shadow: 
+            0 15px 35px rgba(102, 126, 234, 0.4),
+            0 5px 15px rgba(0, 0, 0, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+}
+
+.login-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    background: linear-gradient(45deg, #fff, #a8edea, #fed6e3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+}
+
+.login-subtitle {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    font-weight: 400;
+}
+
+.login-form {
+    .el-form {
+        .el-form-item {
+            margin-bottom: 24px;
+            
+            .el-input {
+                position: relative;
+                z-index: 10;
+                
+                .el-input__wrapper {
+                    background: $glass-bg;
+                    backdrop-filter: blur(10px);
+                    -webkit-backdrop-filter: blur(10px);
+                    border: 1px solid $glass-border;
+                    border-radius: 12px;
+                    transition: all 0.3s ease;
+                    padding: 0 12px;
+                    
+                    &:hover {
+                        border-color: rgba(255, 255, 255, 0.3);
+                    }
+                    
+                    &.is-focus {
+                        border-color: $primary-color;
+                    }
+                }
+                
+                .el-input__inner {
+                    color: white;
+                    font-weight: 500;
+                    background: transparent;
+                    border: none;
+                    padding: 0;
+                    width: 100%;
+                    
+                    &::placeholder {
+                        color: rgba(255, 255, 255, 0.6);
+                    }
+                    
+                    &:-webkit-autofill {
+                        -webkit-text-fill-color: white;
+                        -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.1) inset;
+                        transition: background-color 5000s ease-in-out 0s;
+                    }
+                }
+                
+                .el-input__prefix {
+                    .el-icon {
+                        color: rgba(255, 255, 255, 0.8);
+                        font-size: 18px;
+                        width: 20px;
+                        height: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        svg {
+                            width: 100%;
+                            height: 100%;
+                            fill: currentColor;
+                        }
+                    }
+                }
+                
+                .el-input__suffix {
+                    right: 0;
+                    background: transparent;
+                    
+                    .el-input__suffix-inner {
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        background: transparent;
+                        padding: 0 4px;
+                        
+                        .el-icon,
+                        .el-input__clear,
+                        .el-input__password {
+                            color: rgba(255, 255, 255, 0.7);
+                            font-size: 16px;
+                            width: 20px;
+                            height: 20px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border-radius: 50%;
+                            transition: all 0.3s ease;
+                            
+                            svg {
+                                width: 100%;
+                                height: 100%;
+                                fill: currentColor;
+                            }
+                            
+                            &:hover {
+                                color: white;
+                                background: rgba(255, 255, 255, 0.15);
+                                transform: scale(1.1);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 针对不同类型的输入框统一处理
+            .el-input--password,
+            .el-input--suffix {
+                .el-input__wrapper {
+                    padding-right: 8px;
+                }
+            }
+            
+            .el-input--password.el-input--suffix {
+                .el-input__wrapper {
+                    padding-right: 12px;
+                }
+            }
+        }
+        
+        // 忘记密码链接样式
+        .forgot-password-container {
+            text-align: right;
+            margin-bottom: 20px;
+            
+            .forgot-password-link {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 14px;
+                transition: all 0.3s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 12px;
+                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                
+                &:hover {
+                    background: rgba(255, 255, 255, 0.15);
+                    border-color: rgba(255, 255, 255, 0.3);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                }
+                
+                .el-icon {
+                    font-size: 16px;
+                }
+            }
+        }
+        
+        .login-button {
+            width: 100%;
+            height: 50px;
+            background: $primary-gradient;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: $shadow-hover;
+            }
+            
+            &:active {
+                transform: translateY(0);
+            }
+            
+            .loading-spin {
+                animation: spin 1s linear infinite;
+            }
+        }
+    }
+}
+
+// 忘记密码对话框样式 - 优化版
+.forgot-password-dialog {
+    .el-dialog {
+        width: 500px !important;
+        max-width: 90vw;
+        margin: 5vh auto !important;
+        border-radius: 20px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(40px);
+        -webkit-backdrop-filter: blur(40px);
+        box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.15),
+            0 10px 20px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            z-index: 10;
+        }
+        
+        .el-dialog__header {
+            padding: 0;
+            margin: 0;
+            border: none;
+            
+            .dialog-header-custom {
+                display: flex;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 32px 32px 0;
+                margin-bottom: 24px;
+                
+                .dialog-icon {
+                    width: 56px;
+                    height: 56px;
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    border-radius: 16px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 
+                        0 8px 20px rgba(102, 126, 234, 0.3),
+                        0 4px 8px rgba(0, 0, 0, 0.1);
+                    
+                    .el-icon {
+                        color: white;
+                    }
+                }
+                
+                .dialog-title {
+                    flex: 1;
+                    
+                    h3 {
+                        margin: 0 0 8px 0;
+                        font-size: 22px;
+                        font-weight: 700;
+                        color: #1f2937;
+                        background: linear-gradient(135deg, #667eea, #764ba2);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                    }
+                    
+                    .dialog-subtitle {
+                        margin: 0;
+                        font-size: 14px;
+                        color: #6b7280;
+                        line-height: 1.5;
+                        font-weight: 400;
+                    }
+                }
+            }
+        }
+        
+        .el-dialog__body {
+            padding: 0 32px 24px;
+            
+            .dialog-content {
+                .el-form {
+                    .el-form-item {
+                        margin-bottom: 0;
+                        
+                        .custom-input {
+                            .el-input__wrapper {
+                                background: rgba(255, 255, 255, 0.95);
+                                border: 1px solid rgba(102, 126, 234, 0.15);
+                                border-radius: 12px;
+                                box-shadow: 
+                                    0 4px 12px rgba(102, 126, 234, 0.08),
+                                    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+                                transition: all 0.3s ease;
+                                padding: 0 16px;
+                                height: 52px;
+                                
+                                &:hover {
+                                    border-color: rgba(102, 126, 234, 0.3);
+                                    box-shadow: 
+                                        0 6px 16px rgba(102, 126, 234, 0.12),
+                                        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+                                }
+                                
+                                &.is-focus {
+                                    border-color: #667eea;
+                                    box-shadow: 
+                                        0 8px 20px rgba(102, 126, 234, 0.2),
+                                        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+                                }
+                            }
+                            
+                            .el-input__inner {
+                                color: #1f2937;
+                                font-weight: 500;
+                                font-size: 15px;
+                                
+                                &::placeholder {
+                                    color: #9ca3af;
+                                    font-weight: 400;
+                                }
+                            }
+                            
+                            .input-icon {
+                                color: #667eea;
+                                font-size: 18px;
+                                margin-right: 8px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        .el-dialog__footer {
+            padding: 24px 32px 32px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            background: rgba(249, 250, 251, 0.8);
+            
+            .dialog-footer-custom {
+                display: flex;
+                justify-content: flex-end;
+                gap: 12px;
+                
+                .cancel-btn {
+                    border-radius: 12px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    padding: 12px 28px;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(107, 114, 128, 0.2);
+                    background: rgba(255, 255, 255, 0.9);
+                    color: #6b7280;
+                    
+                    &:hover {
+                        background: rgba(107, 114, 128, 0.05);
+                        color: #374151;
+                        transform: translateY(-1px);
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    }
+                }
+                
+                .submit-btn {
+                    border-radius: 12px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    padding: 12px 28px;
+                    transition: all 0.3s ease;
+                    border: none;
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    color: white;
+                    box-shadow: 
+                        0 6px 16px rgba(102, 126, 234, 0.3),
+                        0 2px 4px rgba(0, 0, 0, 0.1);
+                    
+                    &:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 
+                            0 10px 25px rgba(102, 126, 234, 0.4),
+                            0 4px 8px rgba(0, 0, 0, 0.15);
+                    }
+                    &:active {
+                        transform: translateY(0);
+                    }
+                    
+                    &.is-loading {
+                        opacity: 0.8;
+                    }
+                    
+                    .el-icon {
+                        margin-right: 6px;
+                        font-size: 16px;
+                    }
+                    
+                    .loading-spin {
+                        margin-right: 6px;
+                        animation: spin 1s linear infinite;
+                    }
+                }
+            }
+        }
+        
+        .el-dialog__headerbtn {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            
+            &:hover {
+                background: rgba(255, 255, 255, 1);
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+            
+            .el-dialog__close {
+                color: #6b7280;
+                font-size: 16px;
+                
+                &:hover {
+                    color: #374151;
+                }
+            }
+        }
+    }
+}
+
+// 响应式设计
+@media (max-width: 480px) {
+    .login-box {
+        margin: 20px;
+        padding: 40px 24px;
+        z-index: 100;
+    }
+    
+    .login-title {
+        font-size: 28px;
+    }
+    
+    .login-form {
+        .el-form {
+            // 移动端忘记密码样式
+            .forgot-password-container {
+                margin-bottom: 16px;
+                
+                .forgot-password-link {
+                    font-size: 13px;
+                    padding: 5px 10px;
+                    
+                    .el-icon {
+                        font-size: 14px;
+                    }
+                }
+            }
+        }
+    }
+    
+    // 移动端对话框样式
+    .forgot-password-dialog {
+        .el-dialog {
+            width: 90% !important;
+            max-width: 380px;
+            margin: 20px auto !important;
+            
+            .el-dialog__header {
+                .dialog-header-custom {
+                    padding: 24px 24px 0;
+                    gap: 12px;
+                    
+                    .dialog-icon {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 12px;
+                        
+                        .el-icon {
+                            font-size: 20px;
+                        }
+                    }
+                    
+                    .dialog-title {
+                        h3 {
+                            font-size: 20px;
+                        }
+                        
+                        .dialog-subtitle {
+                            font-size: 13px;
+                        }
+                    }
+                }
+            }
+            
+            .el-dialog__body {
+                padding: 0 24px 20px;
+                
+                .dialog-content {
+                    .el-form {
+                        .el-form-item {
+                            .custom-input {
+                                .el-input__wrapper {
+                                    height: 48px;
+                                    padding: 0 12px;
+                                }
+                                
+                                .el-input__inner {
+                                    font-size: 14px;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            .el-dialog__footer {
+                padding: 20px 24px 24px;
+                
+                .dialog-footer-custom {
+                    flex-direction: column;
+                    gap: 10px;
+                    
+                    .cancel-btn,
+                    .submit-btn {
+                        width: 100%;
+                        padding: 14px;
+                    }
+                }
+            }
+            
+            .el-dialog__headerbtn {
+                top: 20px;
+                right: 20px;
+                width: 28px;
+                height: 28px;
+                
+                .el-dialog__close {
+                    font-size: 14px;
+                }
+            }
+        }
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    
+    .copyright {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 14px;
+        margin: 0;
+    }
+}

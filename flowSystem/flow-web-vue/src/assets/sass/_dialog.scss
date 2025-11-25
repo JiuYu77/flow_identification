@@ -1,0 +1,28 @@
+// 公共对话框样式
+.confirm-dialog {
+    border-radius: 8px;
+
+    .el-message-box__header {
+        padding: 20px 20px 10px;
+    }
+
+    .el-message-box__title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .el-message-box__content {
+        padding: 10px 20px;
+    }
+
+    .el-message-box__message {
+        font-size: 16px;
+        color: #5a6c7d;
+    }
+
+    .el-message-box__btns {
+        padding: 10px 20px 20px;
+        text-align: right;
+    }
+}
