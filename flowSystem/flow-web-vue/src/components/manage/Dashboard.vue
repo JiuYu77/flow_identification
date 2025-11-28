@@ -95,7 +95,7 @@
     <el-dialog
       v-model="resultDialogVisible"
       :title="`监测点 ${selectedPoint?.name} - 检测结果`"
-      width="1600px"
+      width="700px"
     >
       <div v-loading="detectionLoading" class="detection-result">
         <div v-if="detectionResult" class="result-content">
@@ -135,20 +135,14 @@
             </el-row>
           </div>
 
-          <el-row :gutter="20">
-            <el-col :span="12">
           <div class="result-curve">
             <h4>流型特征曲线</h4>
             <canvas class="flowCurveCanvas" ref="curveCanvasRef"></canvas>
           </div>
-            </el-col>
-          <el-col :span="12">
           <div class="result-anime">
             <h4>流型特征模拟</h4>
             <canvas class="flowAnimationCanvas" ref="animeCanvasRef"></canvas>
           </div>
-          </el-col>
-          </el-row>
         </div>
         
         <div v-else-if="!detectionLoading" class="no-result">
@@ -171,6 +165,7 @@
             type="primary" 
             :icon="Upload" 
             @click="uploadFlowPattern"
+            :disabled="detectionUpload"
           >
             上传流型数据
           </el-button>
@@ -204,6 +199,7 @@ const avgResponseTime = ref(156)
 const refreshing = ref(false)
 const resultDialogVisible = ref(false)
 const detectionLoading = ref(false)
+const detectionUpload = ref(false)
 const selectedPoint = ref(null)
 const detectionResult = ref(null)
 const pipelineRef = ref(null)
@@ -470,9 +466,11 @@ const refreshDetection = async () => {
 let refreshInterval = null;
 const handleAutoRefresh = (checked) => {
   if (checked) {
+    detectionUpload.value = true;
     autoRefreshDetection();
     refreshInterval = setInterval(autoRefreshDetection, 3000); // 每3秒刷新一次
   } else {
+    detectionUpload.value = false;
     clearInterval(refreshInterval)
   }
 }
@@ -490,6 +488,8 @@ const autoRefreshDetection = async () => {
     result.timestamp = new Date().toLocaleString();
 
     detectionResult.value = result;
+
+    uploadFlowPattern2();
 
     // 等待对话框完全渲染后再绘制曲线
     await nextTick();
@@ -629,6 +629,21 @@ const uploadFlowPattern = async () => {
   console.log('上传流型数据结果:', res);
   if(res.code == 0){
     ElMessage.success('流型数据上传成功');
+  } else {
+    ElMessage.error('流型数据上传失败');
+  }
+}
+const uploadFlowPattern2 = async () => {
+  const data = {
+    patternType: detectionResult.value.flowType,
+    predictedLabel: detectionResult.value.preLabel,
+    prob: parseFloat(detectionResult.value.confidence),
+    data: detectionResult.value.flowData,
+    addr: selectedPoint.value.location  // 检测地点
+  };
+  const res = await createFlowPattern(data);
+  console.log('上传流型数据结果:', res);
+  if(res.code == 0){
   } else {
     ElMessage.error('流型数据上传失败');
   }
