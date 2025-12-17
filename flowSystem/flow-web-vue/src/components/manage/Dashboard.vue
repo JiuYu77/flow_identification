@@ -3,7 +3,7 @@
     <!-- 管道监测图区域 -->
     <div class="pipeline-section">
       <div class="section-header">
-        <h3>油田管道流型监测系统</h3>
+        <h3>流型识别系统</h3>
         <div class="controls">
           <el-button 
             type="success" 
