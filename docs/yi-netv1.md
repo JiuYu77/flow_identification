@@ -8,7 +8,7 @@
 
 为了实现进一步轻量化，减少模型`参数量`，将YOLOv10提出的SCDown模块一维化为`SCDown1d`，用此模块代替YOLOv8_1D配置文件中的后两个卷积Conv1d。
 
-最终得到新型一维模型，命名为**YI-Net**，全称为 “*One-dimensional Intelligent Network*”，即“*一维智能网络*”。
+最终得到新型一维模型，命名为**YI-Net**，全称为 “**One-dimensional Intelligent Network**”，即“*一维智能网络*”。
 
 这是YI-Net网络的第1个版本，记为**YI-Netv1**。
 
