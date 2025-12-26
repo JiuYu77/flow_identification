@@ -33,11 +33,11 @@ const router = createRouter({
                 },
                 {
                     path:'/user-profile',
-                    component:()=>import('@/views/UserProfile.vue')
+                    component:()=>import('@/components/user/UserProfile.vue')
                 },
                 {
                     path:'/user-settings',
-                    component:()=>import('@/views/UserSettings.vue')
+                    component:()=>import('@/components/user/UserSettings.vue')
                 },
                 {
                     path: '/address-management',
