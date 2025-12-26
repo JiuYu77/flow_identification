@@ -63,7 +63,7 @@
             </div>
             
             <div class="login-footer">
-                <p class="copyright">© 2024 流型识别系统 版权所有</p>
+                <p class="copyright">© 2025 流型识别系统 版权所有</p>
             </div>
         </div>
 
