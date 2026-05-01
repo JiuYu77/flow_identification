@@ -36,6 +36,27 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
     ch = [ch]
     layers, save, c2 = [], [], ch[-1]  # layers, savelist, ch out
 
+    base_modules = (
+        Classify,
+        Conv1d,
+        C2f1d,
+        C2fCIB1d,
+        SCDown1d,
+        C2fTR1d,
+        PSA1d,
+        C3k2,C2PSA,
+        ClassifyV2,
+    )
+    repeat_modules = frozenset(  # modules with 'repeat' arguments
+        {
+            C2f1d,
+            C2fCIB1d,
+            C2fTR1d,
+            C3k2,
+            C2PSA,
+        }
+    )
+
     for i, (f, n, m, args) in enumerate(d["backbone"] + d["head"]):  # from, number, module, args
         m = getattr(nn, m[3:]) if "nn." in m else globals()[m]  # get module
         for j, a in enumerate(args):
@@ -43,23 +64,14 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
                 with contextlib.suppress(ValueError):
                     args[j] = locals()[a] if a in locals() else ast.literal_eval(a)
         n = n_ = max(round(n * depth), 1) if n > 1 else n  # depth gain
-        if m in (
-            Classify,
-            Conv1d,
-            C2f1d,
-            C2fCIB1d,
-            SCDown1d,
-            PSA1d,
-            C3k2,C2PSA,
-            ClassifyV2,
-            C2fTR1d,
-        ):
+        if m in base_modules:
             c1, c2 = ch[f], args[0]
             if c2 != nc:  # if c2 not equal to number of classes (i.e. for Classify() output)
                 c2 = make_divisible(min(c2, max_channels) * width, 8)
 
             args = [c1, c2, *args[1:]]
             if m in (C2f1d,):
+            # if m in repeat_modules:
                 args.insert(2, n)  # number of repeats
                 n = 1
         m_ = nn.Sequential(*(m(*args) for _ in range(n))) if n > 1 else m(*args)  # module
