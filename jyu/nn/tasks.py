@@ -44,7 +44,8 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
         SCDown1d,
         C2fTR1d,
         PSA1d,
-        C3k2,C2PSA,
+        C3k2,
+        C2PSA,
         ClassifyV2,
     )
     repeat_modules = frozenset(  # modules with 'repeat' arguments
