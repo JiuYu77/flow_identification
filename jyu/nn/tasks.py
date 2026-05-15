@@ -52,7 +52,6 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
         {
             C2f1d,
             C2fCIB1d,
-            C2fTR1d,
             C3k2,
             C2PSA,
         }
@@ -71,8 +70,8 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
                 c2 = make_divisible(min(c2, max_channels) * width, 8)
 
             args = [c1, c2, *args[1:]]
-            if m in (C2f1d,):
-            # if m in repeat_modules:
+
+            if m in repeat_modules:
                 args.insert(2, n)  # number of repeats
                 n = 1
         m_ = nn.Sequential(*(m(*args) for _ in range(n))) if n > 1 else m(*args)  # module
@@ -88,6 +87,7 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
         ch.append(c2)
 
     # return scale, nn.Sequential(*layers), sorted(save)
+    print(layers)
     return scale, layers, sorted(save)
 
 def yaml_model_load(path:str):
