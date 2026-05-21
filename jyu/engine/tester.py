@@ -98,6 +98,8 @@ class BaseTester:
             "numWorkers": self.numWorkers,
             "net_path": self.weights,
             "test_time_consuming": None,
+            "data_preprocess_predict_time_consuming": None,
+            "data_preprocess_predict_speed": None,
             "predict_time_consuming": None,
             "inference_speed": None
         }
@@ -115,6 +117,7 @@ class BaseTester:
         print(f"|{colorstr('green', ' testing device:')} {self.device}")
         print(f"| test_batch_num: {batchNum}")
         print("-----------------------------------------")
+        timer = tm.Timer()  # 数据预处理+模型推理时间
         predictTimer = tm.Timer(False)
         predictTimer.time = tu.time_sync
 
@@ -141,6 +144,10 @@ class BaseTester:
         totalCorrect = int(totalCorrect)
         acc = round(totalCorrect / totalNum, 8)
 
+        timer.stop()
+        time_ = timer.sum()
+        task_info["data_preprocess_predict_time_consuming"] = tm.sec_to_HMS(time_)
+        task_info["data_preprocess_predict_speed"] = f"{int(totalNum / time_)} samples/sec"
         predictSec = predictTimer.sum() # 秒数
         inference_speed = int(totalNum / predictSec)
         task_info["predict_time_consuming"] = tm.sec_to_HMS(predictSec)

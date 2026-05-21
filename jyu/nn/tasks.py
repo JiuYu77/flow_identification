@@ -87,7 +87,7 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
         ch.append(c2)
 
     # return scale, nn.Sequential(*layers), sorted(save)
-    print(layers)
+    # print(layers)
     return scale, layers, sorted(save)
 
 def yaml_model_load(path:str):
